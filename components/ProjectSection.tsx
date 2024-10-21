@@ -83,13 +83,9 @@ export default function ProjectSection() {
     }
   };
 
-  const handleSignOut = () => {
-    signOut();
-  };
-
   return (
     <div className="flex flex-col min-h-screen">
-      <Header showSearch={false} onSignOut={handleSignOut} />
+      <Header showSearch={false} />
       {loading && <Loader />}
       <div className="flex-1 p-10">
         <div className="w-full max-w-3xl mx-auto">

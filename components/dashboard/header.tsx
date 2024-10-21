@@ -1,3 +1,4 @@
+import React from 'react'
 import { Search, Package2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { UserButton } from "@clerk/nextjs"
@@ -36,14 +37,6 @@ export function Header({ children, showSearch = false }: HeaderProps) {
         )}
         <div className={`flex gap-2 ${showSearch ? 'ml-2' : 'ml-auto'}`}>
           <UserButton />
-          {/* <Button
-            variant="outline"
-            size="icon"
-            className="rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
-            onClick={onSignOut}
-          >
-            <LogOut className="h-4 w-4" />
-          </Button> */}
         </div>
       </div>
     </header>
