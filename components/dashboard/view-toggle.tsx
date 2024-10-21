@@ -4,12 +4,29 @@ import { Button } from "@/components/ui/button"
 interface ViewToggleProps {
   view: 'cards' | 'table'
   setView: (view: 'cards' | 'table') => void
+  status: string
+  setStatus: (status: string) => void
 }
 
-export function ViewToggle({ view, setView }: ViewToggleProps) {
+export function ViewToggle({ view, setView, status, setStatus }: ViewToggleProps) {
+  const statuses = ['All', 'draft', 'published', 'archived', 'scheduled']
+
   return (
-    <div className="flex items-center justify-between h-6">
+    <div className="flex items-center justify-between h-6 mb-4">
       <div className="flex gap-2">
+        {statuses.map((s) => (
+          <Button
+            key={s}
+            variant={status === s ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setStatus(s)}
+            className={`${status === s ? "bg-indigo-50 text-indigo-600 hover:bg-indigo-200" : "bg-white text-gray-500 hover:bg-indigo-50"} rounded-full text-sm`}
+          >
+            {s.charAt(0).toUpperCase() + s.slice(1)}
+          </Button>
+        ))}
+      </div>
+      <div className="flex gap-2 ml-auto">
         <Button
           variant={view === 'cards' ? 'default' : 'outline'}
           size="sm"
@@ -43,7 +60,7 @@ export function ViewToggle({ view, setView }: ViewToggleProps) {
           className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
         >
           <Plus className="h-4 w-4 mr-2" />
-          New card
+          New Content
         </Button>
       </div>
     </div>

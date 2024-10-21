@@ -1,36 +1,77 @@
 'use client'
 
-import { useState } from "react"
-import { usePathname } from "next/navigation"
+import { useState, useEffect, useCallback } from "react"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { Header } from "@/components/dashboard/header"
 import { CardView } from "@/components/dashboard/card-view"
 import { TableView } from "@/components/dashboard/table-view"
 import { ViewToggle } from "@/components/dashboard/view-toggle"
 import { Button } from "@/components/ui/button"
+import { trpc } from '../utils/trpc';
+import { Loader } from '@/components/ui/loader'; // Implied import for Loader component
 
-// Mock data for cards and table
-export const items = Array.from({ length: 9 }, (_, i) => ({
-  id: i + 1,
-  title: `Social Media Trends 202${i + 1}`,
-  description: `Description for Item ${i + 1}`,
-  image: `https://picsum.photos/seed/${i + 1}/200/200`,
-  date: `April ${i + 1}, 2024`,
-  type: `Guide`,
-  status: i % 2 === 0 ? 'Scheduled' : 'Draft',
-  tags: ['SEO', 'Content Marketing'],
-}))
+interface ContentItem {
+  id: number
+  title: string
+  status: string
+  updated_at: string
+}
 
-export function Dashboard() {
+const Dashboard02 = () => {
   const [view, setView] = useState<'cards' | 'table'>('cards')
+  const [status, setStatus] = useState<string>('All')
+  const [items, setItems] = useState<ContentItem[]>([])
   const pathname = usePathname()
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get('projectId') || '';
+  console.log("projectId", projectId)
+  const queryInput = { projectId }; // Changed from useCallback to direct object
+  const { data, isLoading, error } = trpc.content.useQuery(queryInput, {
+    enabled: !!projectId,
+    refetchOnWindowFocus: false,
+  });
 
+  useEffect(() => {
+    if (data) {
+      setItems(data);
+    }
+  }, [data]);
+
+  if (isLoading) {
+    return <Loader />; // Changed from loading text to Loader component
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  console.log("items", items)
+  const filteredItems = status === 'All'
+    ? items
+    : items.filter(item => item.status === status)
+  console.log("filteredItems", filteredItems)
+  console.log("status", status)
   const renderContent = () => {
     if (pathname === '/content') {
       return (
         <>
-          <ViewToggle view={view} setView={setView} />
-          {view === 'cards' ? <CardView items={items} /> : <TableView items={items} />}
+          <ViewToggle view={view} setView={setView} status={status} setStatus={setStatus} />
+          {view === 'cards' ? (
+            <CardView 
+              items={filteredItems} 
+              loading={isLoading} 
+              hasNextPage={false}
+              onLoadMore={() => {}}
+            />
+          ) : (
+            <TableView 
+              items={filteredItems}
+              loading={isLoading}
+              hasNextPage={false}
+              onLoadMore={() => {}}
+            />
+          )}
         </>
       )
     } else {
@@ -70,3 +111,5 @@ export function Dashboard() {
     </div>
   )
 }
+
+export default Dashboard02;

@@ -55,11 +55,15 @@ export default function ProjectSection() {
     }
   };
 
+  const navigateToContent = (projectId: string) => {
+    router.push(`/content?projectId=${projectId}`);
+  };
+
   const createProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProjectName.trim() || !user || !organization || !supabase) return;
 
-    setLoading(true); // Set loading to true before creating
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('Project')
@@ -75,11 +79,11 @@ export default function ProjectSection() {
       setProjects([...projects, data[0] as Project]);
       setNewProjectName('');
       setIsCreateDialogOpen(false);
-      router.push('/content');
+      navigateToContent(data[0].id); // Navigate to content page with the new project ID
     } catch (error) {
       console.error('Error creating project:', error);
     } finally {
-      setLoading(false); // Set loading to false after creating
+      setLoading(false);
     }
   };
 
@@ -101,7 +105,7 @@ export default function ProjectSection() {
               <div 
                 key={project.id} 
                 className="aspect-square bg-white border rounded-lg shadow flex items-center justify-center cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => router.push('/content')} // Navigate to /content when clicked
+                onClick={() => navigateToContent(project.id)}
               >
                 <h2 className="text-base font-medium text-center text-gray-600">{project.name}</h2>
               </div>
