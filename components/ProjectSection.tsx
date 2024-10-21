@@ -24,7 +24,7 @@ export default function ProjectSection() {
   const [newProjectName, setNewProjectName] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false); // New loading state
-  const { signOut } = useClerk();
+  // const { signOut } = useClerk();
   const { user } = useUser();
   const { organization } = useOrganization();
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
