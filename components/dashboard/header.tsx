@@ -1,6 +1,5 @@
-import { Search, Package2, User, Share2, LogOut } from "lucide-react"
+import { Search, Package2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { UserButton } from "@clerk/nextjs"
 import Link from "next/link"
 import { usePathname } from 'next/navigation'

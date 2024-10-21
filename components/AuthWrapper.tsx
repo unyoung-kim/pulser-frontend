@@ -8,7 +8,7 @@ import { Loader } from "@/components/ui/loader";
 import { useRouter } from 'next/navigation';
 
 export default function AuthWrapper() {
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn } = useUser();
   const { organization, isLoaded } = useOrganization();
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();

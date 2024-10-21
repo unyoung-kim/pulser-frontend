@@ -1,4 +1,4 @@
-import { Grid, List, Settings2, Plus, Share2, User } from "lucide-react"
+import { Grid, List, Settings2, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface ViewToggleProps {
