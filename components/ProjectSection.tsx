@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useClerk, useUser, useOrganization } from "@clerk/nextjs";
+import { useUser, useOrganization } from "@clerk/nextjs";
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
