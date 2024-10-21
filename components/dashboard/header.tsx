@@ -7,10 +7,9 @@ import { usePathname } from 'next/navigation'
 interface HeaderProps {
   children?: React.ReactNode
   showSearch?: boolean
-  onSignOut?: () => void
 }
 
-export function Header({ children, showSearch = false, onSignOut }: HeaderProps) {
+export function Header({ children, showSearch = false }: HeaderProps) {
   const pathname = usePathname();
 
   return (

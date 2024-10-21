@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { useClerk, useUser, useOrganization } from "@clerk/nextjs";
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -38,22 +39,30 @@ export default function ProjectSection() {
     fetchProjects(supabase);
   }, [user, organization]);
 
-  const fetchProjects = async (supabaseClient: SupabaseClient) => {
-    setLoading(true); // Set loading to true before fetching
+  const fetchProjects = React.useCallback(async (supabaseClient: SupabaseClient) => {
+    setLoading(true);
     try {
       const { data, error } = await supabaseClient
         .from('Project')
         .select('*')
-        .eq('org_id', organization?.id.replace(/^eq\./, '')); // Remove 'eq.' prefix
+        .eq('org_id', organization?.id.replace(/^eq\./, ''));
 
       if (error) throw error;
       setProjects(data || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
     } finally {
-      setLoading(false); // Set loading to false after fetching
+      setLoading(false);
     }
-  };
+  }, [organization]);
+
+  useEffect(() => {
+    if (!user || !organization) return;
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    setSupabase(supabase);
+    fetchProjects(supabase);
+  }, [user, organization, fetchProjects]);
 
   const createProject = async (e: React.FormEvent) => {
     e.preventDefault();
