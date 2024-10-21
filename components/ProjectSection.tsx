@@ -1,13 +1,12 @@
 'use client';
 
-import React from 'react';
 import { useState, useEffect } from 'react';
 import { useClerk, useUser, useOrganization } from "@clerk/nextjs";
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/dashboard/header";
-import { Loader } from "@/components/ui/loader"; // Import the new Loader component
+import { Loader } from "@/components/ui/loader";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -39,30 +38,22 @@ export default function ProjectSection() {
     fetchProjects(supabase);
   }, [user, organization]);
 
-  const fetchProjects = React.useCallback(async (supabaseClient: SupabaseClient) => {
-    setLoading(true);
+  const fetchProjects = async (supabaseClient: SupabaseClient) => {
+    setLoading(true); // Set loading to true before fetching
     try {
       const { data, error } = await supabaseClient
         .from('Project')
         .select('*')
-        .eq('org_id', organization?.id.replace(/^eq\./, ''));
+        .eq('org_id', organization?.id.replace(/^eq\./, '')); // Remove 'eq.' prefix
 
       if (error) throw error;
       setProjects(data || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Set loading to false after fetching
     }
-  }, [organization]);
-
-  useEffect(() => {
-    if (!user || !organization) return;
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    setSupabase(supabase);
-    fetchProjects(supabase);
-  }, [user, organization, fetchProjects]);
+  };
 
   const createProject = async (e: React.FormEvent) => {
     e.preventDefault();
