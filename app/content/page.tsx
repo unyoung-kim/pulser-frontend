@@ -15,7 +15,7 @@ export default function ContentPage() {
       <div className="flex flex-1 items-center justify-center min-h-screen bg-gray-50">
         <div className="flex flex-col items-center gap-1 text-center p-4">
           <h3 className="text-2xl font-bold tracking-tight text-gray-900">
-            Error: No project ID provided
+            Error: Project is not selected
           </h3>
           <p className="text-sm text-gray-500 mt-2">
             Please make sure you&apos;ve selected a project.
