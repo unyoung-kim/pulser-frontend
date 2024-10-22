@@ -31,5 +31,5 @@ export default function ContentPage() {
     );
   }
 
-  return <Dashboard projectId={parseInt(projectId, 10)} />;
+  return <Dashboard/>;
 }

@@ -19,6 +19,12 @@ interface ContentItem {
   title: string
   status: string
   updated_at: string
+  created_at: string
+  image_url: string
+  description?: string
+  date?: string
+  type?: string
+  tags?: string[]
 }
 
 const ITEMS_PER_PAGE = 20;
