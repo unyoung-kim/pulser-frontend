@@ -1,8 +1,9 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Package2, Bell, Users, LineChart, Settings } from "lucide-react"
+import { Package2, Users, LineChart, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { UserButton } from "@clerk/nextjs"
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -22,10 +23,13 @@ export function Sidebar() {
             <Package2 className="h-6 w-6 text-indigo-600" />
             <span className="text-indigo-600 text-sm">Pulser</span>
           </Link>
-          <Button variant="outline" size="icon" className="ml-auto h-6 w-6">
-            <Bell className="h-3 w-3" />
-            <span className="sr-only">Toggle notifications</span>
-          </Button>
+          <div className="ml-auto flex items-center gap-2">
+            <UserButton />
+            {/* <Button variant="outline" size="icon" className="h-6 w-6">
+              <Bell className="h-3 w-3" />
+              <span className="sr-only">Toggle notifications</span>
+            </Button> */}
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-3">

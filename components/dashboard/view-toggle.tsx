@@ -1,5 +1,10 @@
 import { Grid, List, Settings2, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
 
 interface ViewToggleProps {
   view: 'cards' | 'table'
@@ -13,19 +18,15 @@ export function ViewToggle({ view, setView, status, setStatus }: ViewToggleProps
 
   return (
     <div className="flex items-center justify-between h-6 mb-4">
-      <div className="flex gap-2">
-        {statuses.map((s) => (
-          <Button
-            key={s}
-            variant={status === s ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setStatus(s)}
-            className={`${status === s ? "bg-indigo-50 text-indigo-600 hover:bg-indigo-200" : "bg-white text-gray-500 hover:bg-indigo-50"} rounded-full text-sm`}
-          >
-            {s.charAt(0).toUpperCase() + s.slice(1)}
-          </Button>
-        ))}
-      </div>
+      <Tabs value={status} onValueChange={setStatus} className="w-auto">
+        <TabsList>
+          {statuses.map((s) => (
+            <TabsTrigger key={s} value={s} className="text-sm">
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
       <div className="flex gap-2 ml-auto">
         <Button
           variant={view === 'cards' ? 'default' : 'outline'}

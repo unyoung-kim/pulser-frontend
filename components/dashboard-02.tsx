@@ -2,14 +2,17 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { Sidebar } from "@/components/dashboard/sidebar"
-import { Header } from "@/components/dashboard/header"
 import { CardView } from "@/components/dashboard/card-view"
 import { TableView } from "@/components/dashboard/table-view"
 import { ViewToggle } from "@/components/dashboard/view-toggle"
 import { Button } from "@/components/ui/button"
-import { trpc } from '../utils/trpc';
-import { Loader } from '@/components/ui/loader'; // Implied import for Loader component
+import { Loader } from '@/components/ui/loader'
+
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 interface ContentItem {
   id: number
@@ -18,64 +21,140 @@ interface ContentItem {
   updated_at: string
 }
 
+const ITEMS_PER_PAGE = 20;
+
 const Dashboard02 = () => {
   const [view, setView] = useState<'cards' | 'table'>('cards')
   const [status, setStatus] = useState<string>('All')
   const [items, setItems] = useState<ContentItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
+  const [hasNextPage, setHasNextPage] = useState(true);
+  const [page, setPage] = useState(1);
+  
   const pathname = usePathname()
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId') || '';
-  console.log("projectId", projectId)
-  const queryInput = { projectId }; // Changed from useCallback to direct object
-  const { data, isLoading, error } = trpc.content.useQuery(queryInput, {
-    enabled: !!projectId,
-    refetchOnWindowFocus: false,
-  });
+  const searchParams = useSearchParams()
+  const projectId = searchParams?.get('projectId') || ''
 
   useEffect(() => {
-    if (data) {
-      setItems(data);
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
+    setSupabase(supabaseClient);
+  }, []);
+
+  const getContent = useCallback(async (supabase: SupabaseClient, projectId: string, page: number): Promise<ContentItem[]> => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE - 1;
+
+    const { data, error } = await supabase
+      .from('Content')
+      .select('*')
+      .eq('project_id', projectId)
+      .range(start, end)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`Error fetching content: ${error.message}`);
     }
-  }, [data]);
 
-  if (isLoading) {
-    return <Loader />; // Changed from loading text to Loader component
-  }
+    return data as ContentItem[];
+  }, []);
 
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
+  const loadMoreItems = useCallback(async () => {
+    if (!supabase || !projectId || isLoading) return;
 
-  console.log("items", items)
+    setIsLoading(true);
+    try {
+      const newItems = await getContent(supabase, projectId, page + 1);
+      if (newItems.length < ITEMS_PER_PAGE) {
+        setHasNextPage(false);
+      }
+      setItems(prevItems => [...prevItems, ...newItems]);
+      setPage(prevPage => prevPage + 1);
+    } catch (err) {
+      setError('Failed to fetch more content');
+      console.error('Error fetching more content:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [supabase, projectId, page, isLoading, getContent]);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      if (projectId && supabase) {
+        try {
+          setIsLoading(true)
+          const contentData = await getContent(supabase, projectId, 1)
+          setItems(contentData)
+          setError(null)
+          setPage(1)
+          setHasNextPage(contentData.length === ITEMS_PER_PAGE)
+        } catch (err) {
+          setError('Failed to fetch content')
+          console.error('Error fetching content:', err)
+        } finally {
+          setIsLoading(false)
+        }
+      } else {
+        setIsLoading(false);
+      }
+    }
+
+    fetchContent()
+  }, [projectId, supabase, getContent])
+
   const filteredItems = status === 'All'
     ? items
     : items.filter(item => item.status === status)
-  console.log("filteredItems", filteredItems)
-  console.log("status", status)
+
   const renderContent = () => {
+    if (error) {
+      return (
+        <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-gray-300 shadow-sm">
+          <div className="flex flex-col items-center gap-1 text-center">
+            <h3 className="text-2xl font-bold tracking-tight text-gray-900">
+              An error occurred
+            </h3>
+            <p className="text-sm text-gray-500">
+              {error}
+            </p>
+            <Button 
+              className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+      )
+    }
+
     if (pathname === '/content') {
       return (
         <>
-          <ViewToggle view={view} setView={setView} status={status} setStatus={setStatus} />
+          <div className="mt-6">
+            <ViewToggle view={view} setView={setView} status={status} setStatus={setStatus} />
+          </div>
+          {isLoading && <Loader />}
           {view === 'cards' ? (
             <CardView 
               items={filteredItems} 
               loading={isLoading} 
-              hasNextPage={false}
-              onLoadMore={() => {}}
+              hasNextPage={hasNextPage}
+              onLoadMore={loadMoreItems}
             />
           ) : (
             <TableView 
               items={filteredItems}
               loading={isLoading}
-              hasNextPage={false}
-              onLoadMore={() => {}}
+              hasNextPage={hasNextPage}
+              onLoadMore={loadMoreItems}
             />
           )}
         </>
       )
     } else {
-      const title = pathname.slice(1).charAt(0).toUpperCase() + pathname.slice(2)
+      const title = pathname ? pathname.slice(1).charAt(0).toUpperCase() + pathname.slice(2) : ''
       return (
         <>
           <div className="flex items-center">
@@ -103,7 +182,6 @@ const Dashboard02 = () => {
     <div className="grid min-h-screen w-full md:grid-cols-[170px_1fr] lg:grid-cols-[220px_1fr]">
       <Sidebar />
       <div className="flex flex-col">
-        <Header showSearch={pathname === '/content'} />
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-4 bg-gray-50">
           {renderContent()}
         </main>
