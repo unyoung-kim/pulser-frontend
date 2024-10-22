@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import useInfiniteScroll from 'react-infinite-scroll-hook'
-import { format } from 'date-fns' // Make sure to install this package
+import { format } from 'date-fns'
 
 interface TableViewProps {
   items: Array<{
