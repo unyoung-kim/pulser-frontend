@@ -105,7 +105,7 @@ export default function ProjectSection() {
               <div 
                 key={project.id} 
                 className="aspect-square bg-white border rounded-lg shadow flex items-center justify-center cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => navigateToContent(project.id)}
+                onClick={() => navigateToContent(project.id.toString())}
               >
                 <h2 className="text-base font-medium text-center text-gray-600">{project.name}</h2>
               </div>
