@@ -18,7 +18,7 @@ export default function ContentPage() {
             Error: No project ID provided
           </h3>
           <p className="text-sm text-gray-500 mt-2">
-            Please make sure you've selected a project.
+            Please make sure you&apos;ve selected a project.
           </p>
           <Button 
             className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white"
