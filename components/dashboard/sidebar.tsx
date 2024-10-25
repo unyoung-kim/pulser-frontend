@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Package2, Users, LineChart, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -7,12 +7,14 @@ import { UserButton } from "@clerk/nextjs"
 
 export function Sidebar() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const projectId = searchParams?.get('projectId')
 
-  const navItems = [
-    { href: "/background", icon: Users, label: "Background" },
-    { href: "/content", icon: LineChart, label: "Content" },
-    { href: "/play", icon: Settings, label: "Play" },
-    { href: "/integration", icon: Settings, label: "Integration" },
+  const links = [
+    { name: "Dashboard", href: "/dashboard" },
+    { name: "Content", href: "/content" },
+    { name: "Background", href: "/background" },
+    { name: "Integration", href: "/integration" },
   ]
 
   return (
@@ -33,20 +35,22 @@ export function Sidebar() {
         </div>
         <div className="flex-1 overflow-y-auto">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-3">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-all ${
-                  pathname === item.href
-                    ? "bg-indigo-50 text-indigo-600"
-                    : "text-gray-500 hover:text-indigo-600 hover:bg-indigo-50"
-                }`}
-              >
-                <item.icon className="h-5 w-5" />
-                <span className="text-sm">{item.label}</span>
-              </Link>
-            ))}
+            {links.map((link) => {
+              const isActive = pathname === link.href
+              return (
+                <Link
+                  key={link.name}
+                  href={`${link.href}${projectId ? `?projectId=${projectId}` : ''}`}
+                  className={`group flex items-center rounded-md px-2 py-2 text-sm font-medium ${
+                    isActive
+                      ? "bg-gray-100 text-gray-900"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              )
+            })}
           </nav>
         </div>
         <div className="mt-auto p-4">
