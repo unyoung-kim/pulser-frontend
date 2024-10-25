@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import useInfiniteScroll from 'react-infinite-scroll-hook'
 import { format } from 'date-fns'
+import { useCallback } from 'react'
 
 interface TableViewProps {
   items: Array<{
@@ -30,9 +31,9 @@ export function TableView({ items, loading, hasNextPage, onLoadMore }: TableView
     rootMargin: '0px 0px 400px 0px',
   });
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     return format(new Date(dateString), 'yyyy-MM-dd hh:mm a')
-  }
+  }, []);
 
   return (
     <div className="overflow-x-auto border rounded-lg bg-white">
@@ -66,7 +67,7 @@ export function TableView({ items, loading, hasNextPage, onLoadMore }: TableView
       </table>
       {(loading || hasNextPage) && (
         <div ref={sentryRef} className="flex justify-center p-4">
-          <span className="text-gray-500">Loading more...</span>
+          <div className="loader"></div>
         </div>
       )}
     </div>

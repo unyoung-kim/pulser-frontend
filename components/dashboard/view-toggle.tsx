@@ -5,12 +5,21 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import Case from 'case'
+
+enum Status {
+  All = 'All',
+  Draft = 'draft',
+  Published = 'published',
+  Archived = 'archived',
+  Scheduled = 'scheduled',
+}
 
 interface ViewToggleProps {
   view: 'cards' | 'table'
   setView: (view: 'cards' | 'table') => void
-  status: string
-  setStatus: (status: string) => void
+  status: Status
+  setStatus: (status: Status) => void
 }
 
 export function ViewToggle({ view, setView, status, setStatus }: ViewToggleProps) {
@@ -22,7 +31,7 @@ export function ViewToggle({ view, setView, status, setStatus }: ViewToggleProps
         <TabsList>
           {statuses.map((s) => (
             <TabsTrigger key={s} value={s} className="text-sm">
-              {s.charAt(0).toUpperCase() + s.slice(1)}
+              {Case.capital(s)}
             </TabsTrigger>
           ))}
         </TabsList>

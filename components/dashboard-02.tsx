@@ -9,6 +9,7 @@ import { TableView } from "@/components/dashboard/table-view"
 import { ViewToggle } from "@/components/dashboard/view-toggle"
 import { Button } from "@/components/ui/button"
 import { Loader } from '@/components/ui/loader'
+import { useQuery } from '@tanstack/react-query';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -85,29 +86,34 @@ const Dashboard02 = () => {
     }
   }, [supabase, projectId, page, isLoading, getContent]);
 
-  useEffect(() => {
-    const fetchContent = async () => {
-      if (projectId && supabase) {
-        try {
-          setIsLoading(true)
-          const contentData = await getContent(supabase, projectId, 1)
-          setItems(contentData)
-          setError(null)
-          setPage(1)
-          setHasNextPage(contentData.length === ITEMS_PER_PAGE)
-        } catch (err) {
-          setError('Failed to fetch content')
-          console.error('Error fetching content:', err)
-        } finally {
-          setIsLoading(false)
-        }
-      } else {
-        setIsLoading(false);
-      }
-    }
+  const fetchContent = async () => {
+    if (!projectId || !supabase) return [];
+    const contentData = await getContent(supabase, projectId, 1);
+    return contentData;
+  };
 
-    fetchContent()
-  }, [projectId, supabase, getContent])
+  // Replace useEffect with useQuery
+  const { data: contentData, error: fetchError, isLoading: fetchLoading } = useQuery(
+    ['content', projectId],
+    fetchContent,
+    {
+      enabled: !!projectId && !!supabase, // Only run if projectId and supabase are available
+    }
+  );
+
+  useEffect(() => {
+    if (contentData) {
+      setItems(contentData);
+      setError(null);
+      setPage(1);
+      setHasNextPage(contentData.length === ITEMS_PER_PAGE);
+    }
+    if (fetchError) {
+      setError('Failed to fetch content');
+      console.error('Error fetching content:', fetchError);
+    }
+    setIsLoading(fetchLoading);
+  }, [contentData, fetchError, fetchLoading]);
 
   const filteredItems = status === 'All'
     ? items

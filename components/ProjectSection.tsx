@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUser, useOrganization } from "@clerk/nextjs";
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
@@ -20,10 +20,10 @@ interface Project {
 }
 
 export default function ProjectSection() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [newProjectName, setNewProjectName] = useState('');
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(false); // New loading state
+  const [projects, setProjects] = useState<Project[]>([]); // Project array
+  const [newProjectName, setNewProjectName] = useState<string>(''); // New project name as string
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false); // Dialog open state as boolean
+  const [loading, setLoading] = useState<boolean>(false); // Loading state as boolean
   // const { signOut } = useClerk();
   const { user } = useUser();
   const { organization } = useOrganization();
@@ -38,7 +38,7 @@ export default function ProjectSection() {
     fetchProjects(supabase);
   }, [user, organization]);
 
-  const fetchProjects = async (supabaseClient: SupabaseClient) => {
+  const fetchProjects = useCallback(async (supabaseClient: SupabaseClient) => {
     setLoading(true); // Set loading to true before fetching
     try {
       const { data, error } = await supabaseClient
@@ -53,13 +53,13 @@ export default function ProjectSection() {
     } finally {
       setLoading(false); // Set loading to false after fetching
     }
-  };
+  }, [organization]); // Added organization as a dependency
 
   const navigateToContent = (projectId: string) => {
     router.push(`/content?projectId=${projectId}`);
   };
 
-  const createProject = async (e: React.FormEvent) => {
+  const createProject = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProjectName.trim() || !user || !organization || !supabase) return;
 
@@ -85,7 +85,7 @@ export default function ProjectSection() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [newProjectName, user, organization, supabase, projects, navigateToContent]);
 
   return (
     <div className="flex flex-col min-h-screen">
