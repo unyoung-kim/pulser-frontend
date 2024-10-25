@@ -5,24 +5,33 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import Case from 'case'
+
+export enum Status {
+  All = 'All',
+  Draft = 'draft',
+  Published = 'published',
+  Archived = 'archived',
+  Scheduled = 'scheduled',
+}
 
 interface ViewToggleProps {
   view: 'cards' | 'table'
   setView: (view: 'cards' | 'table') => void
-  status: string
+  status: Status
   setStatus: (status: string) => void
 }
 
 export function ViewToggle({ view, setView, status, setStatus }: ViewToggleProps) {
-  const statuses = ['All', 'draft', 'published', 'archived', 'scheduled']
+  const statuses = Object.values(Status)
 
   return (
     <div className="flex items-center justify-between h-6 mb-4">
-      <Tabs value={status} onValueChange={setStatus} className="w-auto">
+      <Tabs value={status} onValueChange={(value) => setStatus(value)} className="w-auto">
         <TabsList>
           {statuses.map((s) => (
             <TabsTrigger key={s} value={s} className="text-sm">
-              {s.charAt(0).toUpperCase() + s.slice(1)}
+              {Case.capital(s)}
             </TabsTrigger>
           ))}
         </TabsList>

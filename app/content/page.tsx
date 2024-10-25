@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 
 const Dashboard = dynamic(() => import('@/components/dashboard-02'), { ssr: false });
 
+/**
+ * ContentPage component responsible for rendering the dashboard
+ * or an error message if no project is selected.
+ */
 export default function ContentPage() {
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');

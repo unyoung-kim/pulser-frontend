@@ -3,6 +3,7 @@ import { Sparkles } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import useInfiniteScroll from 'react-infinite-scroll-hook'
+import { ClipLoader } from 'react-spinners'
 
 interface CardViewProps {
   items: Array<{
@@ -53,7 +54,9 @@ export function CardView({ items, loading, hasNextPage, onLoadMore }: CardViewPr
       ))}
       {(loading || hasNextPage) && (
         <div ref={sentryRef} className="col-span-full flex justify-center p-4">
-          <span className="text-gray-500">Loading more...</span>
+          
+            <ClipLoader color="#4F46E5" loading={loading} size={30} />
+          
         </div>
       )}
     </div>

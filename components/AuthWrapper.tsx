@@ -10,13 +10,13 @@ import { useRouter } from 'next/navigation';
 export default function AuthWrapper() {
   const { isSignedIn } = useUser();
   const { organization, isLoaded } = useOrganization();
-  const [isClient, setIsClient] = useState(false);
+  const [isClient, setIsClient] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
-    setIsClient(true);
-    if (isLoaded && !isSignedIn) {
-      router.push('/sign-in');
+    setIsClient(true); // Set client state to true
+    if (isLoaded && !isSignedIn) { // Check if user data is loaded and user is not signed in
+      router.push('/sign-in'); // Redirect to sign-in page
     }
   }, [isLoaded, isSignedIn, router]);
 

@@ -9,6 +9,8 @@ import { TableView } from "@/components/dashboard/table-view"
 import { ViewToggle } from "@/components/dashboard/view-toggle"
 import { Button } from "@/components/ui/button"
 import { Loader } from '@/components/ui/loader'
+import { useQuery } from '@tanstack/react-query';
+import { Status } from "@/components/dashboard/view-toggle"
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -31,7 +33,7 @@ const ITEMS_PER_PAGE = 20;
 
 const Dashboard02 = () => {
   const [view, setView] = useState<'cards' | 'table'>('cards')
-  const [status, setStatus] = useState<string>('All')
+  const [status, setStatus] = useState<Status>(Status.All)
   const [items, setItems] = useState<ContentItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -85,33 +87,38 @@ const Dashboard02 = () => {
     }
   }, [supabase, projectId, page, isLoading, getContent]);
 
-  useEffect(() => {
-    const fetchContent = async () => {
-      if (projectId && supabase) {
-        try {
-          setIsLoading(true)
-          const contentData = await getContent(supabase, projectId, 1)
-          setItems(contentData)
-          setError(null)
-          setPage(1)
-          setHasNextPage(contentData.length === ITEMS_PER_PAGE)
-        } catch (err) {
-          setError('Failed to fetch content')
-          console.error('Error fetching content:', err)
-        } finally {
-          setIsLoading(false)
-        }
-      } else {
-        setIsLoading(false);
-      }
+  const fetchContent = async () => {
+    if (!projectId || !supabase) return [];
+    const contentData = await getContent(supabase, projectId, 1);
+    return contentData;
+  };
+
+  // Replace useEffect with useQuery
+  const { data: contentData, error: fetchError, isLoading: fetchLoading } = useQuery(
+    ['content', projectId],
+    fetchContent,
+    {
+      enabled: !!projectId && !!supabase, // Only run if projectId and supabase are available
     }
+  );
 
-    fetchContent()
-  }, [projectId, supabase, getContent])
+  useEffect(() => {
+    if (contentData) {
+      setItems(contentData);
+      setError(null);
+      setPage(1);
+      setHasNextPage(contentData.length === ITEMS_PER_PAGE);
+    }
+    if (fetchError) {
+      setError('Failed to fetch content');
+      console.error('Error fetching content:', fetchError);
+    }
+    setIsLoading(fetchLoading);
+  }, [contentData, fetchError, fetchLoading]);
 
-  const filteredItems = status === 'All'
+  const filteredItems = status === Status.All
     ? items
-    : items.filter(item => item.status === status)
+    : items.filter(item => item.status.toLowerCase() === status.toLowerCase())
 
   const renderContent = () => {
     if (error) {
@@ -139,7 +146,12 @@ const Dashboard02 = () => {
       return (
         <>
           <div className="mt-6">
-            <ViewToggle view={view} setView={setView} status={status} setStatus={setStatus} />
+            <ViewToggle 
+              view={view} 
+              setView={setView} 
+              status={status} 
+              setStatus={handleSetStatus} 
+            />
           </div>
           {isLoading && <Loader />}
           {view === 'cards' ? (
@@ -182,6 +194,10 @@ const Dashboard02 = () => {
         </>
       )
     }
+  }
+
+  const handleSetStatus = (newStatus: string) => {
+    setStatus(newStatus as Status)
   }
 
   return (
