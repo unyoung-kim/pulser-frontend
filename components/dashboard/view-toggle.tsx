@@ -19,7 +19,7 @@ interface ViewToggleProps {
   view: 'cards' | 'table'
   setView: (view: 'cards' | 'table') => void
   status: Status
-  setStatus: (status: Status) => void
+  setStatus: (status: string) => void
 }
 
 export function ViewToggle({ view, setView, status, setStatus }: ViewToggleProps) {
@@ -27,7 +27,7 @@ export function ViewToggle({ view, setView, status, setStatus }: ViewToggleProps
 
   return (
     <div className="flex items-center justify-between h-6 mb-4">
-      <Tabs value={status} onValueChange={setStatus} className="w-auto">
+      <Tabs value={status} onValueChange={(value) => setStatus(value)} className="w-auto">
         <TabsList>
           {statuses.map((s) => (
             <TabsTrigger key={s} value={s} className="text-sm">

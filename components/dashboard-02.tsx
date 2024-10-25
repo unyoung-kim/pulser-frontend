@@ -116,9 +116,9 @@ const Dashboard02 = () => {
     setIsLoading(fetchLoading);
   }, [contentData, fetchError, fetchLoading]);
 
-  const filteredItems = status === 'All'
+  const filteredItems = status === Status.All
     ? items
-    : items.filter(item => item.status === status)
+    : items.filter(item => item.status.toLowerCase() === status.toLowerCase())
 
   const renderContent = () => {
     if (error) {
@@ -146,7 +146,12 @@ const Dashboard02 = () => {
       return (
         <>
           <div className="mt-6">
-            <ViewToggle view={view} setView={setView} status={status} setStatus={setStatus} />
+            <ViewToggle 
+              view={view} 
+              setView={setView} 
+              status={status} 
+              setStatus={handleSetStatus} 
+            />
           </div>
           {isLoading && <Loader />}
           {view === 'cards' ? (
@@ -189,6 +194,10 @@ const Dashboard02 = () => {
         </>
       )
     }
+  }
+
+  const handleSetStatus = (newStatus: string) => {
+    setStatus(newStatus as Status)
   }
 
   return (
