@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect } from 'react';
 import { Loader } from "@/components/ui/loader";
+import { Sidebar } from "@/components/dashboard/sidebar";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -127,167 +128,171 @@ export default function BackgroundPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {loading && <Loader />}
-      <main className="flex-grow p-6">
-        <h1 className="text-2xl font-bold mb-6">Company Background</h1>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => {
-            console.log('Form is valid, calling onSubmit');
-            onSubmit(data);
-          }, (errors) => {
-            console.log('Form validation failed:', errors);
-          })} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="basic.nameAndCompanyUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name & Company URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="John Doe - www.example.com" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    This is your public display name and company website.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="basic.industryKeywords"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Industry Keywords</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Technology, SaaS, B2B" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Comma-separated keywords describing your industry.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="product.companyFunction"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Company Function</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="We provide cloud-based project management software for small to medium-sized businesses." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="product.valueProposition"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Key Value Proposition</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Our software increases team productivity by 30% through streamlined communication and task management." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="product.productsToSell"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Products to Sell</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="1. Basic Plan: $9.99/month
+    <div className="grid min-h-screen w-full md:grid-cols-[170px_1fr] lg:grid-cols-[220px_1fr]">
+      <Sidebar projectId={projectId} />
+      <div className="flex flex-col">
+        <main className="flex-grow p-6 bg-gray-50">
+          <h1 className="text-2xl text-indigo-600 font-bold mb-6">Company Background</h1>
+          {loading && <Loader />}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit((data) => {
+              console.log('Form is valid, calling onSubmit');
+              onSubmit(data);
+            }, (errors) => {
+              console.log('Form validation failed:', errors);
+            })} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="basic.nameAndCompanyUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name & Company URL</FormLabel>
+                    <FormControl>
+                      <Input className="w-3/5" placeholder="John Doe - www.example.com" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      This is your public display name and company website.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="basic.industryKeywords"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Industry Keywords</FormLabel>
+                    <FormControl>
+                      <Input className="w-3/5" placeholder="Technology, SaaS, B2B" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Comma-separated keywords describing your industry.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="product.companyFunction"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Company Function</FormLabel>
+                    <FormControl>
+                      <Textarea className="w-3/5" placeholder="We provide cloud-based project management software for small to medium-sized businesses." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="product.valueProposition"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Key Value Proposition</FormLabel>
+                    <FormControl>
+                      <Textarea className="w-3/5" placeholder="Our software increases team productivity by 30% through streamlined communication and task management." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="product.productsToSell"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Products to Sell</FormLabel>
+                    <FormControl>
+                      <Textarea className="w-3/5" placeholder="1. Basic Plan: $9.99/month
 2. Pro Plan: $29.99/month
 3. Enterprise Plan: Custom pricing" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="product.competitiveAdvantage"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Competitive Advantage (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Our unique AI-powered task prioritization sets us apart from competitors." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="product.companyMission"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Company Mission (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="To empower teams to achieve more through intuitive and efficient project management tools." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="audience.customerStruggles"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Customer Struggles</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="1. Difficulty in tracking project progress across multiple teams.
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="product.competitiveAdvantage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Competitive Advantage (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea className="w-3/5" placeholder="Our unique AI-powered task prioritization sets us apart from competitors." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="product.companyMission"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Company Mission (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea className="w-3/5" placeholder="To empower teams to achieve more through intuitive and efficient project management tools." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="audience.customerStruggles"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Customer Struggles</FormLabel>
+                    <FormControl>
+                      <Textarea className="w-3/5" placeholder="1. Difficulty in tracking project progress across multiple teams.
 2. Inefficient communication leading to missed deadlines.
 3. Lack of visibility into resource allocation and utilization." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="audience.customerDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Customer Description</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Our target customers are project managers and team leads in small to medium-sized businesses (10-500 employees) across various industries who are looking to improve their team's productivity and project outcomes." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="voice.writingStyle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Writing Style (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Professional yet approachable, focusing on the benefits our software provides to busy professionals." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button 
-              type="submit" 
-              disabled={loading} 
-              onClick={() => console.log('Update Background button clicked')}
-            >
-              Update Background
-            </Button>
-          </form>
-        </Form>
-      </main>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="audience.customerDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Customer Description</FormLabel>
+                    <FormControl>
+                      <Textarea className="w-3/5" placeholder="Our target customers are project managers and team leads in small to medium-sized businesses (10-500 employees) across various industries who are looking to improve their team's productivity and project outcomes." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="voice.writingStyle"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Writing Style (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea className="w-3/5" placeholder="Professional yet approachable, focusing on the benefits our software provides to busy professionals." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button 
+                type="submit" 
+                disabled={loading} 
+                onClick={() => console.log('Update Background button clicked')}
+                className="bg-indigo-600 text-white hover:bg-indigo-700"
+              >
+                Update Background
+              </Button>
+            </form>
+          </Form>
+        </main>
+      </div>
     </div>
   );
 }
