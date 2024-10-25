@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/tabs"
 import Case from 'case'
 
-enum Status {
+export enum Status {
   All = 'All',
   Draft = 'draft',
   Published = 'published',
@@ -23,7 +23,7 @@ interface ViewToggleProps {
 }
 
 export function ViewToggle({ view, setView, status, setStatus }: ViewToggleProps) {
-  const statuses = ['All', 'draft', 'published', 'archived', 'scheduled']
+  const statuses = Object.values(Status)
 
   return (
     <div className="flex items-center justify-between h-6 mb-4">

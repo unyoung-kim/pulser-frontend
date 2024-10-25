@@ -10,6 +10,7 @@ import { ViewToggle } from "@/components/dashboard/view-toggle"
 import { Button } from "@/components/ui/button"
 import { Loader } from '@/components/ui/loader'
 import { useQuery } from '@tanstack/react-query';
+import { Status } from "@/components/dashboard/view-toggle"
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -32,7 +33,7 @@ const ITEMS_PER_PAGE = 20;
 
 const Dashboard02 = () => {
   const [view, setView] = useState<'cards' | 'table'>('cards')
-  const [status, setStatus] = useState<string>('All')
+  const [status, setStatus] = useState<Status>(Status.All)
   const [items, setItems] = useState<ContentItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
