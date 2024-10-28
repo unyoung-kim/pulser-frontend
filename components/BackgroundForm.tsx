@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
-import { Loader2 } from "lucide-react"; // Import the loader icon
+import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const BackgroundSchema = z.object({
@@ -190,36 +190,38 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
           Saving...
         </>
       ) : (
-        'Save Background Information'
+        'Save Info'
       )}
     </Button>
   );
 
   return (
     <div className="space-y-6 p-10 pb-16">
-      <div className="space-y-0.5">
-        <h2 className="text-2xl font-bold tracking-tight">Company Background</h2>
-        <p className="text-muted-foreground">
-          Help us get to know your business to generate relevant articles.
-          The more information you provide, the better content we can create for you.
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <div className="space-y-1">
-            <p className="text-sm font-medium">Required Fields</p>
-            <Progress value={progress.required} className="w-[60%]" />
-          </div>
-          <span className="text-sm font-medium">{progress.required}%</span>
+      <div className="flex justify-between items-start gap-8">
+        <div className="space-y-0.5">
+          <h2 className="text-2xl font-bold tracking-tight">Background</h2>
+          <p className="text-sm text-muted-foreground max-w-[450px]">
+            Help us get to know your business to generate relevant articles.
+            The more information you provide, the better content we can create for you.
+          </p>
         </div>
 
-        <div className="flex justify-between items-center">
-          <div className="space-y-1">
-            <p className="text-sm font-medium">Overall Completion</p>
-            <Progress value={progress.total} className="w-[60%]" />
+        <div className="space-y-4 min-w-[300px]">
+          <div className="flex justify-between items-center">
+            <div className="space-y-1 flex-1">
+              <p className="text-sm font-medium">Required Fields</p>
+              <Progress value={progress.required} className="w-full" />
+            </div>
+            <span className="text-sm font-medium ml-4">{progress.required}%</span>
           </div>
-          <span className="text-sm font-medium">{progress.total}%</span>
+
+          <div className="flex justify-between items-center">
+            <div className="space-y-1 flex-1">
+              <p className="text-sm font-medium">Overall Completion</p>
+              <Progress value={progress.total} className="w-full" />
+            </div>
+            <span className="text-sm font-medium ml-4">{progress.total}%</span>
+          </div>
         </div>
       </div>
       
