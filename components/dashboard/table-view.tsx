@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import useInfiniteScroll from 'react-infinite-scroll-hook'
 import { format } from 'date-fns'
 import { useCallback } from 'react'
+import Image from "next/image"
 
 interface TableViewProps {
   items: Array<{
@@ -58,7 +59,13 @@ export function TableView({ items, loading, hasNextPage, onLoadMore }: TableView
           {items.map((item) => (
             <tr key={item.id} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap">
-                <img src={item.image_url} alt={item.title} className="h-10 w-10 rounded-lg" />
+                <Image
+                  src={`https://picsum.photos/seed/${item.id}/200/200`}
+                  alt={item.title}
+                  width={200}
+                  height={200}
+                  className="rounded"
+                />
               </td>
               <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{item.title}</td>
               <td className="px-6 py-4 whitespace-nowrap">

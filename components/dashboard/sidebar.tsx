@@ -1,8 +1,7 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { Users, LineChart, Settings, ChevronsUpDown, Cog, Plug, GalleryVerticalEnd } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -19,12 +18,13 @@ import { UserButton } from "@clerk/nextjs"
 
 interface SidebarProps {
   projectId: string;
+  children?: React.ReactNode;
 }
 
-export function Sidebar({ projectId }: SidebarProps) {
+export function Sidebar({ projectId, children }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { projects, loading } = useProjects()
+  const { projects } = useProjects();
   const { user } = useUser()
 
   // Find the selected project based on the projectId prop
@@ -49,6 +49,7 @@ export function Sidebar({ projectId }: SidebarProps) {
     <div className="w-67 border-r bg-white">
       <div className="flex h-full max-h-screen flex-col">
         <div className="flex-1 overflow-y-auto">
+          {children}
           <div className="px-3 py-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

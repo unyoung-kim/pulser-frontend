@@ -17,7 +17,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useSearchParams } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
-import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect } from 'react';
 import { Loader } from "@/components/ui/loader";
 import { Sidebar } from "@/components/dashboard/sidebar";
@@ -28,8 +27,6 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 if (!supabaseUrl || !supabaseKey) {
   console.error('Missing Supabase environment variables');
 }
-
-const supabase = createClient(supabaseUrl!, supabaseKey!);
 
 const BackgroundSchema = z.object({
   basic: z.object({
@@ -57,7 +54,7 @@ type Background = z.infer<typeof BackgroundSchema>;
 export default function BackgroundPage() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
+  const projectId = searchParams.get('projectId') || ''; // Provide default empty string
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

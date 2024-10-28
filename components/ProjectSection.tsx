@@ -19,8 +19,17 @@ export default function ProjectSection() {
 
   const createProject = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement project creation logic here
-    // After creation, call fetchProjects() to update the global state
+    if (!newProjectName.trim()) return;
+
+    try {
+      // Implement project creation logic here
+      // After successful creation:
+      await fetchProjects(); // Refresh the projects list
+      setIsCreateDialogOpen(false);
+      setNewProjectName('');
+    } catch (error) {
+      console.error('Error creating project:', error);
+    }
   }, [newProjectName, fetchProjects]);
 
   return (

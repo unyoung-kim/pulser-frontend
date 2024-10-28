@@ -8,7 +8,7 @@ import { CardView } from "@/components/dashboard/card-view"
 import { TableView } from "@/components/dashboard/table-view"
 import { ViewToggle } from "@/components/dashboard/view-toggle"
 import { Button } from "@/components/ui/button"
-import { Loader } from '@/components/ui/loader'
+// import { Loader } from '@/components/ui/loader'
 import { useQuery } from '@tanstack/react-query';
 import { Status } from "@/components/dashboard/view-toggle"
 
