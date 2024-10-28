@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import useInfiniteScroll from 'react-infinite-scroll-hook'
 import { format } from 'date-fns'
 import { useCallback } from 'react'
@@ -11,7 +12,7 @@ interface TableViewProps {
     updated_at: string
     created_at: string
     image_url: string
-    // Make these properties optional
+    keyword?: string // Make keyword optional
     description?: string
     date?: string
     type?: string
@@ -21,6 +22,11 @@ interface TableViewProps {
   hasNextPage: boolean
   onLoadMore: () => void
 }
+
+const dummyKeywords = [
+  "AI", "Machine Learning", "Data Science", "Cloud Computing", 
+  "Blockchain", "IoT", "Cybersecurity", "DevOps", "Big Data", "VR/AR"
+];
 
 export function TableView({ items, loading, hasNextPage, onLoadMore }: TableViewProps) {
   const [sentryRef] = useInfiniteScroll({
@@ -42,6 +48,7 @@ export function TableView({ items, loading, hasNextPage, onLoadMore }: TableView
           <tr className="bg-gray-50">
             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Image</th>
             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Title</th>
+            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Keyword</th>
             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Status</th>
             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Created At</th>
             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Updated At</th>
@@ -53,7 +60,12 @@ export function TableView({ items, loading, hasNextPage, onLoadMore }: TableView
               <td className="px-6 py-4 whitespace-nowrap">
                 <img src={item.image_url} alt={item.title} className="h-10 w-10 rounded-lg" />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.title}</td>
+              <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{item.title}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <Button variant="ghost" className="bg-indigo-50 text-indigo-700 px-2 py-0 h-5 hover:bg-indigo-100 text-xs">
+                  {item.keyword || dummyKeywords[Math.floor(Math.random() * dummyKeywords.length)]}
+                </Button>
+              </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <Badge variant={item.status === 'Scheduled' ? 'default' : 'secondary'} className="text-xs bg-indigo-100 text-indigo-800 hover:bg-indigo-200 cursor-pointer">
                   {item.status}

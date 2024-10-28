@@ -1,74 +1,150 @@
 "use client"
 
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
-import { Package2, Users, LineChart, Settings } from "lucide-react"
+import Image from "next/image"
+import { usePathname, useRouter } from "next/navigation"
+import { Users, LineChart, Settings, ChevronsUpDown, Cog, Plug, GalleryVerticalEnd } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useUser } from "@clerk/nextjs"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useProjects } from "@/contexts/ProjectContext"
+import { Project } from "@/contexts/ProjectContext"
 import { UserButton } from "@clerk/nextjs"
 
-export function Sidebar() {
+interface SidebarProps {
+  projectId: string;
+}
+
+export function Sidebar({ projectId }: SidebarProps) {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const projectId = searchParams?.get('projectId')
+  const router = useRouter()
+  const { projects, loading } = useProjects()
+  const { user } = useUser()
+
+  // Find the selected project based on the projectId prop
+  const selectedProject = projects.find(p => p.id.toString() === projectId) || null;
 
   const links = [
-    { name: "Dashboard", href: "/dashboard" },
-    { name: "Content", href: "/content" },
-    { name: "Background", href: "/background" },
-    { name: "Integration", href: "/integration" },
+    { name: "Dashboard", href: "/dashboard", icon: LineChart },
+    { name: "Content", href: "/content", icon: Users },
+    { name: "Background", href: "/background", icon: Settings },
   ]
 
+  const bottomLinks = [
+    { name: "Integration", href: "/integration", icon: Plug },
+    { name: "Settings", href: "/settings", icon: Cog },
+  ]
+
+  const handleProjectSelect = (project: Project) => {
+    router.push(`/content?projectId=${project.id}`)
+  }
+
   return (
-    <div className="hidden border-r bg-white md:block">
-      <div className="flex h-full max-h-screen flex-col gap-2">
-        <div className="flex h-10 items-center border-b px-2 lg:h-[55px] lg:px-4">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <Package2 className="h-6 w-6 text-indigo-600" />
-            <span className="text-indigo-600 text-sm">Pulser</span>
-          </Link>
-          <div className="ml-auto flex items-center gap-2">
-            <UserButton />
-            {/* <Button variant="outline" size="icon" className="h-6 w-6">
-              <Bell className="h-3 w-3" />
-              <span className="sr-only">Toggle notifications</span>
-            </Button> */}
-          </div>
-        </div>
+    <div className="w-67 border-r bg-white">
+      <div className="flex h-full max-h-screen flex-col">
         <div className="flex-1 overflow-y-auto">
-          <nav className="grid items-start px-2 text-sm font-medium lg:px-3">
+          <div className="px-3 py-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between h-12 text-sm pl-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-black text-white">
+                      <GalleryVerticalEnd className="size-4" />
+                    </div>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-[550]">
+                        {selectedProject ? selectedProject.name : 'Select a project'}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronsUpDown className="ml-auto h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-60 rounded-lg p-1">
+                {projects.map((project) => (
+                  <DropdownMenuItem
+                    key={project.id}
+                    onSelect={() => handleProjectSelect(project)}
+                    className="gap-2 p-2"
+                  >
+                    <div className={`flex size-6 items-center justify-center rounded-sm ${
+                      project.id.toString() === projectId ? 'bg-black text-white' : 'border'
+                    }`}>
+                      <GalleryVerticalEnd className="size-4" />
+                    </div>
+                    {project.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <nav className="grid items-start px-3 text-sm font-medium">
             {links.map((link) => {
+              const Icon = link.icon
               const isActive = pathname === link.href
               return (
                 <Link
                   key={link.name}
                   href={`${link.href}${projectId ? `?projectId=${projectId}` : ''}`}
-                  className={`group flex items-center rounded-md px-2 py-2 text-sm font-medium ${
+                  className={`flex items-center rounded-md px-2 py-2 ${
                     isActive
                       ? "bg-gray-100 text-gray-900"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                 >
-                  {link.name}
+                  <Icon className="mr-3 h-4 w-4" />
+                  <span>{link.name}</span>
                 </Link>
               )
             })}
           </nav>
         </div>
-        <div className="mt-auto p-4">
-          <Card>
-            <CardHeader className="p-1 pt-0 md:p-4">
-              <CardTitle className="text-lg">Upgrade to Pro</CardTitle>
-              <CardDescription className="text-xs">
-                Unlock all features and get unlimited access to our support team.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-1 pt-0 md:p-4 md:pt-0">
-              <Button size="sm" className="text-xs w-full bg-indigo-600 hover:bg-indigo-700">
-                Upgrade
+        <div className="mt-auto">
+          <nav className="grid items-start px-3 text-sm font-medium">
+            {bottomLinks.map((link) => {
+              const Icon = link.icon
+              const isActive = pathname === link.href
+              return (
+                <Link
+                  key={link.name}
+                  href={`${link.href}${selectedProject ? `?projectId=${selectedProject.id}` : ''}`}
+                  className={`flex items-center rounded-md px-2 py-2 ${
+                    isActive
+                      ? "bg-gray-100 text-gray-900"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  <Icon className="mr-3 h-4 w-4" />
+                  <span>{link.name}</span>
+                </Link>
+              )
+            })}
+          </nav>
+          <div className="mt-4 px-3">
+            <div className="flex items-center w-full">
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: "h-8 w-8",
+                  },
+                }}
+              />
+              <Button variant="ghost" className="w-full justify-between h-12 text-sm pl-2">
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">{user?.fullName}</span>
+                  <span className="truncate text-xs">{user?.primaryEmailAddress?.emailAddress}</span>
+                </div>
+                <ChevronsUpDown className="ml-auto size-4" />
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>

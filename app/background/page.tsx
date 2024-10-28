@@ -128,7 +128,7 @@ export default function BackgroundPage() {
   }
 
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[170px_1fr] lg:grid-cols-[220px_1fr]">
+    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr]">
       <Sidebar projectId={projectId} />
       <div className="flex flex-col">
         <main className="flex-grow p-6 bg-gray-50">
