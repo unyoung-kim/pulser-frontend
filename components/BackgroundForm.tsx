@@ -1,9 +1,24 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
+import { Loader2 } from "lucide-react"; // Import the loader icon
+import { useState, useEffect } from "react";
 
 const BackgroundSchema = z.object({
   basic: z.object({
@@ -28,54 +43,461 @@ const BackgroundSchema = z.object({
 
 type Background = z.infer<typeof BackgroundSchema>;
 
-export function BackgroundForm() {
-  const { register, handleSubmit, formState: { errors } } = useForm<Background>({
+interface BackgroundFormProps {
+  projectId?: string;
+  onSubmit?: (data: Background) => Promise<void>;
+  loading?: boolean;
+}
+
+export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }: BackgroundFormProps) {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const form = useForm<Background>({
     resolver: zodResolver(BackgroundSchema),
+    defaultValues: {
+      basic: { nameAndCompanyUrl: "", industryKeywords: "" },
+      product: {
+        companyFunction: "",
+        valueProposition: "",
+        productsToSell: "",
+        competitiveAdvantage: "",
+        companyMission: "",
+      },
+      audience: { customerStruggles: "", customerDescription: "" },
+      voice: { writingStyle: "" },
+    },
   });
 
-  const onSubmit = (data: Background) => {
-    // Store data in localStorage
-    localStorage.setItem('backgroundInfo', JSON.stringify(data));
-    console.log('Background info saved:', data);
-    // You can add a success message or redirect here
+  // Load saved data when component mounts
+  useEffect(() => {
+    const loadSavedData = async () => {
+      try {
+        let savedData: Background | null = null;
+
+        // Try to load from localStorage first
+        const localData = localStorage.getItem('backgroundInfo');
+        if (localData) {
+          savedData = JSON.parse(localData);
+        }
+        
+        // If we have projectId and no local data, we could fetch from API here
+        if (projectId && !savedData) {
+          const response = await fetch(`/api/background/${projectId}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch data from API');
+          }
+          savedData = await response.json();
+        }
+
+        // If we found saved data, update the form
+        if (savedData) {
+          form.reset(savedData);
+          toast({
+            title: "Data Loaded",
+            description: "Your previously saved information has been restored.",
+            variant: "default",
+          });
+        }
+      } catch (error) {
+        console.error('Error loading saved data:', error);
+        toast({
+          title: "Warning",
+          description: "Could not load your previously saved information.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadSavedData();
+  }, [form, projectId]);
+
+  const handleSubmit = async (data: Background) => {
+    setLoading(true);
+    try {
+      if (onSubmit) {
+        await onSubmit(data);
+      } else {
+        // Simulate API delay for localStorage
+        await new Promise(resolve => setTimeout(resolve, 500));
+        localStorage.setItem('backgroundInfo', JSON.stringify(data));
+      }
+      
+      toast({
+        title: "Success!",
+        description: "Your background information has been saved successfully.",
+        variant: "default",
+      });
+    } catch (error) {
+      toast({
+        title: "Something went wrong",
+        description: "Failed to save background information. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Calculate completion percentages
+  const calculateProgress = () => {
+    const formValues = form.getValues();
+    
+    // Helper function to check if a field has value
+    const hasValue = (value: string | undefined): boolean => {
+      return Boolean(value && value.trim() !== '');
+    };
+
+    // Required fields
+    const requiredFields = [
+      { path: 'basic.nameAndCompanyUrl', value: formValues.basic.nameAndCompanyUrl },
+      { path: 'basic.industryKeywords', value: formValues.basic.industryKeywords },
+      { path: 'product.companyFunction', value: formValues.product.companyFunction },
+      { path: 'product.valueProposition', value: formValues.product.valueProposition },
+      { path: 'product.productsToSell', value: formValues.product.productsToSell },
+      { path: 'audience.customerStruggles', value: formValues.audience.customerStruggles },
+      { path: 'audience.customerDescription', value: formValues.audience.customerDescription }
+    ];
+
+    // All fields (including optional)
+    const allFields = [
+      ...requiredFields,
+      { path: 'product.competitiveAdvantage', value: formValues.product.competitiveAdvantage },
+      { path: 'product.companyMission', value: formValues.product.companyMission },
+      { path: 'voice.writingStyle', value: formValues.voice.writingStyle }
+    ];
+
+    const filledRequired = requiredFields.filter(field => hasValue(field.value)).length;
+    const filledTotal = allFields.filter(field => hasValue(field.value)).length;
+
+    return {
+      required: Math.round((filledRequired / requiredFields.length) * 100),
+      total: Math.round((filledTotal / allFields.length) * 100)
+    };
+  };
+
+  const progress = calculateProgress();
+
+  // Update the Button component in each tab section:
+  const SaveButton = () => (
+    <Button 
+      type="submit" 
+      onClick={form.handleSubmit(handleSubmit)}
+      disabled={loading || externalLoading}
+    >
+      {(loading || externalLoading) ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Saving...
+        </>
+      ) : (
+        'Save Background Information'
+      )}
+    </Button>
+  );
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">Basic Information</h2>
-        <Input {...register("basic.nameAndCompanyUrl")} placeholder="Name & Company URL" />
-        {errors.basic?.nameAndCompanyUrl && <p className="text-red-500">{errors.basic.nameAndCompanyUrl.message}</p>}
-        <Input {...register("basic.industryKeywords")} placeholder="Industry Keywords (comma-separated)" />
-        {errors.basic?.industryKeywords && <p className="text-red-500">{errors.basic.industryKeywords.message}</p>}
+    <div className="space-y-6 p-10 pb-16">
+      <div className="space-y-0.5">
+        <h2 className="text-2xl font-bold tracking-tight">Company Background</h2>
+        <p className="text-muted-foreground">
+          Help us get to know your business to generate relevant articles.
+          The more information you provide, the better content we can create for you.
+        </p>
       </div>
 
-      <div>
-        <h2 className="text-lg font-semibold">Product Information</h2>
-        <Input {...register("product.companyFunction")} placeholder="What does your company do/sell?" />
-        {errors.product?.companyFunction && <p className="text-red-500">{errors.product.companyFunction.message}</p>}
-        <Input {...register("product.valueProposition")} placeholder="Key value proposition" />
-        {errors.product?.valueProposition && <p className="text-red-500">{errors.product.valueProposition.message}</p>}
-        <Textarea {...register("product.productsToSell")} placeholder="Products to sell (max 3, one per line)" />
-        {errors.product?.productsToSell && <p className="text-red-500">{errors.product.productsToSell.message}</p>}
-        <Input {...register("product.competitiveAdvantage")} placeholder="Competitive advantage (optional)" />
-        <Input {...register("product.companyMission")} placeholder="Company mission (optional)" />
-      </div>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <p className="text-sm font-medium">Required Fields</p>
+            <Progress value={progress.required} className="w-[60%]" />
+          </div>
+          <span className="text-sm font-medium">{progress.required}%</span>
+        </div>
 
-      <div>
-        <h2 className="text-lg font-semibold">Audience Information</h2>
-        <Textarea {...register("audience.customerStruggles")} placeholder="Customer struggles (2-3 points, one per line)" />
-        {errors.audience?.customerStruggles && <p className="text-red-500">{errors.audience.customerStruggles.message}</p>}
-        <Textarea {...register("audience.customerDescription")} placeholder="Describe your customers" />
-        {errors.audience?.customerDescription && <p className="text-red-500">{errors.audience.customerDescription.message}</p>}
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <p className="text-sm font-medium">Overall Completion</p>
+            <Progress value={progress.total} className="w-[60%]" />
+          </div>
+          <span className="text-sm font-medium">{progress.total}%</span>
+        </div>
       </div>
+      
+      <Separator className="my-6" />
 
-      <div>
-        <h2 className="text-lg font-semibold">Voice</h2>
-        <Textarea {...register("voice.writingStyle")} placeholder="Preferred writing style (optional)" />
-      </div>
+      <Tabs defaultValue="basic" className="w-full">
+        <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
+          <aside className="-mx-4 lg:w-1/5">
+            <TabsList className="flex flex-col h-auto space-y-1 bg-transparent p-0">
+              <TabsTrigger 
+                value="basic" 
+                className="w-full justify-start px-4 py-2 font-normal"
+              >
+                Basic Information
+              </TabsTrigger>
+              <TabsTrigger 
+                value="product" 
+                className="w-full justify-start px-4 py-2 font-normal"
+              >
+                Product Details
+              </TabsTrigger>
+              <TabsTrigger 
+                value="audience" 
+                className="w-full justify-start px-4 py-2 font-normal"
+              >
+                Audience
+              </TabsTrigger>
+              <TabsTrigger 
+                value="voice" 
+                className="w-full justify-start px-4 py-2 font-normal"
+              >
+                Voice & Style
+              </TabsTrigger>
+            </TabsList>
+          </aside>
 
-      <Button type="submit">Save Background Information</Button>
-    </form>
+          <div className="flex-1 lg:max-w-2xl">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+                <TabsContent value="basic">
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="text-lg font-medium">Basic Information</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Essential details about your company.
+                        </p>
+                      </div>
+                      <SaveButton />
+                    </div>
+                    <Separator />
+                    
+                    <FormField
+                      control={form.control}
+                      name="basic.nameAndCompanyUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name & Company URL *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="John Doe - www.example.com" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Your company name and website URL.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="basic.industryKeywords"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Industry Keywords *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="E.g., Technology, SaaS, B2B" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Keywords that best describe your industry and business focus.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="product">
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="text-lg font-medium">Product Details</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Tell us about your products and what makes them unique.
+                        </p>
+                      </div>
+                      <SaveButton />
+                    </div>
+                    <Separator />
+                    
+                    <FormField
+                      control={form.control}
+                      name="product.companyFunction"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Company Function *</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="What does your company do/sell? Be specific about your main products or services."
+                              className="min-h-[100px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="product.valueProposition"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Key Value Proposition *</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="What unique value do you provide to your customers? What problems do you solve?"
+                              className="min-h-[100px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="product.productsToSell"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Products to Sell *</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="List up to 3 products in this format:&#10;Product Name - Brief description of the product&#10;Example:&#10;Premium Plan - Full access to all features with priority support"
+                              className="min-h-[150px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Maximum 3 products. Format: Name - Description (one per line)
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="product.competitiveAdvantage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Competitive Advantage</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="What makes your product different from competitors? What unique features or benefits do you offer?"
+                              className="min-h-[100px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Optional, but helps us highlight your unique selling points
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="audience">
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="text-lg font-medium">Target Audience</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Help us understand who your customers are and their needs.
+                        </p>
+                      </div>
+                      <SaveButton />
+                    </div>
+                    <Separator />
+                    
+                    <FormField
+                      control={form.control}
+                      name="audience.customerStruggles"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Customer Pain Points *</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="List 2-3 key challenges your customers face (one per line)&#10;Example:&#10;1. Difficulty managing remote teams effectively&#10;2. Lack of visibility into project progress&#10;3. Communication gaps between departments"
+                              className="min-h-[150px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            2-3 points that describe what problems your customers are trying to solve
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="audience.customerDescription"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Customer Profile *</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describe your target customer (age, gender, job title, etc.)&#10;Example: Working mothers aged 30-45 who make purchasing decisions for their children's fitness activities"
+                              className="min-h-[100px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Be specific about who makes the purchasing decisions
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="voice">
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="text-lg font-medium">Brand Voice</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Help us match your brand's tone and style.
+                        </p>
+                      </div>
+                      <SaveButton />
+                    </div>
+                    <Separator />
+                    
+                    <FormField
+                      control={form.control}
+                      name="voice.writingStyle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Writing Style Reference</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Paste a few paragraphs from your existing content that exemplify your preferred writing style. This helps us match your tone of voice."
+                              className="min-h-[200px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Optional: Provide examples of your existing content to help us match your voice
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </TabsContent>
+              </form>
+            </Form>
+          </div>
+        </div>
+      </Tabs>
+    </div>
   );
 }
