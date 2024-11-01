@@ -187,7 +187,6 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
       {(loading || externalLoading) ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Saving...
         </>
       ) : (
         'Save Info'
@@ -206,11 +205,11 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
           </p>
         </div>
 
-        <div className="space-y-4 min-w-[300px]">
+        <div className="space-y-4 min-w-[200px]">
           <div className="flex justify-between items-center">
             <div className="space-y-1 flex-1">
               <p className="text-sm font-medium">Required Fields</p>
-              <Progress value={progress.required} className="w-full" />
+              <Progress value={progress.required} className="w-3/4" />
             </div>
             <span className="text-sm font-medium ml-4">{progress.required}%</span>
           </div>
@@ -218,7 +217,7 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
           <div className="flex justify-between items-center">
             <div className="space-y-1 flex-1">
               <p className="text-sm font-medium">Overall Completion</p>
-              <Progress value={progress.total} className="w-full" />
+              <Progress value={progress.total} className="w-3/4" />
             </div>
             <span className="text-sm font-medium ml-4">{progress.total}%</span>
           </div>

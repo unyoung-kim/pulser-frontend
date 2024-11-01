@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import useInfiniteScroll from 'react-infinite-scroll-hook'
 import { ClipLoader } from 'react-spinners'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface CardViewProps {
   items: Array<{
@@ -24,6 +25,10 @@ const dummyKeywords = [
 ];
 
 export function CardView({ items, loading, hasNextPage, onLoadMore }: CardViewProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get('projectId');
+  
   const [sentryRef] = useInfiniteScroll({
     loading,
     hasNextPage,
@@ -32,10 +37,18 @@ export function CardView({ items, loading, hasNextPage, onLoadMore }: CardViewPr
     rootMargin: '0px 0px 400px 0px',
   });
 
+  const handleCardClick = (contentId: number) => {
+    router.push(`/content/${contentId}?projectId=${projectId}`);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
       {items.map((item) => (
-        <Card key={item.id} className="cursor-pointer hover:shadow-xl transition-shadow bg-white flex flex-col">
+        <Card 
+          key={item.id} 
+          className="cursor-pointer hover:shadow-xl transition-shadow bg-white flex flex-col"
+          onClick={() => handleCardClick(item.id)}
+        >
           <CardHeader className="p-0 relative">
             <div className="absolute top-4 right-5 left-4 flex items-center justify-between">
               <span className="font-bold text-xs text-gray-500">{item.status}</span>
@@ -65,11 +78,7 @@ export function CardView({ items, loading, hasNextPage, onLoadMore }: CardViewPr
           </div>
         </Card>
       ))}
-      {(loading || hasNextPage) && (
-        <div ref={sentryRef} className="col-span-full flex justify-center p-4">
-          <ClipLoader color="#4F46E5" loading={loading} size={30} />
-        </div>
-      )}
+      {hasNextPage && <div ref={sentryRef} />}
     </div>
-  )
+  );
 }
