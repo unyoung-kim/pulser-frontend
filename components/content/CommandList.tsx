@@ -8,8 +8,6 @@ import {
   ListOrdered,
   Table,
   Image,
-  Quote,
-  Code,
   Type
 } from 'lucide-react';
 
@@ -73,18 +71,6 @@ const commands = [
         editor.chain().focus().setImage({ src: url }).run();
       }
     },
-  },
-  {
-    title: 'Quote',
-    description: 'Capture a quotation.',
-    icon: <Quote className="w-12 h-12 p-2 border rounded bg-white shadow-sm" />,
-    command: (editor: Editor) => editor.chain().focus().toggleBlockquote().run(),
-  },
-  {
-    title: 'Code Block',
-    description: 'Display code with syntax highlighting.',
-    icon: <Code className="w-12 h-12 p-2 border rounded bg-white shadow-sm" />,
-    command: (editor: Editor) => editor.chain().focus().toggleCodeBlock().run(),
   },
 ];
 

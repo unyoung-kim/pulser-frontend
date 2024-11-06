@@ -8,9 +8,13 @@ import { CardView } from "@/components/dashboard/card-view"
 import { TableView } from "@/components/dashboard/table-view"
 import { ViewToggle } from "@/components/dashboard/view-toggle"
 import { Button } from "@/components/ui/button"
-// import { Loader } from '@/components/ui/loader'
+import { Separator } from "@/components/ui/separator"
 import { useQuery } from '@tanstack/react-query';
 import { Status } from "@/components/dashboard/view-toggle"
+import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
+import { CreateContentDialog } from "@/components/content/CreateContentDialog"
+import { useSidebarState } from "@/contexts/SidebarContext";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -32,6 +36,12 @@ interface ContentItem {
 
 const ITEMS_PER_PAGE = 20;
 
+interface CreateContentPayload {
+  keyword?: string;
+  topic?: string;
+  project_id: string;
+}
+
 const Dashboard02 = () => {
   const [view, setView] = useState<'cards' | 'table'>('cards')
   const [status, setStatus] = useState<Status>(Status.All)
@@ -41,6 +51,14 @@ const Dashboard02 = () => {
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [hasNextPage, setHasNextPage] = useState(true);
   const [page, setPage] = useState(1);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [topic, setTopic] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [additionalKeywords, setAdditionalKeywords] = useState<string[]>([]);
+  const { toast } = useToast();
+  const router = useRouter();
+  const { isCollapsed } = useSidebarState();
   
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -121,6 +139,93 @@ const Dashboard02 = () => {
     ? items
     : items.filter(item => item.status.toLowerCase() === status.toLowerCase())
 
+  const handleCreateContent = async () => {
+    if (keywords.length === 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please add at least one keyword",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!projectId || !supabase) {
+      toast({
+        title: "Error",
+        description: "No project selected",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      // 1. Create content entry
+      const { data, error: contentError } = await supabase
+        .from('Content')
+        .insert({
+          project_id: projectId,
+          keywords: keywords,
+          topic,
+          status: 'draft',
+          title: topic || keywords[0],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (contentError || !data) throw contentError;
+
+      // 2. Generate content
+      const response = await fetch('/api/generate-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          keyword: keywords[0],
+          topic,
+          contentId: data.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate content');
+      }
+
+      const generatedContent = await response.json();
+
+      // 3. Save generated content
+      const { error: bodyError } = await supabase
+        .from('ContentBody')
+        .insert({
+          content_id: data.id,
+          body: generatedContent.html,
+        });
+
+      if (bodyError) throw bodyError;
+
+      toast({
+        title: "Success",
+        description: "Content created successfully",
+      });
+
+      // 4. Navigate to editor
+      router.push(`/content/${data.id}?projectId=${projectId}`);
+    } catch (error) {
+      console.error('Error creating content:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create content. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreating(false);
+      setIsCreateModalOpen(false);
+      setKeywords([]);
+      setTopic('');
+    }
+  };
+
   const renderContent = () => {
     if (error) {
       return (
@@ -146,15 +251,21 @@ const Dashboard02 = () => {
     if (pathname === '/content') {
       return (
         <>
-          <div className="mt-6">
+          <div className="pt-3">
+            <div className="flex items-center">
+              <h1 className="text-lg font-semibold md:text-2xl">Content</h1>
+            </div>
+          </div>
+          <Separator className="" />
+          <div className="mt-2">
             <ViewToggle 
               view={view} 
               setView={setView} 
               status={status} 
-              setStatus={handleSetStatus} 
+              setStatus={handleSetStatus}
+              onNewContent={() => setIsCreateModalOpen(true)}
             />
           </div>
-          {/* {isLoading && <Loader />} */}
           {view === 'cards' ? (
             <CardView 
               items={filteredItems} 
@@ -170,6 +281,17 @@ const Dashboard02 = () => {
               onLoadMore={loadMoreItems}
             />
           )}
+
+          <CreateContentDialog
+            open={isCreateModalOpen}
+            onOpenChange={setIsCreateModalOpen}
+            keywords={keywords}
+            topic={topic}
+            onKeywordsChange={setKeywords}
+            onTopicChange={setTopic}
+            onSubmit={handleCreateContent}
+            isCreating={isCreating}
+          />
         </>
       )
     } else {
@@ -202,7 +324,11 @@ const Dashboard02 = () => {
   }
 
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]">
+    <div className={`grid min-h-screen w-full transition-[grid-template-columns] duration-300 ${
+      isCollapsed 
+        ? 'grid-cols-[60px_1fr]' 
+        : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
+    }`}>
       <Sidebar projectId={projectId} />
       <div className="flex flex-col">
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-4 bg-gray-50">

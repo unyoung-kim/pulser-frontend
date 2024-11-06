@@ -20,9 +20,10 @@ interface ViewToggleProps {
   setView: (view: 'cards' | 'table') => void
   status: Status
   setStatus: (status: string) => void
+  onNewContent: () => void
 }
 
-export function ViewToggle({ view, setView, status, setStatus }: ViewToggleProps) {
+export function ViewToggle({ view, setView, status, setStatus, onNewContent }: ViewToggleProps) {
   const statuses = Object.values(Status)
 
   return (
@@ -58,16 +59,10 @@ export function ViewToggle({ view, setView, status, setStatus }: ViewToggleProps
       </div>
       <div className="flex gap-2 ml-2">
         <Button
-          variant="outline"
-          size="sm"
-          className="bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-full text-sm"
-        >
-          <Settings2 className="h-4 w-4" />
-        </Button>
-        <Button
           variant="default"
           size="sm"
           className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
+          onClick={onNewContent}
         >
           <Plus className="h-4 w-4 mr-2" />
           New Content

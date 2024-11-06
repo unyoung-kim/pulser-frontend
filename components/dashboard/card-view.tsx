@@ -12,22 +12,21 @@ interface CardViewProps {
     title: string
     updated_at: string
     status: string
-    keyword?: string // Make keyword optional
+    keywords?: string[]
   }>
   loading: boolean
   hasNextPage: boolean
   onLoadMore: () => void
 }
 
-const dummyKeywords = [
-  "AI", "Machine Learning", "Data Science", "Cloud Computing", 
-  "Blockchain", "IoT", "Cybersecurity", "DevOps", "Big Data", "VR/AR"
-];
-
 export function CardView({ items, loading, hasNextPage, onLoadMore }: CardViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
+  
+  const sortedItems = [...items].sort((a, b) => 
+    new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+  );
   
   const [sentryRef] = useInfiniteScroll({
     loading,
@@ -43,7 +42,7 @@ export function CardView({ items, loading, hasNextPage, onLoadMore }: CardViewPr
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-      {items.map((item) => (
+      {sortedItems.map((item) => (
         <Card 
           key={item.id} 
           className="cursor-pointer hover:shadow-xl transition-shadow bg-white flex flex-col"
@@ -59,9 +58,17 @@ export function CardView({ items, loading, hasNextPage, onLoadMore }: CardViewPr
           </CardHeader>
           <CardContent className="p-4 mt-10 flex-grow flex flex-col">
             <CardTitle className="text-gray-700 text-base mb-2 line-clamp-2">{item.title}</CardTitle>
-            <Button variant="ghost" className="my-3 bg-indigo-50 text-indigo-700 px-2 py-0 h-5 hover:bg-indigo-100 text-xs w-fit">
-              {item.keyword || dummyKeywords[Math.floor(Math.random() * dummyKeywords.length)]}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              {item.keywords?.map((keyword, index) => (
+                <Button 
+                  key={index}
+                  variant="ghost" 
+                  className="my-1 bg-indigo-50 text-indigo-700 px-2 py-0 h-5 hover:bg-indigo-100 text-xs w-fit"
+                >
+                  {keyword}
+                </Button>
+              ))}
+            </div>
           </CardContent>
           <div className="relative h-40">
             <Image 

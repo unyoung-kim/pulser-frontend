@@ -19,6 +19,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { 
+  Building2,
+  Package2,
+  Users,
+  MessageSquareText,
+  CheckCircle
+} from "lucide-react";
 
 const BackgroundSchema = z.object({
   basic: z.object({
@@ -183,13 +190,19 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
       type="submit" 
       onClick={form.handleSubmit(handleSubmit)}
       disabled={loading || externalLoading}
+      className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm min-w-[100px]"
+      size="sm"
     >
       {(loading || externalLoading) ? (
         <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          Saving...
         </>
       ) : (
-        'Save Info'
+        <>
+          <CheckCircle className="w-4 h-4 mr-2" />
+          Save Info
+        </>
       )}
     </Button>
   );
@@ -205,21 +218,30 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
           </p>
         </div>
 
-        <div className="space-y-4 min-w-[200px]">
-          <div className="flex justify-between items-center">
-            <div className="space-y-1 flex-1">
-              <p className="text-sm font-medium">Required Fields</p>
-              <Progress value={progress.required} className="w-3/4" />
+        <div className="min-w-[200px]">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-indigo-600"></div>
+                <span className="text-sm text-gray-600">Required</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-indigo-200"></div>
+                <span className="text-sm text-gray-600">Optional</span>
+              </div>
             </div>
-            <span className="text-sm font-medium ml-4">{progress.required}%</span>
+            <span className="text-sm font-medium">{progress.required}%</span>
           </div>
-
-          <div className="flex justify-between items-center">
-            <div className="space-y-1 flex-1">
-              <p className="text-sm font-medium">Overall Completion</p>
-              <Progress value={progress.total} className="w-3/4" />
-            </div>
-            <span className="text-sm font-medium ml-4">{progress.total}%</span>
+          
+          <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div 
+              className="absolute left-0 top-0 h-full bg-indigo-600 transition-all duration-300"
+              style={{ width: `${progress.required}%` }}
+            />
+            <div 
+              className="absolute left-0 top-0 h-full bg-indigo-200 transition-all duration-300"
+              style={{ width: `${progress.total}%` }}
+            />
           </div>
         </div>
       </div>
@@ -234,24 +256,28 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                 value="basic" 
                 className="w-full justify-start px-4 py-2 font-normal"
               >
+                <Building2 className="w-4 h-4 mr-2" />
                 Basic Information
               </TabsTrigger>
               <TabsTrigger 
                 value="product" 
                 className="w-full justify-start px-4 py-2 font-normal"
               >
+                <Package2 className="w-4 h-4 mr-2" />
                 Product Details
               </TabsTrigger>
               <TabsTrigger 
                 value="audience" 
                 className="w-full justify-start px-4 py-2 font-normal"
               >
+                <Users className="w-4 h-4 mr-2" />
                 Audience
               </TabsTrigger>
               <TabsTrigger 
                 value="voice" 
                 className="w-full justify-start px-4 py-2 font-normal"
               >
+                <MessageSquareText className="w-4 h-4 mr-2" />
                 Voice & Style
               </TabsTrigger>
             </TabsList>

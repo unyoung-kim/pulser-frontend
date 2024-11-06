@@ -12,7 +12,7 @@ import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useContext } from 'react';
 import { useDebounceCallback } from '@/hooks/useDebounceCallback';
 import { createClient } from '@supabase/supabase-js';
 import { Toolbar } from './Toolbar';
@@ -20,6 +20,8 @@ import { useToast } from '@/hooks/use-toast';
 import { SlashCommand } from './extensions/SlashCommand';
 import '@/app/content/editor.css';
 import { EditorSidebar } from './EditorSidebar';
+import React from 'react';
+import { useSidebarState } from "@/contexts/SidebarContext";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -31,6 +33,7 @@ interface ContentEditorProps {
   title: string;
   status: 'drafted' | 'scheduled' | 'published' | 'archived';
   mainKeyword?: string;
+  keywords?: string[];
 }
 
 export function ContentEditor({ 
@@ -39,9 +42,14 @@ export function ContentEditor({
   projectId, 
   title,
   status,
-  mainKeyword 
+  mainKeyword,
+  keywords = []
 }: ContentEditorProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState(status);
+  const [currentTitle, setCurrentTitle] = useState(title);
+  const { toast } = useToast();
+  const { isCollapsed } = useSidebarState();
 
   const editor = useEditor({
     extensions: [
@@ -93,9 +101,91 @@ export function ContentEditor({
         class: 'prose prose-lg max-w-full focus:outline-none',
       },
     },
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      saveContent(html);
+    }
   });
 
+  useEffect(() => {
+    const fetchBodyContent = async () => {
+      try {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        const { data, error } = await supabase
+          .from('ContentBody')
+          .select('body')
+          .eq('content_id', contentId)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (error) throw error;
+        
+        if (data && editor) {
+          console.log('Fetched body content:', data.body);
+          editor.commands.setContent(data.body);
+          
+          if (editor.getHTML()) {
+            saveContent(editor.getHTML());
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching body content:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load content body",
+          variant: "destructive",
+        });
+      }
+    };
+
+    if (editor) {
+      fetchBodyContent();
+    }
+  }, [contentId, editor]);
+
   const saveContent = useDebounceCallback(async (content: string) => {
+    if (!contentId || !projectId) return;
+
+    setIsSaving(true);
+    try {
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      const { error: contentError } = await supabase
+        .from('Content')
+        .update({ 
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', contentId);
+
+      if (contentError) throw contentError;
+
+      const { error: bodyError } = await supabase
+        .from('ContentBody')
+        .upsert({ 
+          content_id: contentId,
+          body: content,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (bodyError) throw bodyError;
+    } catch (error) {
+      console.error('Error saving content:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save content",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  }, 1000);
+
+  const handleStatusChange = (newStatus: string) => {
+    setCurrentStatus(newStatus as 'drafted' | 'scheduled' | 'published' | 'archived');
+  };
+
+  const saveTitle = useDebounceCallback(async (newTitle: string) => {
     if (!contentId || !projectId) return;
 
     setIsSaving(true);
@@ -104,31 +194,41 @@ export function ContentEditor({
       const { error } = await supabase
         .from('Content')
         .update({ 
-          content,
+          title: newTitle,
           updated_at: new Date().toISOString(),
         })
         .eq('id', contentId);
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error saving content:', error);
-      
+      console.error('Error saving title:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save title",
+        variant: "destructive",
+      });
     } finally {
       setIsSaving(false);
     }
   }, 1000);
 
-  useEffect(() => {
-    if (editor?.getHTML()) {
-      saveContent(editor.getHTML());
-    }
-  }, [editor?.getHTML()]);
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setCurrentTitle(newTitle);
+    saveTitle(newTitle);
+  };
 
   return (
     <div className="flex w-full max-w-screen-2xl mx-auto relative">
-      <div className="flex-1 max-w-screen-lg pr-60">
+      <div className="flex-1 max-w-none">
         <div className="mb-4">
-          <h1 className="text-3xl font-bold">{title}</h1>
+          <input
+            type="text"
+            value={currentTitle}
+            onChange={handleTitleChange}
+            className="text-3xl font-bold w-full bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-2 py-1"
+            placeholder="Enter title..."
+          />
         </div>
         
         {editor && <Toolbar editor={editor} isSaving={isSaving} />}
@@ -142,8 +242,10 @@ export function ContentEditor({
         <div className="fixed top-0 right-0 h-screen">
           <EditorSidebar 
             editor={editor}
-            status={status}
-            mainKeyword={mainKeyword}
+            status={currentStatus}
+            keywords={keywords}
+            contentId={contentId}
+            onStatusChange={handleStatusChange}
           />
         </div>
       )}

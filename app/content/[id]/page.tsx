@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@supabase/supabase-js';
 import { Loader } from '@/components/ui/loader';
+import { useSidebarState } from "@/contexts/SidebarContext";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -15,6 +16,7 @@ export default function ContentPage() {
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
   const contentId = params.id;
+  const { isCollapsed } = useSidebarState();
 
   const { data: content, isLoading } = useQuery({
     queryKey: ['content', contentId],
@@ -37,10 +39,14 @@ export default function ContentPage() {
   }
 
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]">
+    <div className={`grid min-h-screen w-full transition-[grid-template-columns] duration-300 ${
+      isCollapsed 
+        ? 'grid-cols-[60px_1fr]' 
+        : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
+    }`}>
       <Sidebar projectId={projectId || ''} />
       <div className="flex flex-col">
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-gray-50">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-gray-50 mr-80">
           <ContentEditor 
             initialContent={content?.content || ''}
             contentId={contentId as string}
@@ -48,6 +54,7 @@ export default function ContentPage() {
             title={content?.title || ''}
             status={content?.status || 'drafted'}
             mainKeyword={content?.keyword}
+            keywords={content?.keywords || []}
           />
         </main>
       </div>

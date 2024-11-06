@@ -5,6 +5,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import { Providers } from './providers';
 import { Toaster } from "@/components/ui/toaster"
 import { ProjectProvider } from '@/contexts/ProjectContext';
+import { SidebarProvider } from '@/contexts/SidebarContext';
 
 export const metadata: Metadata = {
   title: "Pulser",
@@ -19,12 +20,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ClerkProvider>
-          <ProjectProvider>
-            <Providers>{children}</Providers>
-            <Toaster />
-          </ProjectProvider>
-        </ClerkProvider>
+        <SidebarProvider>
+          <ClerkProvider>
+            <ProjectProvider>
+              <Providers>{children}</Providers>
+              <Toaster />
+            </ProjectProvider>
+          </ClerkProvider>
+        </SidebarProvider>
       </body>
     </html>
   );

@@ -10,8 +10,12 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 export interface Project {
   id: number;
   name: string;
+  description: string;
   user_id: string;
   org_id: string;
+  created_at: string;
+  updated_at: string;
+  content_count: number;
 }
 
 interface ProjectContextType {
@@ -37,14 +41,38 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setLoading(true);
     try {
       console.log('Fetching projects for organization:', organization.id);
-      const { data, error } = await supabase
+      
+      // First get all projects
+      const { data: projectsData, error: projectsError } = await supabase
         .from('Project')
         .select('*')
         .eq('org_id', organization.id);
 
-      if (error) throw error;
-      console.log('Fetched projects:', data);
-      setProjects(data || []);
+      if (projectsError) throw projectsError;
+
+      // Then get content counts for each project
+      const promises = projectsData?.map(async (project) => {
+        const { count, error } = await supabase
+          .from('Content')
+          .select('*', { count: 'exact', head: true })
+          .eq('project_id', project.id);
+        
+        return {
+          ...project,
+          content_count: count || 0
+        };
+      }) || [];
+
+      const projectsWithCount = await Promise.all(promises);
+      
+      // Sort projects by content count in descending order
+      const sortedProjects = projectsWithCount.sort((a, b) => 
+        (b.content_count - a.content_count) || // First sort by content count
+        (new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) // Then by creation date if counts are equal
+      );
+      
+      console.log('Fetched and sorted projects:', sortedProjects);
+      setProjects(sortedProjects);
     } catch (error) {
       console.error('Error fetching projects:', error);
     } finally {

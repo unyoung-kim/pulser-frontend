@@ -3,7 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Users, LineChart, Settings, ChevronsUpDown, Cog, Plug, GalleryVerticalEnd } from "lucide-react"
+import { Users, LineChart, Settings, ChevronsUpDown, Cog, Plug, GalleryVerticalEnd, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@clerk/nextjs"
 import {
@@ -15,6 +15,7 @@ import {
 import { useProjects } from "@/contexts/ProjectContext"
 import { Project } from "@/contexts/ProjectContext"
 import { UserButton } from "@clerk/nextjs"
+import { useSidebarState } from "@/contexts/SidebarContext";
 
 interface SidebarProps {
   projectId: string;
@@ -22,6 +23,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ projectId, children }: SidebarProps) {
+  const { isCollapsed, toggleSidebar } = useSidebarState();
   const pathname = usePathname()
   const router = useRouter()
   const { projects } = useProjects();
@@ -45,26 +47,36 @@ export function Sidebar({ projectId, children }: SidebarProps) {
     router.push(`/content?projectId=${project.id}`)
   }
 
+  const handleCollapse = () => {
+    toggleSidebar();
+  };
+
   return (
-    <div className="w-67 border-r bg-white">
-      <div className="flex h-full max-h-screen flex-col">
+    <div className={`sticky top-0 h-screen border-r bg-white transition-all duration-300 ${
+      isCollapsed ? 'w-[60px]' : 'w-[220px] lg:w-[270px]'
+    }`}>
+      <div className="flex h-full flex-col">
         <div className="flex-1 overflow-y-auto">
           {children}
           <div className="px-3 py-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between h-12 text-sm pl-2.5">
+                <Button variant="outline" className={`w-full justify-between h-12 text-sm pl-2.5 ${
+                  isCollapsed ? 'px-0' : ''
+                }`}>
                   <div className="flex items-center gap-2">
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-black text-white">
                       <GalleryVerticalEnd className="size-4" />
                     </div>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-[550]">
-                        {selectedProject ? selectedProject.name : 'Select a project'}
-                      </span>
-                    </div>
+                    {!isCollapsed && (
+                      <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-[550]">
+                          {selectedProject ? selectedProject.name : 'Select a project'}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <ChevronsUpDown className="ml-auto h-4 w-4" />
+                  {!isCollapsed && <ChevronsUpDown className="ml-auto h-4 w-4" />}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-60 rounded-lg p-1">
@@ -99,14 +111,14 @@ export function Sidebar({ projectId, children }: SidebarProps) {
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                 >
-                  <Icon className="mr-3 h-4 w-4" />
-                  <span>{link.name}</span>
+                  <Icon className={`${isCollapsed ? '' : 'mr-3'} h-4 w-4`} />
+                  {!isCollapsed && <span>{link.name}</span>}
                 </Link>
               )
             })}
           </nav>
         </div>
-        <div className="mt-auto">
+        <div className="mt-auto border-t">
           <nav className="grid items-start px-3 text-sm font-medium">
             {bottomLinks.map((link) => {
               const Icon = link.icon
@@ -121,13 +133,13 @@ export function Sidebar({ projectId, children }: SidebarProps) {
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                 >
-                  <Icon className="mr-3 h-4 w-4" />
-                  <span>{link.name}</span>
+                  <Icon className={`${isCollapsed ? '' : 'mr-3'} h-4 w-4`} />
+                  {!isCollapsed && <span>{link.name}</span>}
                 </Link>
               )
             })}
           </nav>
-          <div className="mt-4 px-3">
+          <div className="mt-4 px-3 pb-4">
             <div className="flex items-center w-full">
               <UserButton
                 afterSignOutUrl="/"
@@ -137,17 +149,31 @@ export function Sidebar({ projectId, children }: SidebarProps) {
                   },
                 }}
               />
-              <Button variant="ghost" className="w-full justify-between h-12 text-sm pl-2">
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user?.fullName}</span>
-                  <span className="truncate text-xs">{user?.primaryEmailAddress?.emailAddress}</span>
-                </div>
-                <ChevronsUpDown className="ml-auto size-4" />
-              </Button>
+              {!isCollapsed && (
+                <Button variant="ghost" className="w-full justify-between h-12 text-sm pl-2">
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">{user?.fullName}</span>
+                    <span className="truncate text-xs">{user?.primaryEmailAddress?.emailAddress}</span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto size-4" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleCollapse}
+        className="absolute -right-3 top-1/2 transform -translate-y-1/2 h-6 w-6 rounded-full border bg-white p-0 hover:bg-gray-100"
+      >
+        {isCollapsed ? (
+          <ChevronRight className="h-4 w-4" />
+        ) : (
+          <ChevronLeft className="h-4 w-4" />
+        )}
+      </Button>
     </div>
   )
 }
