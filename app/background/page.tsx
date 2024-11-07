@@ -14,7 +14,7 @@ export default function BackgroundPage() {
     <div className={`grid min-h-screen w-full transition-[grid-template-columns] duration-300 ${
       isCollapsed 
         ? 'grid-cols-[60px_1fr]' 
-        : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
+        : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]' 
     }`}>
       <Sidebar projectId={projectId} />
       <div className="flex flex-col">
