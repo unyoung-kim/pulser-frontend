@@ -36,12 +36,6 @@ interface ContentItem {
 
 const ITEMS_PER_PAGE = 20;
 
-interface CreateContentPayload {
-  keyword?: string;
-  topic?: string;
-  project_id: string;
-}
-
 const Dashboard02 = () => {
   const [view, setView] = useState<'cards' | 'table'>('cards')
   const [status, setStatus] = useState<Status>(Status.All)
@@ -55,7 +49,6 @@ const Dashboard02 = () => {
   const [keywords, setKeywords] = useState<string[]>([]);
   const [topic, setTopic] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  const [additionalKeywords, setAdditionalKeywords] = useState<string[]>([]);
   const { toast } = useToast();
   const router = useRouter();
   const { isCollapsed } = useSidebarState();

@@ -5,7 +5,6 @@ import {
   Bold,
   Italic,
   Underline,
-  Strikethrough,
   Link,
   Image,
   Table,
@@ -17,8 +16,6 @@ import {
   Heading1,
   Heading2,
   Heading3,
-  Quote,
-  Code,
   Undo,
   Redo,
   Check,
@@ -225,7 +222,7 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
             size="sm"
             onClick={addImage}
           >
-            <Image className="h-4 w-4" />
+            <Image className="h-4 w-4" aria-label="Image icon" />
           </Button>
 
           <Button

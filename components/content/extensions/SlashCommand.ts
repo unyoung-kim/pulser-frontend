@@ -1,12 +1,20 @@
-import { Extension } from '@tiptap/core';
+import { Editor, Extension, Range as TiptapRange } from '@tiptap/core';
 import { ReactRenderer } from '@tiptap/react';
-import Suggestion from '@tiptap/suggestion';
-import tippy from 'tippy.js';
+import Suggestion, { SuggestionProps, SuggestionKeyDownProps } from '@tiptap/suggestion';
+import tippy, { Instance, Props } from 'tippy.js';
 import { CommandList } from '../CommandList';
 
 interface CommandItem {
   title: string;
-  command: (editor: any) => void;
+  command: (editor: Editor) => void;
+}
+
+interface CommandProps {
+  editor: Editor;
+  range: TiptapRange;
+  props: {
+    command: (editor: Editor) => void;
+  };
 }
 
 export const SlashCommand = Extension.create({
@@ -16,7 +24,7 @@ export const SlashCommand = Extension.create({
     return {
       suggestion: {
         char: '/',
-        command: ({ editor, range, props }: any) => {
+        command: ({ editor, range, props }: CommandProps) => {
           props.command(editor);
           editor.chain().focus().deleteRange(range).run();
         },
@@ -25,9 +33,11 @@ export const SlashCommand = Extension.create({
   },
 
   addProseMirrorPlugins() {
+    const editor = this.editor;
+    
     return [
       Suggestion({
-        editor: this.editor,
+        editor,
         ...this.options.suggestion,
         items: ({ query }: { query: string }) => {
           const items = CommandList.commands || [];
@@ -36,67 +46,67 @@ export const SlashCommand = Extension.create({
           );
         },
         render: () => {
-          let component: ReactRenderer | null;
-          let popup: any[] = [];
+          let component: ReactRenderer;
+          let popup: Instance<Props>[] | null = null;
 
           return {
-            onStart: props => {
+            onStart: (props: SuggestionProps) => {
               component = new ReactRenderer(CommandList, {
                 props: {
                   ...props,
-                  editor: this.editor,
+                  editor,
                   items: props.items,
                   command: props.command,
                 },
-                editor: this.editor,
+                editor,
               });
 
               if (!props.clientRect) {
                 return;
               }
 
-              popup = tippy('body', {
-                getReferenceClientRect: () => props.clientRect?.(),
+              const rect = props.clientRect();
+              if (!rect) return;
+
+              popup = [tippy(document.body, {
+                getReferenceClientRect: () => rect,
                 appendTo: () => document.body,
                 content: component.element,
                 showOnCreate: true,
                 interactive: true,
                 trigger: 'manual',
                 placement: 'bottom-start',
+              })];
+            },
+
+            onUpdate(props: SuggestionProps) {
+              component?.updateProps({
+                ...props,
+                items: props.items,
+                command: props.command,
+                editor,
+              });
+
+              if (!props.clientRect) return;
+
+              const rect = props.clientRect();
+              if (!rect || !popup?.[0]) return;
+
+              popup[0].setProps({
+                getReferenceClientRect: () => rect,
               });
             },
 
-            onUpdate(props) {
-              if (component) {
-                component.updateProps({
-                  ...props,
-                  items: props.items,
-                  command: props.command,
-                  editor: this.editor,
-                });
-              }
-
-              if (!props.clientRect) {
-                return;
-              }
-
-              popup[0]?.setProps({
-                getReferenceClientRect: () => props.clientRect?.(),
-              });
-            },
-
-            onKeyDown(props) {
+            onKeyDown(props: SuggestionKeyDownProps) {
               if (props.event.key === 'Escape') {
-                popup[0]?.hide();
+                popup?.[0]?.hide();
                 return true;
               }
-              
-              // Remove the onKeyDown call since we're not using keyboard navigation
               return false;
             },
 
             onExit() {
-              popup[0]?.destroy();
+              popup?.[0]?.destroy();
               component?.destroy();
             },
           };

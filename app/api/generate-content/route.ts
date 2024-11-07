@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { keyword, topic, contentId } = body;
+    const { keyword, topic } = body;
 
     // TODO: Implement actual content generation logic
     // This is just a placeholder response

@@ -12,7 +12,7 @@ import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
-import { useCallback, useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { useDebounceCallback } from '@/hooks/useDebounceCallback';
 import { createClient } from '@supabase/supabase-js';
 import { Toolbar } from './Toolbar';
@@ -21,7 +21,6 @@ import { SlashCommand } from './extensions/SlashCommand';
 import '@/app/content/editor.css';
 import { EditorSidebar } from './EditorSidebar';
 import React from 'react';
-import { useSidebarState } from "@/contexts/SidebarContext";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -42,14 +41,49 @@ export function ContentEditor({
   projectId, 
   title,
   status,
-  mainKeyword,
   keywords = []
 }: ContentEditorProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(status);
   const [currentTitle, setCurrentTitle] = useState(title);
   const { toast } = useToast();
-  const { isCollapsed } = useSidebarState();
+
+  const saveContent = useDebounceCallback(async (content: string) => {
+    if (!contentId || !projectId) return;
+
+    setIsSaving(true);
+    try {
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      const { error: contentError } = await supabase
+        .from('Content')
+        .update({ 
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', contentId);
+
+      if (contentError) throw contentError;
+
+      const { error: bodyError } = await supabase
+        .from('ContentBody')
+        .upsert({ 
+          content_id: contentId,
+          body: content,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (bodyError) throw bodyError;
+    } catch (error) {
+      console.error('Error saving content:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save content",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  }, 1000);
 
   const editor = useEditor({
     extensions: [
@@ -122,7 +156,6 @@ export function ContentEditor({
         if (error) throw error;
         
         if (data && editor) {
-          console.log('Fetched body content:', data.body);
           editor.commands.setContent(data.body);
           
           if (editor.getHTML()) {
@@ -142,44 +175,7 @@ export function ContentEditor({
     if (editor) {
       fetchBodyContent();
     }
-  }, [contentId, editor]);
-
-  const saveContent = useDebounceCallback(async (content: string) => {
-    if (!contentId || !projectId) return;
-
-    setIsSaving(true);
-    try {
-      const supabase = createClient(supabaseUrl, supabaseKey);
-      
-      const { error: contentError } = await supabase
-        .from('Content')
-        .update({ 
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', contentId);
-
-      if (contentError) throw contentError;
-
-      const { error: bodyError } = await supabase
-        .from('ContentBody')
-        .upsert({ 
-          content_id: contentId,
-          body: content,
-          updated_at: new Date().toISOString(),
-        });
-
-      if (bodyError) throw bodyError;
-    } catch (error) {
-      console.error('Error saving content:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save content",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  }, 1000);
+  }, [contentId, editor, saveContent, toast]);
 
   const handleStatusChange = (newStatus: string) => {
     setCurrentStatus(newStatus as 'drafted' | 'scheduled' | 'published' | 'archived');

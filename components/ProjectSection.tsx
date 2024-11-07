@@ -7,32 +7,6 @@ import { Loader } from "@/components/ui/loader";
 import { useProjects } from "@/contexts/ProjectContext";
 import { FolderIcon, PlusCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 
-// Updated utility function to handle PostgreSQL timestamp format
-const formatDate = (dateStr: string) => {
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return ''; // Return empty string if date is invalid
-    
-    const now = new Date();
-    const diff = now.getTime() - d.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
-    if (days < 0) return 'Just now'; // For future dates (in case of clock mismatch)
-    if (days === 0) return 'Today';
-    if (days === 1) return 'Yesterday';
-    if (days < 7) return `${days} days ago`;
-    
-    // Format: "Mar 15, 2024"
-    return d.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
-  } catch (error) {
-    return ''; // Return empty string if date parsing fails
-  }
-};
-
 // Update the getLastUpdatedText function to show days ago
 const getLastUpdatedText = (dateStr: string) => {
   try {
@@ -47,7 +21,7 @@ const getLastUpdatedText = (dateStr: string) => {
     if (hours < 24) return `${hours} hours ago`;
     if (days === 1) return '1 day ago';
     return `${days} days ago`;
-  } catch (error) {
+  } catch {
     return '';
   }
 };
@@ -77,7 +51,7 @@ export default function ProjectSection() {
     } catch (error) {
       console.error('Error creating project:', error);
     }
-  }, [newProjectName, newProjectDescription, fetchProjects]);
+  }, [newProjectName, fetchProjects]);
 
   return (
     <div className="flex-1 bg-gray-50 min-h-screen">

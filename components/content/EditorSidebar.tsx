@@ -3,9 +3,6 @@ import { Editor } from '@tiptap/react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Heading1,
-  Image as ImageIcon,
-  Text,
   Link as LinkIcon,
   ExternalLink,
   ListTree,
@@ -128,10 +125,6 @@ export function EditorSidebar({
       
       if (headingIndex >= 0 && headingsArray[headingIndex]) {
         const headingElement = headingsArray[headingIndex];
-        
-        // Get the editor container's offset from the top of the page
-        const editorContainer = document.querySelector('.prose-container');
-        const editorOffset = editorContainer?.getBoundingClientRect().top ?? 0;
         
         // Calculate the heading's absolute position
         const headingRect = headingElement.getBoundingClientRect();

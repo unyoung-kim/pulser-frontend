@@ -16,7 +16,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Progress } from "@/components/ui/progress";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { 
@@ -105,7 +104,7 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
             variant: "default",
           });
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Error loading saved data:', error);
         toast({
           title: "Warning",
@@ -116,7 +115,7 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
     };
 
     loadSavedData();
-  }, [form, projectId]);
+  }, [form, projectId, toast]);
 
   const handleSubmit = async (data: Background) => {
     setLoading(true);
@@ -134,7 +133,8 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
         description: "Your background information has been saved successfully.",
         variant: "default",
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Failed to save:', error);
       toast({
         title: "Something went wrong",
         description: "Failed to save background information. Please try again.",
@@ -491,7 +491,7 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                       <div>
                         <h3 className="text-lg font-medium">Brand Voice</h3>
                         <p className="text-sm text-muted-foreground">
-                          Help us match your brand's tone and style.
+                          Help us match your brand&apos;s tone and style.
                         </p>
                       </div>
                       <SaveButton />

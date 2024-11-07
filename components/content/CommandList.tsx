@@ -11,13 +11,20 @@ import {
   Type
 } from 'lucide-react';
 
-interface CommandProps {
-  editor: Editor;
-  items: typeof commands;
-  command: (command: any) => void;
+interface CommandItem {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  command: (editor: Editor) => void;
 }
 
-const commands = [
+interface CommandProps {
+  editor: Editor;
+  items: CommandItem[];
+  command: (item: CommandItem) => void;
+}
+
+const commands: CommandItem[] = [
   {
     title: 'Text',
     description: 'Just start writing with plain text.',
@@ -64,7 +71,7 @@ const commands = [
   {
     title: 'Image',
     description: 'Upload or embed an image.',
-    icon: <Image className="w-12 h-12 p-2 border rounded bg-white shadow-sm" />,
+    icon: <Image className="w-12 h-12 p-2 border rounded bg-white shadow-sm" aria-label="Image icon" />,
     command: (editor: Editor) => {
       const url = window.prompt('Enter image URL');
       if (url) {
@@ -74,8 +81,13 @@ const commands = [
   },
 ];
 
-export const CommandList = forwardRef<HTMLDivElement, CommandProps>((props, ref) => {
-  const { items = commands, command, editor } = props;
+interface CommandListComponent
+  extends React.ForwardRefExoticComponent<CommandProps & React.RefAttributes<HTMLDivElement>> {
+  commands?: CommandItem[];
+}
+
+export const CommandList: CommandListComponent = forwardRef<HTMLDivElement, CommandProps>((props, ref) => {
+  const { items = commands, command } = props;
 
   return (
     <div 
@@ -102,5 +114,4 @@ export const CommandList = forwardRef<HTMLDivElement, CommandProps>((props, ref)
 });
 
 CommandList.displayName = 'CommandList';
-// Export commands for filtering in SlashCommand extension
 CommandList.commands = commands;
