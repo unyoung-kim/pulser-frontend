@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { X } from "lucide-react"
-import { useState } from "react"
+import { useState, useCallback } from "react"
 
 interface CreateContentDialogProps {
   open: boolean;
@@ -30,23 +30,23 @@ export function CreateContentDialog({
 }: CreateContentDialogProps) {
   const [newKeyword, setNewKeyword] = useState("");
 
-  const handleAddKeyword = () => {
+  const handleAddKeyword = useCallback(() => {
     if (newKeyword.trim() && !keywords.includes(newKeyword.trim())) {
       onKeywordsChange([...keywords, newKeyword.trim()]);
       setNewKeyword("");
     }
-  };
+  }, [newKeyword, keywords, onKeywordsChange]);
 
-  const handleRemoveKeyword = (keywordToRemove: string) => {
+  const handleRemoveKeyword = useCallback((keywordToRemove: string) => {
     onKeywordsChange(keywords.filter(k => k !== keywordToRemove));
-  };
+  }, [keywords, onKeywordsChange]);
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddKeyword();
     }
-  };
+  }, [handleAddKeyword]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

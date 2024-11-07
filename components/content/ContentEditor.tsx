@@ -12,7 +12,7 @@ import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
-import { useEffect, useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useDebounceCallback } from '@/hooks/useDebounceCallback';
 import { createClient } from '@supabase/supabase-js';
 import { Toolbar } from './Toolbar';
@@ -21,6 +21,7 @@ import { SlashCommand } from './extensions/SlashCommand';
 import '@/app/content/editor.css';
 import { EditorSidebar } from './EditorSidebar';
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -43,9 +44,9 @@ export function ContentEditor({
   status,
   keywords = []
 }: ContentEditorProps) {
-  const [isSaving, setIsSaving] = useState(false);
-  const [currentStatus, setCurrentStatus] = useState(status);
-  const [currentTitle, setCurrentTitle] = useState(title);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [currentStatus, setCurrentStatus] = useState<'drafted' | 'scheduled' | 'published' | 'archived'>(status);
+  const [currentTitle, setCurrentTitle] = useState<string>(title);
   const { toast } = useToast();
 
   const saveContent = useDebounceCallback(async (content: string) => {
@@ -141,41 +142,40 @@ export function ContentEditor({
     }
   });
 
-  useEffect(() => {
-    const fetchBodyContent = async () => {
-      try {
-        const supabase = createClient(supabaseUrl, supabaseKey);
-        const { data, error } = await supabase
-          .from('ContentBody')
-          .select('body')
-          .eq('content_id', contentId)
-          .order('updated_at', { ascending: false })
-          .limit(1)
-          .single();
+  useQuery({
+    queryKey: ['contentBody', contentId],
+    queryFn: async () => {
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      const { data, error } = await supabase
+        .from('ContentBody')
+        .select('body')
+        .eq('content_id', contentId)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single();
 
-        if (error) throw error;
+      if (error) throw error;
+      return data?.body;
+    },
+    enabled: !!contentId && !!editor,
+    onSuccess: (data) => {
+      if (data && editor) {
+        editor.commands.setContent(data);
         
-        if (data && editor) {
-          editor.commands.setContent(data.body);
-          
-          if (editor.getHTML()) {
-            saveContent(editor.getHTML());
-          }
+        if (editor.getHTML()) {
+          saveContent(editor.getHTML());
         }
-      } catch (error) {
-        console.error('Error fetching body content:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load content body",
-          variant: "destructive",
-        });
       }
-    };
-
-    if (editor) {
-      fetchBodyContent();
+    },
+    onError: (error) => {
+      console.error('Error fetching body content:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load content body",
+        variant: "destructive",
+      });
     }
-  }, [contentId, editor, saveContent, toast]);
+  });
 
   const handleStatusChange = (newStatus: string) => {
     setCurrentStatus(newStatus as 'drafted' | 'scheduled' | 'published' | 'archived');
@@ -208,11 +208,11 @@ export function ContentEditor({
     }
   }, 1000);
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
     setCurrentTitle(newTitle);
     saveTitle(newTitle);
-  };
+  }, [saveTitle]);
 
   return (
     <div className="flex w-full max-w-screen-2xl mx-auto relative">

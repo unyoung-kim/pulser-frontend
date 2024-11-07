@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { useCallback } from 'react';
 
 interface ToolbarProps {
   editor: Editor;
@@ -29,21 +30,21 @@ interface ToolbarProps {
 }
 
 export function Toolbar({ editor, isSaving }: ToolbarProps) {
-  const addImage = () => {
+  const addImage = useCallback(() => {
     const url = window.prompt('Enter image URL');
     if (url) {
       editor.chain().focus().setImage({ src: url }).run();
     }
-  };
+  }, [editor]);
 
-  const addLink = () => {
+  const addLink = useCallback(() => {
     const url = window.prompt('Enter URL');
     if (url) {
       editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     }
-  };
+  }, [editor]);
 
-  const addTableControls = () => {
+  const addTableControls = useCallback(() => {
     return (
       <div className="flex items-center gap-1">
         <Button
@@ -96,7 +97,7 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
         </Button>
       </div>
     );
-  };
+  }, [editor]);
 
   return (
     <div className="border border-input bg-transparent rounded-md mb-4">

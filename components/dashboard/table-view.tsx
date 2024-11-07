@@ -40,9 +40,9 @@ export function TableView({ items, loading, hasNextPage, onLoadMore }: TableView
     rootMargin: '0px 0px 400px 0px',
   });
 
-  const handleRowClick = (contentId: number) => {
+  const handleRowClick = useCallback((contentId: number) => {
     router.push(`/content/${contentId}?projectId=${projectId}`);
-  };
+  }, [router, projectId]);
 
   const formatDate = useCallback((dateString: string) => {
     return format(new Date(dateString), 'yyyy-MM-dd hh:mm a')

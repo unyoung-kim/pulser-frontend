@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useMemo, useCallback } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Users, Settings, ChevronsUpDown, Cog, Plug, GalleryVerticalEnd, ChevronLeft, ChevronRight } from "lucide-react"
@@ -29,8 +29,11 @@ export function Sidebar({ projectId, children }: SidebarProps) {
   const { projects } = useProjects();
   const { user } = useUser()
 
-  // Find the selected project based on the projectId prop
-  const selectedProject = projects.find(p => p.id.toString() === projectId) || null;
+  // Memoize the selected project
+  const selectedProject = useMemo(() => 
+    projects.find(p => p.id.toString() === projectId) || null,
+    [projects, projectId]
+  );
 
   const links = [
     { name: "Content", href: "/content", icon: Users },
@@ -42,13 +45,13 @@ export function Sidebar({ projectId, children }: SidebarProps) {
     { name: "Settings", href: "/settings", icon: Cog },
   ]
 
-  const handleProjectSelect = (project: Project) => {
+  const handleProjectSelect = useCallback((project: Project) => {
     router.push(`/content?projectId=${project.id}`)
-  }
+  }, [router]);
 
-  const handleCollapse = () => {
+  const handleCollapse = useCallback(() => {
     toggleSidebar();
-  };
+  }, [toggleSidebar]);
 
   return (
     <div className={`sticky top-0 h-screen border-r bg-white transition-all duration-300 ${

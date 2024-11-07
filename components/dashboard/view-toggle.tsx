@@ -24,7 +24,7 @@ interface ViewToggleProps {
 }
 
 export function ViewToggle({ view, setView, status, setStatus, onNewContent }: ViewToggleProps) {
-  const statuses = Object.values(Status)
+  const statuses: Status[] = Object.values(Status);
 
   return (
     <div className="flex items-center justify-between h-6 mb-4">
