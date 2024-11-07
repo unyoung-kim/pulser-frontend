@@ -9,7 +9,6 @@ import { FolderIcon, PlusCircleIcon, DocumentTextIcon } from '@heroicons/react/2
 import { useUser, useOrganization } from "@clerk/nextjs";
 import { createClient } from '@supabase/supabase-js';
 
-// Update the getLastUpdatedText function to show days ago
 const getLastUpdatedText = (dateStr: string) => {
   try {
     const date = new Date(dateStr);

@@ -14,7 +14,7 @@ interface TableViewProps {
     updated_at: string
     created_at: string
     image_url: string
-    keyword?: string // Make keyword optional
+    keywords?: string[]
     description?: string
     date?: string
     type?: string
@@ -25,10 +25,7 @@ interface TableViewProps {
   onLoadMore: () => void
 }
 
-const dummyKeywords = [
-  "AI", "Machine Learning", "Data Science", "Cloud Computing", 
-  "Blockchain", "IoT", "Cybersecurity", "DevOps", "Big Data", "VR/AR"
-];
+const DEFAULT_IMAGE = 'https://picsum.photos/seed/default/100/100';
 
 export function TableView({ items, loading, hasNextPage, onLoadMore }: TableViewProps) {
   const router = useRouter();
@@ -60,7 +57,7 @@ export function TableView({ items, loading, hasNextPage, onLoadMore }: TableView
               <tr className="bg-gray-50">
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Image</th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Title</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Keyword</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Keywords</th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Status</th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Created At</th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Updated At</th>
@@ -75,18 +72,26 @@ export function TableView({ items, loading, hasNextPage, onLoadMore }: TableView
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Image
-                      src={`https://picsum.photos/seed/${item.id}/200/200`}
+                      src={item.image_url || DEFAULT_IMAGE}
                       alt={item.title}
-                      width={200}
-                      height={200}
+                      width={100}
+                      height={100}
                       className="rounded"
                     />
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{item.title}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Button variant="ghost" className="bg-indigo-50 text-indigo-700 px-2 py-0 h-5 hover:bg-indigo-100 text-xs">
-                      {item.keyword || dummyKeywords[Math.floor(Math.random() * dummyKeywords.length)]}
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      {item.keywords?.map((keyword, index) => (
+                        <Button 
+                          key={index}
+                          variant="ghost" 
+                          className="bg-indigo-50 text-indigo-700 px-2 py-0 h-5 hover:bg-indigo-100 text-xs"
+                        >
+                          {keyword}
+                        </Button>
+                      ))}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Badge variant={item.status === 'Scheduled' ? 'default' : 'secondary'} className="text-xs bg-indigo-100 text-indigo-800 hover:bg-indigo-200 cursor-pointer">
