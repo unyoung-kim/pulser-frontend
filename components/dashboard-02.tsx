@@ -161,7 +161,7 @@ const Dashboard02 = () => {
         body: JSON.stringify({
           projectId: projectId,
           inputTopic: topic,
-          keyword: keywords[0],
+          keyword: keywords.join(', '),
         }),
       });
 
