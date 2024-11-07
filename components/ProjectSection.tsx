@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { useProjects } from "@/contexts/ProjectContext";
 import { FolderIcon, PlusCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { useUser, useOrganization } from "@clerk/nextjs";
+import { createClient } from '@supabase/supabase-js';
 
 // Update the getLastUpdatedText function to show days ago
 const getLastUpdatedText = (dateStr: string) => {
@@ -31,27 +33,48 @@ export default function ProjectSection() {
   const [newProjectDescription, setNewProjectDescription] = useState<string>('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
   const { projects, loading, fetchProjects } = useProjects();
+  const { user } = useUser();
+  const { organization } = useOrganization();
   const router = useRouter();
 
-  const navigateToContent = (projectId: string) => {
+  const navigateToContent = useCallback((projectId: string) => {
     router.push(`/content?projectId=${projectId}`);
-  };
+  }, [router]);
 
   const createProject = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newProjectName.trim()) return;
+    if (!newProjectName.trim() || !user || !organization) return;
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
     try {
-      // Implement project creation logic here with description
-      // After successful creation:
+      const { data, error } = await supabase
+        .from('Project')
+        .insert([{ 
+          name: newProjectName,
+          description: newProjectDescription, 
+          clerk_user_id: user.id,
+          org_id: organization.id
+        }])
+        .select();
+
+      if (error) throw error;
+
       await fetchProjects(); // Refresh the projects list
       setIsCreateDialogOpen(false);
       setNewProjectName('');
       setNewProjectDescription('');
+      
+      if (data?.[0]) {
+        navigateToContent(data[0].id.toString());
+      }
     } catch (error) {
       console.error('Error creating project:', error);
     }
-  }, [newProjectName, fetchProjects]);
+  }, [newProjectName, newProjectDescription, fetchProjects, navigateToContent, user, organization]);
 
   return (
     <div className="flex-1 bg-gray-50 min-h-screen">

@@ -3,7 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Users, LineChart, Settings, ChevronsUpDown, Cog, Plug, GalleryVerticalEnd, ChevronLeft, ChevronRight } from "lucide-react"
+import { Users, Settings, ChevronsUpDown, Cog, Plug, GalleryVerticalEnd, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@clerk/nextjs"
 import {
@@ -33,7 +33,6 @@ export function Sidebar({ projectId, children }: SidebarProps) {
   const selectedProject = projects.find(p => p.id.toString() === projectId) || null;
 
   const links = [
-    { name: "Dashboard", href: "/dashboard", icon: LineChart },
     { name: "Content", href: "/content", icon: Users },
     { name: "Background", href: "/background", icon: Settings },
   ]

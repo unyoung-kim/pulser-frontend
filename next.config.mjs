@@ -1,7 +1,22 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['picsum.photos','img.clerk.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**', // This will allow all domains - use with caution
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
+    ],
+    // Alternatively, if you want to be more specific, list known domains:
+    // domains: [
+    //   'picsum.photos',
+    //   'www.comstar.com.pk',
+    //   // Add other known domains here
+    // ],
   },
 };
 

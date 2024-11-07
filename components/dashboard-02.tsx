@@ -12,9 +12,9 @@ import { Separator } from "@/components/ui/separator"
 import { useQuery } from '@tanstack/react-query';
 import { Status } from "@/components/dashboard/view-toggle"
 import { useToast } from "@/hooks/use-toast"
-import { useRouter } from "next/navigation"
 import { CreateContentDialog } from "@/components/content/CreateContentDialog"
 import { useSidebarState } from "@/contexts/SidebarContext";
+import { Plus } from 'lucide-react';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -50,7 +50,6 @@ const Dashboard02 = () => {
   const [topic, setTopic] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
-  const router = useRouter();
   const { isCollapsed } = useSidebarState();
   
   const pathname = usePathname()
@@ -153,57 +152,31 @@ const Dashboard02 = () => {
 
     setIsCreating(true);
     try {
-      // 1. Create content entry
-      const { data, error: contentError } = await supabase
-        .from('Content')
-        .insert({
-          project_id: projectId,
-          keywords: keywords,
-          topic,
-          status: 'draft',
-          title: topic || keywords[0],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
-
-      if (contentError || !data) throw contentError;
-
-      // 2. Generate content
-      const response = await fetch('/api/generate-content', {
+      const backendUrl = 'https://pulser-backend.onrender.com';
+      const response = await fetch(`${backendUrl}/api/web-retrieval`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
+          projectId: projectId,
+          inputTopic: topic,
           keyword: keywords[0],
-          topic,
-          contentId: data.id,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate content');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to generate content');
       }
 
-      const generatedContent = await response.json();
+      const { success, data, error } = await response.json();
 
-      // 3. Save generated content
-      const { error: bodyError } = await supabase
-        .from('ContentBody')
-        .insert({
-          content_id: data.id,
-          body: generatedContent.html,
-        });
+      if (!success) {
+        throw new Error(error || 'Failed to generate content' || data);
+      }
 
-      if (bodyError) throw bodyError;
-
-      toast({
-        title: "Success",
-        description: "Content created successfully",
-      });
-
-      // 4. Navigate to editor
-      router.push(`/content/${data.id}?projectId=${projectId}`);
+      fetchContent();
     } catch (error) {
       console.error('Error creating content:', error);
       toast({
@@ -259,20 +232,42 @@ const Dashboard02 = () => {
               onNewContent={() => setIsCreateModalOpen(true)}
             />
           </div>
-          {view === 'cards' ? (
-            <CardView 
-              items={filteredItems} 
-              loading={isLoading} 
-              hasNextPage={hasNextPage}
-              onLoadMore={loadMoreItems}
-            />
+          {items.length === 0 ? (
+            <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-gray-300 shadow-sm mt-4">
+              <div className="flex flex-col items-center gap-1 text-center p-8">
+                <h3 className="text-2xl font-bold tracking-tight text-gray-900">
+                  No content available
+                </h3>
+                <p className="text-sm text-gray-500 mt-2">
+                  Get started by creating your first piece of content
+                </p>
+                <Button 
+                  variant="default"
+                  size="sm"
+                  className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
+                  onClick={() => setIsCreateModalOpen(true)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Content
+                </Button>
+              </div>
+            </div>
           ) : (
-            <TableView 
-              items={filteredItems}
-              loading={isLoading}
-              hasNextPage={hasNextPage}
-              onLoadMore={loadMoreItems}
-            />
+            view === 'cards' ? (
+              <CardView 
+                items={filteredItems} 
+                loading={isLoading} 
+                hasNextPage={hasNextPage}
+                onLoadMore={loadMoreItems}
+              />
+            ) : (
+              <TableView 
+                items={filteredItems}
+                loading={isLoading}
+                hasNextPage={hasNextPage}
+                onLoadMore={loadMoreItems}
+              />
+            )
           )}
 
           <CreateContentDialog
