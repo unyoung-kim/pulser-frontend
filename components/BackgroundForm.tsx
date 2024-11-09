@@ -1,6 +1,4 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -10,26 +8,30 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { 
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
   Building2,
+  CheckCircle,
+  Loader2,
+  MessageSquareText,
   Package2,
   Users,
-  MessageSquareText,
-  CheckCircle
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const BackgroundSchema = z.object({
   basic: z.object({
     nameAndCompanyUrl: z.string().nonempty("Name & Company URL is required"),
-    industryKeywords: z.string().nonempty("At least one industry/keyword is required"),
+    industryKeywords: z
+      .string()
+      .nonempty("At least one industry/keyword is required"),
   }),
   product: z.object({
     companyFunction: z.string().nonempty("Company function is required"),
@@ -39,8 +41,12 @@ const BackgroundSchema = z.object({
     companyMission: z.string().optional(),
   }),
   audience: z.object({
-    customerStruggles: z.string().nonempty("At least 2 customer struggles are required"),
-    customerDescription: z.string().nonempty("Customer description is required"),
+    customerStruggles: z
+      .string()
+      .nonempty("At least 2 customer struggles are required"),
+    customerDescription: z
+      .string()
+      .nonempty("Customer description is required"),
   }),
   voice: z.object({
     writingStyle: z.string().optional(),
@@ -55,7 +61,11 @@ interface BackgroundFormProps {
   loading?: boolean;
 }
 
-export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }: BackgroundFormProps) {
+export function BackgroundForm({
+  projectId,
+  onSubmit,
+  loading: externalLoading,
+}: BackgroundFormProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const form = useForm<Background>({
@@ -81,16 +91,16 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
         let savedData: Background | null = null;
 
         // Try to load from localStorage first
-        const localData = localStorage.getItem('backgroundInfo');
+        const localData = localStorage.getItem("backgroundInfo");
         if (localData) {
           savedData = JSON.parse(localData);
         }
-        
+
         // If we have projectId and no local data, we could fetch from API here
         if (projectId && !savedData) {
           const response = await fetch(`/api/background/${projectId}`);
           if (!response.ok) {
-            throw new Error('Failed to fetch data from API');
+            throw new Error("Failed to fetch data from API");
           }
           savedData = await response.json();
         }
@@ -105,7 +115,7 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
           });
         }
       } catch (error: unknown) {
-        console.error('Error loading saved data:', error);
+        console.error("Error loading saved data:", error);
         toast({
           title: "Warning",
           description: "Could not load your previously saved information.",
@@ -124,17 +134,17 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
         await onSubmit(data);
       } else {
         // Simulate API delay for localStorage
-        await new Promise(resolve => setTimeout(resolve, 500));
-        localStorage.setItem('backgroundInfo', JSON.stringify(data));
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        localStorage.setItem("backgroundInfo", JSON.stringify(data));
       }
-      
+
       toast({
         title: "Success!",
         description: "Your background information has been saved successfully.",
         variant: "default",
       });
     } catch (error: unknown) {
-      console.error('Failed to save:', error);
+      console.error("Failed to save:", error);
       toast({
         title: "Something went wrong",
         description: "Failed to save background information. Please try again.",
@@ -148,37 +158,68 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
   // Calculate completion percentages
   const calculateProgress = () => {
     const formValues = form.getValues();
-    
+
     // Helper function to check if a field has value
     const hasValue = (value: string | undefined): boolean => {
-      return Boolean(value && value.trim() !== '');
+      return Boolean(value && value.trim() !== "");
     };
 
     // Required fields
     const requiredFields = [
-      { path: 'basic.nameAndCompanyUrl', value: formValues.basic.nameAndCompanyUrl },
-      { path: 'basic.industryKeywords', value: formValues.basic.industryKeywords },
-      { path: 'product.companyFunction', value: formValues.product.companyFunction },
-      { path: 'product.valueProposition', value: formValues.product.valueProposition },
-      { path: 'product.productsToSell', value: formValues.product.productsToSell },
-      { path: 'audience.customerStruggles', value: formValues.audience.customerStruggles },
-      { path: 'audience.customerDescription', value: formValues.audience.customerDescription }
+      {
+        path: "basic.nameAndCompanyUrl",
+        value: formValues.basic.nameAndCompanyUrl,
+      },
+      {
+        path: "basic.industryKeywords",
+        value: formValues.basic.industryKeywords,
+      },
+      {
+        path: "product.companyFunction",
+        value: formValues.product.companyFunction,
+      },
+      {
+        path: "product.valueProposition",
+        value: formValues.product.valueProposition,
+      },
+      {
+        path: "product.productsToSell",
+        value: formValues.product.productsToSell,
+      },
+      {
+        path: "audience.customerStruggles",
+        value: formValues.audience.customerStruggles,
+      },
+      {
+        path: "audience.customerDescription",
+        value: formValues.audience.customerDescription,
+      },
     ];
 
     // All fields (including optional)
     const allFields = [
       ...requiredFields,
-      { path: 'product.competitiveAdvantage', value: formValues.product.competitiveAdvantage },
-      { path: 'product.companyMission', value: formValues.product.companyMission },
-      { path: 'voice.writingStyle', value: formValues.voice.writingStyle }
+      {
+        path: "product.competitiveAdvantage",
+        value: formValues.product.competitiveAdvantage,
+      },
+      {
+        path: "product.companyMission",
+        value: formValues.product.companyMission,
+      },
+      { path: "voice.writingStyle", value: formValues.voice.writingStyle },
     ];
 
-    const filledRequired = requiredFields.filter(field => hasValue(field.value)).length;
-    const filledTotal = allFields.filter(field => hasValue(field.value)).length;
+    const filledRequired = requiredFields.filter((field) =>
+      hasValue(field.value)
+    ).length;
+    const filledTotal = allFields.filter((field) =>
+      hasValue(field.value)
+    ).length;
 
     return {
       required: Math.round((filledRequired / requiredFields.length) * 100),
-      total: Math.round((filledTotal / allFields.length) * 100)
+      total: Math.round((filledTotal / allFields.length) * 100),
     };
   };
 
@@ -186,14 +227,14 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
 
   // Update the Button component in each tab section:
   const SaveButton = () => (
-    <Button 
-      type="submit" 
+    <Button
+      type="submit"
       onClick={form.handleSubmit(handleSubmit)}
       disabled={loading || externalLoading}
       className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm min-w-[100px]"
       size="sm"
     >
-      {(loading || externalLoading) ? (
+      {loading || externalLoading ? (
         <>
           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           Saving...
@@ -208,13 +249,14 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
   );
 
   return (
-    <div className="space-y-6 p-10 pb-16">
+    <>
       <div className="flex justify-between items-start gap-8">
         <div className="space-y-0.5">
           <h2 className="text-2xl font-bold tracking-tight">Background</h2>
           <p className="text-sm text-muted-foreground max-w-[450px]">
-            Help us get to know your business to generate relevant articles.
-            The more information you provide, the better content we can create for you.
+            Help us get to know your business to generate relevant articles. The
+            more information you provide, the better content we can create for
+            you.
           </p>
         </div>
 
@@ -232,49 +274,49 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
             </div>
             <span className="text-sm font-medium">{progress.required}%</span>
           </div>
-          
+
           <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div 
+            <div
               className="absolute left-0 top-0 h-full bg-indigo-600 transition-all duration-300"
               style={{ width: `${progress.required}%` }}
             />
-            <div 
+            <div
               className="absolute left-0 top-0 h-full bg-indigo-200 transition-all duration-300"
               style={{ width: `${progress.total}%` }}
             />
           </div>
         </div>
       </div>
-      
+
       <Separator className="my-6" />
 
       <Tabs defaultValue="basic" className="w-full">
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
           <aside className="-mx-4 lg:w-1/5">
             <TabsList className="flex flex-col h-auto space-y-1 bg-transparent p-0">
-              <TabsTrigger 
-                value="basic" 
+              <TabsTrigger
+                value="basic"
                 className="w-full justify-start px-4 py-2 font-normal"
               >
                 <Building2 className="w-4 h-4 mr-2" />
                 Basic Information
               </TabsTrigger>
-              <TabsTrigger 
-                value="product" 
+              <TabsTrigger
+                value="product"
                 className="w-full justify-start px-4 py-2 font-normal"
               >
                 <Package2 className="w-4 h-4 mr-2" />
                 Product Details
               </TabsTrigger>
-              <TabsTrigger 
-                value="audience" 
+              <TabsTrigger
+                value="audience"
                 className="w-full justify-start px-4 py-2 font-normal"
               >
                 <Users className="w-4 h-4 mr-2" />
                 Audience
               </TabsTrigger>
-              <TabsTrigger 
-                value="voice" 
+              <TabsTrigger
+                value="voice"
                 className="w-full justify-start px-4 py-2 font-normal"
               >
                 <MessageSquareText className="w-4 h-4 mr-2" />
@@ -285,12 +327,17 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
 
           <div className="flex-1 lg:max-w-2xl">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+              <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className="space-y-8"
+              >
                 <TabsContent value="basic">
                   <div className="space-y-6">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-lg font-medium">Basic Information</h3>
+                        <h3 className="text-lg font-medium">
+                          Basic Information
+                        </h3>
                         <p className="text-sm text-muted-foreground">
                           Essential details about your company.
                         </p>
@@ -298,7 +345,7 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                       <SaveButton />
                     </div>
                     <Separator />
-                    
+
                     <FormField
                       control={form.control}
                       name="basic.nameAndCompanyUrl"
@@ -306,7 +353,10 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                         <FormItem>
                           <FormLabel>Name & Company URL *</FormLabel>
                           <FormControl>
-                            <Input placeholder="John Doe - www.example.com" {...field} />
+                            <Input
+                              placeholder="John Doe - www.example.com"
+                              {...field}
+                            />
                           </FormControl>
                           <FormDescription>
                             Your company name and website URL.
@@ -323,10 +373,14 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                         <FormItem>
                           <FormLabel>Industry Keywords *</FormLabel>
                           <FormControl>
-                            <Input placeholder="E.g., Technology, SaaS, B2B" {...field} />
+                            <Input
+                              placeholder="E.g., Technology, SaaS, B2B"
+                              {...field}
+                            />
                           </FormControl>
                           <FormDescription>
-                            Keywords that best describe your industry and business focus.
+                            Keywords that best describe your industry and
+                            business focus.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -341,13 +395,14 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                       <div>
                         <h3 className="text-lg font-medium">Product Details</h3>
                         <p className="text-sm text-muted-foreground">
-                          Tell us about your products and what makes them unique.
+                          Tell us about your products and what makes them
+                          unique.
                         </p>
                       </div>
                       <SaveButton />
                     </div>
                     <Separator />
-                    
+
                     <FormField
                       control={form.control}
                       name="product.companyFunction"
@@ -355,10 +410,10 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                         <FormItem>
                           <FormLabel>Company Function *</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="What does your company do/sell? Be specific about your main products or services."
                               className="min-h-[100px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
@@ -373,10 +428,10 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                         <FormItem>
                           <FormLabel>Key Value Proposition *</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="What unique value do you provide to your customers? What problems do you solve?"
                               className="min-h-[100px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
@@ -391,14 +446,15 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                         <FormItem>
                           <FormLabel>Products to Sell *</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="List up to 3 products in this format:&#10;Product Name - Brief description of the product&#10;Example:&#10;Premium Plan - Full access to all features with priority support"
                               className="min-h-[150px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormDescription>
-                            Maximum 3 products. Format: Name - Description (one per line)
+                            Maximum 3 products. Format: Name - Description (one
+                            per line)
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -412,14 +468,15 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                         <FormItem>
                           <FormLabel>Competitive Advantage</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="What makes your product different from competitors? What unique features or benefits do you offer?"
                               className="min-h-[100px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormDescription>
-                            Optional, but helps us highlight your unique selling points
+                            Optional, but helps us highlight your unique selling
+                            points
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -434,13 +491,14 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                       <div>
                         <h3 className="text-lg font-medium">Target Audience</h3>
                         <p className="text-sm text-muted-foreground">
-                          Help us understand who your customers are and their needs.
+                          Help us understand who your customers are and their
+                          needs.
                         </p>
                       </div>
                       <SaveButton />
                     </div>
                     <Separator />
-                    
+
                     <FormField
                       control={form.control}
                       name="audience.customerStruggles"
@@ -448,14 +506,15 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                         <FormItem>
                           <FormLabel>Customer Pain Points *</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="List 2-3 key challenges your customers face (one per line)&#10;Example:&#10;1. Difficulty managing remote teams effectively&#10;2. Lack of visibility into project progress&#10;3. Communication gaps between departments"
                               className="min-h-[150px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormDescription>
-                            2-3 points that describe what problems your customers are trying to solve
+                            2-3 points that describe what problems your
+                            customers are trying to solve
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -469,10 +528,10 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                         <FormItem>
                           <FormLabel>Customer Profile *</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="Describe your target customer (age, gender, job title, etc.)&#10;Example: Working mothers aged 30-45 who make purchasing decisions for their children's fitness activities"
                               className="min-h-[100px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormDescription>
@@ -497,7 +556,7 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                       <SaveButton />
                     </div>
                     <Separator />
-                    
+
                     <FormField
                       control={form.control}
                       name="voice.writingStyle"
@@ -505,14 +564,15 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
                         <FormItem>
                           <FormLabel>Writing Style Reference</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="Paste a few paragraphs from your existing content that exemplify your preferred writing style. This helps us match your tone of voice."
                               className="min-h-[200px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormDescription>
-                            Optional: Provide examples of your existing content to help us match your voice
+                            Optional: Provide examples of your existing content
+                            to help us match your voice
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -525,6 +585,6 @@ export function BackgroundForm({ projectId, onSubmit, loading: externalLoading }
           </div>
         </div>
       </Tabs>
-    </div>
+    </>
   );
 }

@@ -1,83 +1,90 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
-import { usePathname, useSearchParams } from "next/navigation"
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { Sidebar } from "@/components/dashboard/sidebar"
-import { CardView } from "@/components/dashboard/card-view"
-import { TableView } from "@/components/dashboard/table-view"
-import { ViewToggle } from "@/components/dashboard/view-toggle"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { useQuery } from '@tanstack/react-query';
-import { Status } from "@/components/dashboard/view-toggle"
-import { useToast } from "@/hooks/use-toast"
-import { CreateContentDialog } from "@/components/content/CreateContentDialog"
+import { CreateContentDialog } from "@/components/content/CreateContentDialog";
+import { CardView } from "@/components/dashboard/card-view";
+import { Sidebar } from "@/components/dashboard/sidebar";
+import { TableView } from "@/components/dashboard/table-view";
+import { Status, ViewToggle } from "@/components/dashboard/view-toggle";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { useSidebarState } from "@/contexts/SidebarContext";
-import { Plus } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { useQuery } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import MainLayout from "./layout/MainLayout";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 interface ContentItem {
-  id: number
-  title: string
-  status: string
-  updated_at: string
-  created_at: string
-  image_url: string
-  description?: string
-  date?: string
-  type?: string
-  tags?: string[]
-  keyword?: string // Add this line
+  id: number;
+  title: string;
+  status: string;
+  updated_at: string;
+  created_at: string;
+  image_url: string;
+  description?: string;
+  date?: string;
+  type?: string;
+  tags?: string[];
+  keyword?: string; // Add this line
 }
 
 const ITEMS_PER_PAGE = 20;
 
 const Dashboard02 = () => {
-  const [view, setView] = useState<'cards' | 'table'>('cards')
-  const [status, setStatus] = useState<Status>(Status.All)
-  const [items, setItems] = useState<ContentItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [view, setView] = useState<"cards" | "table">("cards");
+  const [status, setStatus] = useState<Status>(Status.All);
+  const [items, setItems] = useState<ContentItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [hasNextPage, setHasNextPage] = useState(true);
   const [page, setPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [keywords, setKeywords] = useState<string[]>([]);
-  const [topic, setTopic] = useState('');
+  const [topic, setTopic] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
   const { isCollapsed } = useSidebarState();
-  
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const projectId = searchParams?.get('projectId') || ''
+
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const projectId = searchParams?.get("projectId") || "";
 
   useEffect(() => {
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
     setSupabase(supabaseClient);
   }, []);
 
-  const getContent = useCallback(async (supabase: SupabaseClient, projectId: string, page: number): Promise<ContentItem[]> => {
-    const start = (page - 1) * ITEMS_PER_PAGE;
-    const end = start + ITEMS_PER_PAGE - 1;
+  const getContent = useCallback(
+    async (
+      supabase: SupabaseClient,
+      projectId: string,
+      page: number
+    ): Promise<ContentItem[]> => {
+      const start = (page - 1) * ITEMS_PER_PAGE;
+      const end = start + ITEMS_PER_PAGE - 1;
 
-    const { data, error } = await supabase
-      .from('Content')
-      .select('*')
-      .eq('project_id', projectId)
-      .range(start, end)
-      .order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from("Content")
+        .select("*")
+        .eq("project_id", projectId)
+        .range(start, end)
+        .order("created_at", { ascending: false });
 
-    if (error) {
-      throw new Error(`Error fetching content: ${error.message}`);
-    }
+      if (error) {
+        throw new Error(`Error fetching content: ${error.message}`);
+      }
 
-    return data as ContentItem[];
-  }, []);
+      return data as ContentItem[];
+    },
+    []
+  );
 
   const loadMoreItems = useCallback(async () => {
     if (!supabase || !projectId || isLoading) return;
@@ -88,11 +95,11 @@ const Dashboard02 = () => {
       if (newItems.length < ITEMS_PER_PAGE) {
         setHasNextPage(false);
       }
-      setItems(prevItems => [...prevItems, ...newItems]);
-      setPage(prevPage => prevPage + 1);
+      setItems((prevItems) => [...prevItems, ...newItems]);
+      setPage((prevPage) => prevPage + 1);
     } catch (err) {
-      setError('Failed to fetch more content');
-      console.error('Error fetching more content:', err);
+      setError("Failed to fetch more content");
+      console.error("Error fetching more content:", err);
     } finally {
       setIsLoading(false);
     }
@@ -105,13 +112,13 @@ const Dashboard02 = () => {
   };
 
   // Replace useEffect with useQuery
-  const { data: contentData, error: fetchError, isLoading: fetchLoading } = useQuery(
-    ['content', projectId],
-    fetchContent,
-    {
-      enabled: !!projectId && !!supabase, // Only run if projectId and supabase are available
-    }
-  );
+  const {
+    data: contentData,
+    error: fetchError,
+    isLoading: fetchLoading,
+  } = useQuery(["content", projectId], fetchContent, {
+    enabled: !!projectId && !!supabase, // Only run if projectId and supabase are available
+  });
 
   useEffect(() => {
     if (contentData) {
@@ -121,15 +128,18 @@ const Dashboard02 = () => {
       setHasNextPage(contentData.length === ITEMS_PER_PAGE);
     }
     if (fetchError) {
-      setError('Failed to fetch content');
-      console.error('Error fetching content:', fetchError);
+      setError("Failed to fetch content");
+      console.error("Error fetching content:", fetchError);
     }
     setIsLoading(fetchLoading);
   }, [contentData, fetchError, fetchLoading]);
 
-  const filteredItems = status === Status.All
-    ? items
-    : items.filter(item => item.status.toLowerCase() === status.toLowerCase())
+  const filteredItems =
+    status === Status.All
+      ? items
+      : items.filter(
+          (item) => item.status.toLowerCase() === status.toLowerCase()
+        );
 
   const handleCreateContent = async () => {
     if (keywords.length === 0) {
@@ -152,33 +162,33 @@ const Dashboard02 = () => {
 
     setIsCreating(true);
     try {
-      const backendUrl = 'https://pulser-backend.onrender.com';
+      const backendUrl = "https://pulser-backend.onrender.com";
       const response = await fetch(`${backendUrl}/api/web-retrieval`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           projectId: projectId,
           inputTopic: topic,
-          keyword: keywords.join(', '),
+          keyword: keywords.join(", "),
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to generate content');
+        throw new Error(errorData.message || "Failed to generate content");
       }
 
       const { success, data, error } = await response.json();
 
       if (!success) {
-        throw new Error(error || 'Failed to generate content' || data);
+        throw new Error(error || "Failed to generate content" || data);
       }
 
       fetchContent();
     } catch (error) {
-      console.error('Error creating content:', error);
+      console.error("Error creating content:", error);
       toast({
         title: "Error",
         description: "Failed to create content. Please try again.",
@@ -188,7 +198,7 @@ const Dashboard02 = () => {
       setIsCreating(false);
       setIsCreateModalOpen(false);
       setKeywords([]);
-      setTopic('');
+      setTopic("");
     }
   };
 
@@ -200,10 +210,8 @@ const Dashboard02 = () => {
             <h3 className="text-2xl font-bold tracking-tight text-gray-900">
               An error occurred
             </h3>
-            <p className="text-sm text-gray-500">
-              {error}
-            </p>
-            <Button 
+            <p className="text-sm text-gray-500">{error}</p>
+            <Button
               className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white"
               onClick={() => window.location.reload()}
             >
@@ -211,10 +219,10 @@ const Dashboard02 = () => {
             </Button>
           </div>
         </div>
-      )
+      );
     }
 
-    if (pathname === '/content') {
+    if (pathname === "/content") {
       return (
         <>
           <div className="pt-3">
@@ -224,10 +232,10 @@ const Dashboard02 = () => {
           </div>
           <Separator className="" />
           <div className="mt-2">
-            <ViewToggle 
-              view={view} 
-              setView={setView} 
-              status={status} 
+            <ViewToggle
+              view={view}
+              setView={setView}
+              status={status}
               setStatus={handleSetStatus}
               onNewContent={() => setIsCreateModalOpen(true)}
             />
@@ -241,7 +249,7 @@ const Dashboard02 = () => {
                 <p className="text-sm text-gray-500 mt-2">
                   Get started by creating your first piece of content
                 </p>
-                <Button 
+                <Button
                   variant="default"
                   size="sm"
                   className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
@@ -252,22 +260,20 @@ const Dashboard02 = () => {
                 </Button>
               </div>
             </div>
+          ) : view === "cards" ? (
+            <CardView
+              items={filteredItems}
+              loading={isLoading}
+              hasNextPage={hasNextPage}
+              onLoadMore={loadMoreItems}
+            />
           ) : (
-            view === 'cards' ? (
-              <CardView 
-                items={filteredItems} 
-                loading={isLoading} 
-                hasNextPage={hasNextPage}
-                onLoadMore={loadMoreItems}
-              />
-            ) : (
-              <TableView 
-                items={filteredItems}
-                loading={isLoading}
-                hasNextPage={hasNextPage}
-                onLoadMore={loadMoreItems}
-              />
-            )
+            <TableView
+              items={filteredItems}
+              loading={isLoading}
+              hasNextPage={hasNextPage}
+              onLoadMore={loadMoreItems}
+            />
           )}
 
           <CreateContentDialog
@@ -281,9 +287,11 @@ const Dashboard02 = () => {
             isCreating={isCreating}
           />
         </>
-      )
+      );
     } else {
-      const title = pathname ? pathname.slice(1).charAt(0).toUpperCase() + pathname.slice(2) : ''
+      const title = pathname
+        ? pathname.slice(1).charAt(0).toUpperCase() + pathname.slice(2)
+        : "";
       return (
         <>
           <div className="flex items-center">
@@ -303,28 +311,26 @@ const Dashboard02 = () => {
             </div>
           </div>
         </>
-      )
+      );
     }
-  }
+  };
 
   const handleSetStatus = (newStatus: string) => {
-    setStatus(newStatus as Status)
-  }
+    setStatus(newStatus as Status);
+  };
 
   return (
-    <div className={`grid min-h-screen w-full transition-[grid-template-columns] duration-300 ${
-      isCollapsed 
-        ? 'grid-cols-[60px_1fr]' 
-        : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
-    }`}>
+    <div
+      className={`grid min-h-screen w-full transition-[grid-template-columns] duration-300 ${
+        isCollapsed
+          ? "grid-cols-[60px_1fr]"
+          : "grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]"
+      }`}
+    >
       <Sidebar projectId={projectId} />
-      <div className="flex flex-col">
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-4 bg-gray-50">
-          {renderContent()}
-        </main>
-      </div>
+      <MainLayout>{renderContent()}</MainLayout>
     </div>
-  )
-}
+  );
+};
 
 export default Dashboard02;
