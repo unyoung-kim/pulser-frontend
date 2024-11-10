@@ -1,34 +1,40 @@
-import { Grid, List, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-import Case from 'case'
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Case from "case";
+import { Grid, List, Plus } from "lucide-react";
 
 export enum Status {
-  All = 'All',
-  Draft = 'draft',
-  Published = 'published',
-  Archived = 'archived',
-  Scheduled = 'scheduled',
+  All = "All",
+  Draft = "draft",
+  Published = "published",
+  Archived = "archived",
+  Scheduled = "scheduled",
 }
 
 interface ViewToggleProps {
-  view: 'cards' | 'table'
-  setView: (view: 'cards' | 'table') => void
-  status: Status
-  setStatus: (status: string) => void
-  onNewContent: () => void
+  view: "cards" | "table";
+  setView: (view: "cards" | "table") => void;
+  status: Status;
+  setStatus: (status: string) => void;
+  onNewContent: () => void;
 }
 
-export function ViewToggle({ view, setView, status, setStatus, onNewContent }: ViewToggleProps) {
+export function ViewToggle({
+  view,
+  setView,
+  status,
+  setStatus,
+  onNewContent,
+}: ViewToggleProps) {
   const statuses: Status[] = Object.values(Status);
 
   return (
     <div className="flex items-center justify-between h-6 mb-4">
-      <Tabs value={status} onValueChange={(value) => setStatus(value)} className="w-auto">
+      <Tabs
+        value={status}
+        onValueChange={(value) => setStatus(value)}
+        className="w-auto"
+      >
         <TabsList>
           {statuses.map((s) => (
             <TabsTrigger key={s} value={s} className="text-sm">
@@ -39,19 +45,27 @@ export function ViewToggle({ view, setView, status, setStatus, onNewContent }: V
       </Tabs>
       <div className="flex gap-2 ml-auto">
         <Button
-          variant={view === 'cards' ? 'default' : 'outline'}
+          variant={view === "cards" ? "default" : "outline"}
           size="sm"
-          onClick={() => setView('cards')}
-          className={`${view === 'cards' ? "bg-indigo-50 text-indigo-600 hover:bg-indigo-200" : "bg-white text-gray-500 hover:bg-indigo-50"} rounded-full text-sm`}
+          onClick={() => setView("cards")}
+          className={`${
+            view === "cards"
+              ? "bg-indigo-50 text-indigo-600 hover:bg-indigo-200"
+              : "bg-white text-gray-500 hover:bg-indigo-50"
+          } rounded-full text-sm`}
         >
           <Grid className="h-4 w-4 mr-2" />
           Cards
         </Button>
         <Button
-          variant={view === 'table' ? 'default' : 'outline'}
+          variant={view === "table" ? "default" : "outline"}
           size="sm"
-          onClick={() => setView('table')}
-          className={`${view === 'table' ? "bg-indigo-50 text-indigo-600 hover:bg-indigo-200" : "bg-white text-gray-500 hover:bg-indigo-50"} rounded-full text-sm`}
+          onClick={() => setView("table")}
+          className={`${
+            view === "table"
+              ? "bg-indigo-50 text-indigo-600 hover:bg-indigo-200"
+              : "bg-white text-gray-500 hover:bg-indigo-50"
+          } rounded-full text-sm`}
         >
           <List className="h-4 w-4 mr-2" />
           Table
@@ -69,5 +83,5 @@ export function ViewToggle({ view, setView, status, setStatus, onNewContent }: V
         </Button>
       </div>
     </div>
-  )
+  );
 }

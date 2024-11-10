@@ -1,6 +1,8 @@
 .ProseMirror {
+  font-size: 0.95rem;
+
   > * + * {
-    margin-top: 0.75em;
+    margin-top: 1.2em;
   }
 
   ul,
@@ -17,22 +19,26 @@
     list-style-type: decimal;
   }
 
+
   h1 {
     font-size: 2em;
     font-weight: bold;
-    margin-bottom: 0.5em;
+    margin-top: 2em;
+    margin-bottom: 0.75em;
   }
 
   h2 {
     font-size: 1.5em;
     font-weight: bold;
-    margin-bottom: 0.5em;
+    margin-top: 1.75em;
+    margin-bottom: 0.75em;
   }
 
   h3 {
     font-size: 1.25em;
     font-weight: bold;
-    margin-bottom: 0.5em;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
   }
 
   a {
@@ -83,6 +89,31 @@
       position: absolute;
       z-index: 2;
     }
+  }
+
+  p {
+    margin-bottom: 0.75em;
+    line-height: 1.7;
+  }
+
+  ul,
+  ol {
+    padding-left: 1.5em;
+    list-style-position: outside;
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
+
+    li {
+      margin-bottom: 0.5em;
+      
+      p {
+        margin: 0;
+      }
+    }
+  }
+
+  .tableWrapper {
+    margin: 1.5em 0;
   }
 }
 

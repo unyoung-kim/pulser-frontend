@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { Editor } from '@tiptap/react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Link as LinkIcon,
-  ExternalLink,
-  ListTree,
-  Download,
-  Globe,
-  CheckCircle,
-  Loader2,
-  Hash,
-  ArrowRight,
-  CircleDot
-} from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { createClient } from '@supabase/supabase-js';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from "@/hooks/use-toast";
+import { createClient } from "@supabase/supabase-js";
+import { Editor } from "@tiptap/react";
+import {
+  ArrowRight,
+  CheckCircle,
+  CircleDot,
+  Download,
+  ExternalLink,
+  Globe,
+  Hash,
+  Link as LinkIcon,
+  ListTree,
+  Loader2,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface HeadingNode {
   level: number;
@@ -36,7 +36,7 @@ interface LinkCount {
 
 interface EditorSidebarProps {
   editor: Editor;
-  status: 'drafted' | 'scheduled' | 'published' | 'archived';
+  status: "drafted" | "scheduled" | "published" | "archived";
   keywords: string[];
   contentId: string;
   onStatusChange?: (newStatus: string) => void;
@@ -45,16 +45,19 @@ interface EditorSidebarProps {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export function EditorSidebar({ 
-  editor, 
-  status, 
+export function EditorSidebar({
+  editor,
+  status,
   keywords = [],
   contentId,
-  onStatusChange 
+  onStatusChange,
 }: EditorSidebarProps) {
   const { toast } = useToast();
   const [headings, setHeadings] = useState<HeadingNode[]>([]);
-  const [linkCount, setLinkCount] = useState<LinkCount>({ internal: 0, external: 0 });
+  const [linkCount, setLinkCount] = useState<LinkCount>({
+    internal: 0,
+    external: 0,
+  });
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -68,16 +71,16 @@ export function EditorSidebar({
       let externalLinks = 0;
 
       editor.state.doc.descendants((node, pos) => {
-        if (node.type.name === 'heading') {
+        if (node.type.name === "heading") {
           newHeadings.push({
             level: node.attrs.level,
             text: node.textContent,
-            pos
+            pos,
           });
         }
-        if (node.type.name === 'link') {
+        if (node.type.name === "link") {
           const href = node.attrs.href;
-          if (href.startsWith('http')) {
+          if (href.startsWith("http")) {
             externalLinks++;
           } else {
             internalLinks++;
@@ -94,16 +97,16 @@ export function EditorSidebar({
 
     // Subscribe to editor changes
     const updateListener = () => {
-      console.log('Editor update detected');
+      console.log("Editor update detected");
       updateHeadingsAndLinks();
     };
 
-    editor.on('update', updateListener);
-    editor.on('selectionUpdate', updateListener);
+    editor.on("update", updateListener);
+    editor.on("selectionUpdate", updateListener);
 
     return () => {
-      editor.off('update', updateListener);
-      editor.off('selectionUpdate', updateListener);
+      editor.off("update", updateListener);
+      editor.off("selectionUpdate", updateListener);
     };
   }, [editor]);
 
@@ -111,42 +114,42 @@ export function EditorSidebar({
     try {
       // Get the parent element that contains the editor content
       const editorElement = editor.view.dom.parentElement;
-      
+
       if (!editorElement) return;
 
       // Find all heading elements within the editor
-      const headingElements = editorElement.querySelectorAll('h1, h2, h3');
-      
+      const headingElements = editorElement.querySelectorAll("h1, h2, h3");
+
       // Convert NodeList to Array for easier manipulation
       const headingsArray = Array.from(headingElements);
-      
+
       // Find the index of the heading in our stored headings array
-      const headingIndex = headings.findIndex(h => h.pos === pos);
-      
+      const headingIndex = headings.findIndex((h) => h.pos === pos);
+
       if (headingIndex >= 0 && headingsArray[headingIndex]) {
         const headingElement = headingsArray[headingIndex];
-        
+
         // Calculate the heading's absolute position
         const headingRect = headingElement.getBoundingClientRect();
         const absoluteHeadingTop = headingRect.top + window.pageYOffset;
-        
+
         // Add offset for fixed header
         const headerOffset = 100; // Adjust this value based on your header height
-        
+
         // Scroll the heading into view
         window.scrollTo({
           top: absoluteHeadingTop - headerOffset,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
 
         // Add highlight effect
-        headingElement.classList.add('highlight-heading');
+        headingElement.classList.add("highlight-heading");
         setTimeout(() => {
-          headingElement.classList.remove('highlight-heading');
+          headingElement.classList.remove("highlight-heading");
         }, 2000);
       }
     } catch (error) {
-      console.error('Error scrolling to heading:', error);
+      console.error("Error scrolling to heading:", error);
     }
   };
 
@@ -159,7 +162,7 @@ export function EditorSidebar({
   const getHeadingCount = () => {
     let count = 0;
     editor.state.doc.descendants((node) => {
-      if (node.type.name === 'heading') {
+      if (node.type.name === "heading") {
         count++;
       }
     });
@@ -169,7 +172,7 @@ export function EditorSidebar({
   const getImageCount = () => {
     let count = 0;
     editor.state.doc.descendants((node) => {
-      if (node.type.name === 'image') {
+      if (node.type.name === "image") {
         count++;
       }
     });
@@ -178,16 +181,16 @@ export function EditorSidebar({
 
   const getStatusColor = () => {
     switch (status) {
-      case 'published':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'scheduled':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'drafted':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'archived':
-        return 'bg-red-100 text-red-800 border-red-200';
+      case "published":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "scheduled":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "drafted":
+        return "bg-gray-100 text-gray-800 border-gray-200";
+      case "archived":
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -196,17 +199,19 @@ export function EditorSidebar({
     try {
       // Create a blob from the editor content
       const content = editor.getHTML();
-      const blob = new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const blob = new Blob([content], {
+        type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = 'document.docx';
+      link.download = "document.docx";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading document:', error);
+      console.error("Error downloading document:", error);
       toast({
         title: "Error",
         description: "Failed to download document. Please try again.",
@@ -217,14 +222,14 @@ export function EditorSidebar({
     }
   };
 
-  const handleStatusChange = async (newStatus: 'published' | 'draft') => {
+  const handleStatusChange = async (newStatus: "published" | "draft") => {
     if (!contentId) return;
 
     setIsUpdating(true);
     try {
       const supabase = createClient(supabaseUrl, supabaseKey);
       const updateData: {
-        status: 'published' | 'draft';
+        status: "published" | "draft";
         updated_at: string;
         published_at?: string;
       } = {
@@ -233,14 +238,14 @@ export function EditorSidebar({
       };
 
       // Add published_at only when publishing
-      if (newStatus === 'published') {
+      if (newStatus === "published") {
         updateData.published_at = new Date().toISOString();
       }
 
       const { error } = await supabase
-        .from('Content')
+        .from("Content")
         .update(updateData)
-        .eq('id', contentId);
+        .eq("id", contentId);
 
       if (error) throw error;
 
@@ -248,16 +253,20 @@ export function EditorSidebar({
       onStatusChange?.(newStatus);
 
       toast({
-        title: newStatus === 'published' ? "Content Published" : "Marked as Draft",
-        description: newStatus === 'published' 
-          ? "Your content has been marked as published."
-          : "Your content has been moved to drafts.",
+        title:
+          newStatus === "published" ? "Content Published" : "Marked as Draft",
+        description:
+          newStatus === "published"
+            ? "Your content has been marked as published."
+            : "Your content has been moved to drafts.",
       });
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error("Error updating status:", error);
       toast({
         title: "Error",
-        description: `Failed to ${newStatus === 'published' ? 'publish' : 'move to drafts'}. Please try again.`,
+        description: `Failed to ${
+          newStatus === "published" ? "publish" : "move to drafts"
+        }. Please try again.`,
         variant: "destructive",
       });
     } finally {
@@ -266,18 +275,18 @@ export function EditorSidebar({
   };
 
   const StatusButton = () => {
-    if (status === 'published') {
+    if (status === "published") {
       return (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               className="w-full bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
               size="sm"
-              onClick={() => handleStatusChange('draft')}
+              onClick={() => handleStatusChange("draft")}
               disabled={isUpdating}
             >
               <CheckCircle className="w-4 h-4 mr-2" />
-              {isUpdating ? 'Updating...' : 'Mark as Draft'}
+              {isUpdating ? "Updating..." : "Mark as Draft"}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
@@ -291,13 +300,13 @@ export function EditorSidebar({
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            className="w-full bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
+            className="w-full bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
             size="sm"
-            onClick={() => handleStatusChange('published')}
+            onClick={() => handleStatusChange("published")}
             disabled={isUpdating}
           >
             <CheckCircle className="w-4 h-4 mr-2" />
-            {isUpdating ? 'Publishing...' : 'Mark as Published'}
+            {isUpdating ? "Publishing..." : "Mark as Published"}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
@@ -324,9 +333,9 @@ export function EditorSidebar({
           <div className="flex flex-wrap gap-2">
             {keywords && keywords.length > 0 ? (
               keywords.map((keyword, index) => (
-                <Badge 
+                <Badge
                   key={index}
-                  variant="secondary" 
+                  variant="secondary"
                   className="bg-gray-100 text-gray-800 hover:bg-gray-200"
                 >
                   {keyword}
@@ -341,8 +350,8 @@ export function EditorSidebar({
         {/* Status */}
         <div className="pb-2">
           <h3 className="text-sm font-medium text-gray-500 mb-2">Status</h3>
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className={`${getStatusColor()} border px-3 py-1 text-xs font-medium capitalize`}
           >
             {status}
@@ -354,25 +363,19 @@ export function EditorSidebar({
           <h3 className="text-sm font-medium text-gray-500 mb-4">Statistics</h3>
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
-              <div className="text-sm text-gray-600 mb-1">
-                Words
-              </div>
+              <div className="text-sm text-gray-600 mb-1">Words</div>
               <div className="text-lg font-semibold text-indigo-600 truncate">
                 {getWordCount()}
               </div>
             </div>
             <div className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
-              <div className="text-sm text-gray-600 mb-1">
-                Headings
-              </div>
+              <div className="text-sm text-gray-600 mb-1">Headings</div>
               <div className="text-lg font-semibold text-indigo-600 truncate">
                 {getHeadingCount()}
               </div>
             </div>
             <div className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
-              <div className="text-sm text-gray-600 mb-1">
-                Images
-              </div>
+              <div className="text-sm text-gray-600 mb-1">Images</div>
               <div className="text-lg font-semibold text-indigo-600 truncate">
                 {getImageCount()}
               </div>
@@ -395,9 +398,13 @@ export function EditorSidebar({
                   group flex items-center gap-2 text-sm hover:bg-gray-50 
                   rounded-md transition-colors duration-200
                   w-full text-left py-1.5 px-2
-                  ${heading.level === 1 ? 'font-medium text-gray-900' : 'text-gray-600'}
-                  ${heading.level === 2 ? 'pl-4' : ''}
-                  ${heading.level === 3 ? 'pl-8' : ''}
+                  ${
+                    heading.level === 1
+                      ? "font-medium text-gray-900"
+                      : "text-gray-600"
+                  }
+                  ${heading.level === 2 ? "pl-4" : ""}
+                  ${heading.level === 3 ? "pl-8" : ""}
                 `}
               >
                 {heading.level === 1 && (
@@ -424,11 +431,15 @@ export function EditorSidebar({
           <div className="space-y-3 px-2">
             <div className="flex items-center gap-2">
               <LinkIcon className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">{linkCount.internal} internal links</span>
+              <span className="text-sm text-gray-600">
+                {linkCount.internal} internal links
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <ExternalLink className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">{linkCount.external} external links</span>
+              <span className="text-sm text-gray-600">
+                {linkCount.external} external links
+              </span>
             </div>
           </div>
         </div>
@@ -470,22 +481,20 @@ export function EditorSidebar({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="default"
-                size="sm"
-                className="w-full"
-                disabled
-              >
+              <Button variant="default" size="sm" className="w-full" disabled>
                 <Globe className="w-4 h-4 mr-2" />
                 Publish to Website
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Go to integration section to publish this article to your website</p>
+              <p>
+                Go to integration section to publish this article to your
+                website
+              </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
     </div>
   );
-} 
+}

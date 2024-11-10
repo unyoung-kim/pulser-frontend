@@ -1,28 +1,34 @@
-'use client';
+"use client";
 
-import { Editor } from '@tiptap/react';
+import { Button } from "@/components/ui/button";
 import {
-  Bold,
-  Italic,
-  Underline,
-  Link,
-  Image,
-  Table,
-  AlignLeft,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Editor } from "@tiptap/react";
+import {
   AlignCenter,
+  AlignLeft,
   AlignRight,
-  List,
-  ListOrdered,
+  Bold,
+  Check,
   Heading1,
   Heading2,
   Heading3,
-  Undo,
+  Image,
+  Italic,
+  Link,
+  List,
+  ListOrdered,
   Redo,
-  Check,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { useCallback } from 'react';
+  Table,
+  Underline,
+  Undo,
+} from "lucide-react";
+import { useCallback } from "react";
+import LinkPanel from "../editor/LinkPanel";
 
 interface ToolbarProps {
   editor: Editor;
@@ -31,18 +37,25 @@ interface ToolbarProps {
 
 export function Toolbar({ editor, isSaving }: ToolbarProps) {
   const addImage = useCallback(() => {
-    const url = window.prompt('Enter image URL');
+    const url = window.prompt("Enter image URL");
     if (url) {
       editor.chain().focus().setImage({ src: url }).run();
     }
   }, [editor]);
 
-  const addLink = useCallback(() => {
-    const url = window.prompt('Enter URL');
-    if (url) {
-      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-    }
-  }, [editor]);
+  const handleLinkSelect = useCallback(
+    (url: string) => {
+      if (url) {
+        editor
+          .chain()
+          .focus()
+          .extendMarkRange("link")
+          .setLink({ href: url })
+          .run();
+      }
+    },
+    [editor]
+  );
 
   const addTableControls = useCallback(() => {
     return (
@@ -107,16 +120,16 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
             variant="ghost"
             size="sm"
             onClick={() => editor.chain().focus().toggleBold().run()}
-            className={editor.isActive('bold') ? 'bg-gray-200' : ''}
+            className={editor.isActive("bold") ? "bg-gray-200" : ""}
           >
             <Bold className="h-4 w-4" />
           </Button>
-          
+
           <Button
             variant="ghost"
             size="sm"
             onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={editor.isActive('italic') ? 'bg-gray-200' : ''}
+            className={editor.isActive("italic") ? "bg-gray-200" : ""}
           >
             <Italic className="h-4 w-4" />
           </Button>
@@ -125,7 +138,7 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
             variant="ghost"
             size="sm"
             onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className={editor.isActive('underline') ? 'bg-gray-200' : ''}
+            className={editor.isActive("underline") ? "bg-gray-200" : ""}
           >
             <Underline className="h-4 w-4" />
           </Button>
@@ -135,8 +148,10 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => editor.chain().focus().setTextAlign('left').run()}
-            className={editor.isActive({ textAlign: 'left' }) ? 'bg-gray-200' : ''}
+            onClick={() => editor.chain().focus().setTextAlign("left").run()}
+            className={
+              editor.isActive({ textAlign: "left" }) ? "bg-gray-200" : ""
+            }
           >
             <AlignLeft className="h-4 w-4" />
           </Button>
@@ -144,8 +159,10 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => editor.chain().focus().setTextAlign('center').run()}
-            className={editor.isActive({ textAlign: 'center' }) ? 'bg-gray-200' : ''}
+            onClick={() => editor.chain().focus().setTextAlign("center").run()}
+            className={
+              editor.isActive({ textAlign: "center" }) ? "bg-gray-200" : ""
+            }
           >
             <AlignCenter className="h-4 w-4" />
           </Button>
@@ -153,8 +170,10 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => editor.chain().focus().setTextAlign('right').run()}
-            className={editor.isActive({ textAlign: 'right' }) ? 'bg-gray-200' : ''}
+            onClick={() => editor.chain().focus().setTextAlign("right").run()}
+            className={
+              editor.isActive({ textAlign: "right" }) ? "bg-gray-200" : ""
+            }
           >
             <AlignRight className="h-4 w-4" />
           </Button>
@@ -164,8 +183,12 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-            className={editor.isActive('heading', { level: 1 }) ? 'bg-gray-200' : ''}
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 1 }).run()
+            }
+            className={
+              editor.isActive("heading", { level: 1 }) ? "bg-gray-200" : ""
+            }
           >
             <Heading1 className="h-4 w-4" />
           </Button>
@@ -173,8 +196,12 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            className={editor.isActive('heading', { level: 2 }) ? 'bg-gray-200' : ''}
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 2 }).run()
+            }
+            className={
+              editor.isActive("heading", { level: 2 }) ? "bg-gray-200" : ""
+            }
           >
             <Heading2 className="h-4 w-4" />
           </Button>
@@ -182,8 +209,12 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-            className={editor.isActive('heading', { level: 3 }) ? 'bg-gray-200' : ''}
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 3 }).run()
+            }
+            className={
+              editor.isActive("heading", { level: 3 }) ? "bg-gray-200" : ""
+            }
           >
             <Heading3 className="h-4 w-4" />
           </Button>
@@ -194,7 +225,7 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
             variant="ghost"
             size="sm"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={editor.isActive('bulletList') ? 'bg-gray-200' : ''}
+            className={editor.isActive("bulletList") ? "bg-gray-200" : ""}
           >
             <List className="h-4 w-4" />
           </Button>
@@ -203,33 +234,49 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
             variant="ghost"
             size="sm"
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            className={editor.isActive('orderedList') ? 'bg-gray-200' : ''}
+            className={editor.isActive("orderedList") ? "bg-gray-200" : ""}
           >
             <ListOrdered className="h-4 w-4" />
           </Button>
 
           <Separator orientation="vertical" className="h-6" />
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={addLink}
-          >
-            <Link className="h-4 w-4" />
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  // If text already has a link, remove it
+                  if (editor.isActive("link")) {
+                    e.preventDefault();
+                    editor.chain().focus().unsetLink().run();
+                    return;
+                  }
+                }}
+              >
+                <Link className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[520px] p-0">
+              <LinkPanel onSelect={handleLinkSelect} />
+            </PopoverContent>
+          </Popover>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={addImage}
-          >
+          <Button variant="ghost" size="sm" onClick={addImage}>
             <Image className="h-4 w-4" aria-label="Image icon" />
           </Button>
 
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+            onClick={() =>
+              editor
+                .chain()
+                .focus()
+                .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                .run()
+            }
           >
             <Table className="h-4 w-4" />
           </Button>
@@ -254,7 +301,7 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
             <Redo className="h-4 w-4" />
           </Button>
         </div>
-        
+
         <div className="flex items-center px-2 py-1 text-sm text-muted-foreground">
           {isSaving ? (
             <span>Saving...</span>
@@ -267,11 +314,9 @@ export function Toolbar({ editor, isSaving }: ToolbarProps) {
         </div>
       </div>
 
-      {editor.isActive('table') && (
-        <div className="mt-2 pt-2 border-t">
-          {addTableControls()}
-        </div>
+      {editor.isActive("table") && (
+        <div className="mt-2 pt-2 border-t">{addTableControls()}</div>
       )}
     </div>
   );
-} 
+}

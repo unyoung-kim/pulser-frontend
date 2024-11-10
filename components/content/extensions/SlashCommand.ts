@@ -1,13 +1,22 @@
-import { Editor, Extension, Range as TiptapRange } from '@tiptap/core';
-import { ReactRenderer } from '@tiptap/react';
-import Suggestion, { SuggestionProps, SuggestionKeyDownProps } from '@tiptap/suggestion';
-import tippy, { Instance, Props } from 'tippy.js';
-import { CommandList } from '../CommandList';
+import { Editor, Extension, Range as TiptapRange } from "@tiptap/core";
+import { ReactRenderer } from "@tiptap/react";
+import Suggestion, {
+  SuggestionKeyDownProps,
+  SuggestionProps,
+} from "@tiptap/suggestion";
+import tippy, { Instance, Props } from "tippy.js";
+import { CommandList } from "../CommandList";
 
-interface CommandItem {
-  title: string;
-  command: (editor: Editor) => void;
-}
+// interface CommandItem {
+//   title: string;
+//   description: string;
+//   command: (editor: Editor) => void;
+// }
+
+// interface CommandSection {
+//   title: string;
+//   items: CommandItem[];
+// }
 
 interface CommandProps {
   editor: Editor;
@@ -18,12 +27,12 @@ interface CommandProps {
 }
 
 export const SlashCommand = Extension.create({
-  name: 'slash-command',
+  name: "slash-command",
 
   addOptions() {
     return {
       suggestion: {
-        char: '/',
+        char: "/",
         command: ({ editor, range, props }: CommandProps) => {
           props.command(editor);
           editor.chain().focus().deleteRange(range).run();
@@ -34,15 +43,22 @@ export const SlashCommand = Extension.create({
 
   addProseMirrorPlugins() {
     const editor = this.editor;
-    
+
     return [
       Suggestion({
         editor,
         ...this.options.suggestion,
         items: ({ query }: { query: string }) => {
-          const items = CommandList.commands || [];
-          return items.filter((item: CommandItem) => 
-            item.title.toLowerCase().includes(query.toLowerCase())
+          const sections = CommandList.sections || [];
+          if (!query) {
+            return sections.flatMap((section) => section.items);
+          }
+          return sections.flatMap((section) =>
+            section.items.filter(
+              (item) =>
+                item.title.toLowerCase().includes(query.toLowerCase()) ||
+                item.description.toLowerCase().includes(query.toLowerCase())
+            )
           );
         },
         render: () => {
@@ -55,8 +71,16 @@ export const SlashCommand = Extension.create({
                 props: {
                   ...props,
                   editor,
-                  items: props.items,
+                  sections: props.query
+                    ? [
+                        {
+                          title: "Matching Commands",
+                          items: props.items,
+                        },
+                      ]
+                    : CommandList.sections,
                   command: props.command,
+                  filterQuery: props.query,
                 },
                 editor,
               });
@@ -68,23 +92,33 @@ export const SlashCommand = Extension.create({
               const rect = props.clientRect();
               if (!rect) return;
 
-              popup = [tippy(document.body, {
-                getReferenceClientRect: () => rect,
-                appendTo: () => document.body,
-                content: component.element,
-                showOnCreate: true,
-                interactive: true,
-                trigger: 'manual',
-                placement: 'bottom-start',
-              })];
+              popup = [
+                tippy(document.body, {
+                  getReferenceClientRect: () => rect,
+                  appendTo: () => document.body,
+                  content: component.element,
+                  showOnCreate: true,
+                  interactive: true,
+                  trigger: "manual",
+                  placement: "bottom-start",
+                }),
+              ];
             },
 
             onUpdate(props: SuggestionProps) {
               component?.updateProps({
                 ...props,
-                items: props.items,
+                sections: props.query
+                  ? [
+                      {
+                        title: "Matching Commands",
+                        items: props.items,
+                      },
+                    ]
+                  : CommandList.sections,
                 command: props.command,
                 editor,
+                filterQuery: props.query,
               });
 
               if (!props.clientRect) return;
@@ -98,7 +132,7 @@ export const SlashCommand = Extension.create({
             },
 
             onKeyDown(props: SuggestionKeyDownProps) {
-              if (props.event.key === 'Escape') {
+              if (props.event.key === "Escape") {
                 popup?.[0]?.hide();
                 return true;
               }
@@ -114,4 +148,4 @@ export const SlashCommand = Extension.create({
       }),
     ];
   },
-}); 
+});

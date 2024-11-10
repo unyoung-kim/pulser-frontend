@@ -1,15 +1,18 @@
-import React, { forwardRef } from 'react';
-import { Editor } from '@tiptap/react';
+import { Editor } from "@tiptap/react";
 import {
   Heading1,
   Heading2,
   Heading3,
+  Image,
   List,
   ListOrdered,
   Table,
-  Image,
-  Type
-} from 'lucide-react';
+  Type,
+  Video,
+} from "lucide-react";
+import React, { forwardRef } from "react";
+import { createRoot } from "react-dom/client";
+import { YoutubeSearchModal } from "../editor/YoutubeSearchModal";
 
 interface CommandItem {
   title: string;
@@ -18,100 +21,186 @@ interface CommandItem {
   command: (editor: Editor) => void;
 }
 
+interface CommandSection {
+  title: string;
+  items: CommandItem[];
+}
+
 interface CommandProps {
   editor: Editor;
-  items: CommandItem[];
+  sections?: CommandSection[];
   command: (item: CommandItem) => void;
 }
 
-const commands: CommandItem[] = [
+const commands: CommandSection[] = [
   {
-    title: 'Text',
-    description: 'Just start writing with plain text.',
-    icon: <Type className="w-12 h-12 p-2 border rounded bg-white shadow-sm" />,
-    command: (editor: Editor) => editor.chain().focus().setParagraph().run(),
+    title: "Basic Blocks",
+    items: [
+      {
+        title: "Text",
+        description: "Just start writing with plain text.",
+        icon: (
+          <Type className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
+        ),
+        command: (editor: Editor) =>
+          editor.chain().focus().setParagraph().run(),
+      },
+      {
+        title: "Heading 1",
+        description: "Large section heading.",
+        icon: (
+          <Heading1 className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
+        ),
+        command: (editor: Editor) =>
+          editor.chain().focus().toggleHeading({ level: 1 }).run(),
+      },
+      {
+        title: "Heading 2",
+        description: "Medium section heading.",
+        icon: (
+          <Heading2 className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
+        ),
+        command: (editor: Editor) =>
+          editor.chain().focus().toggleHeading({ level: 2 }).run(),
+      },
+      {
+        title: "Heading 3",
+        description: "Small section heading.",
+        icon: (
+          <Heading3 className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
+        ),
+        command: (editor: Editor) =>
+          editor.chain().focus().toggleHeading({ level: 3 }).run(),
+      },
+      {
+        title: "Bullet List",
+        description: "Create a simple bullet list.",
+        icon: (
+          <List className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
+        ),
+        command: (editor: Editor) =>
+          editor.chain().focus().toggleBulletList().run(),
+      },
+      {
+        title: "Numbered List",
+        description: "Create a numbered list.",
+        icon: (
+          <ListOrdered className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
+        ),
+        command: (editor: Editor) =>
+          editor.chain().focus().toggleOrderedList().run(),
+      },
+      {
+        title: "Table",
+        description: "Add a table to display data.",
+        icon: (
+          <Table className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
+        ),
+        command: (editor: Editor) =>
+          editor
+            .chain()
+            .focus()
+            .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+            .run(),
+      },
+    ],
   },
   {
-    title: 'Heading 1',
-    description: 'Large section heading.',
-    icon: <Heading1 className="w-12 h-12 p-2 border rounded bg-white shadow-sm" />,
-    command: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
-  },
-  {
-    title: 'Heading 2',
-    description: 'Medium section heading.',
-    icon: <Heading2 className="w-12 h-12 p-2 border rounded bg-white shadow-sm" />,
-    command: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
-  },
-  {
-    title: 'Heading 3',
-    description: 'Small section heading.',
-    icon: <Heading3 className="w-12 h-12 p-2 border rounded bg-white shadow-sm" />,
-    command: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
-  },
-  {
-    title: 'Bullet List',
-    description: 'Create a simple bullet list.',
-    icon: <List className="w-12 h-12 p-2 border rounded bg-white shadow-sm" />,
-    command: (editor: Editor) => editor.chain().focus().toggleBulletList().run(),
-  },
-  {
-    title: 'Numbered List',
-    description: 'Create a numbered list.',
-    icon: <ListOrdered className="w-12 h-12 p-2 border rounded bg-white shadow-sm" />,
-    command: (editor: Editor) => editor.chain().focus().toggleOrderedList().run(),
-  },
-  {
-    title: 'Table',
-    description: 'Add a table to display data.',
-    icon: <Table className="w-12 h-12 p-2 border rounded bg-white shadow-sm" />,
-    command: (editor: Editor) => 
-      editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
-  },
-  {
-    title: 'Image',
-    description: 'Upload or embed an image.',
-    icon: <Image className="w-12 h-12 p-2 border rounded bg-white shadow-sm" aria-label="Image icon" />,
-    command: (editor: Editor) => {
-      const url = window.prompt('Enter image URL');
-      if (url) {
-        editor.chain().focus().setImage({ src: url }).run();
-      }
-    },
+    title: "Media",
+    items: [
+      {
+        title: "Image",
+        description: "Upload or embed an image.",
+        icon: (
+          <Image className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
+        ),
+        command: (editor: Editor) => {
+          const url = window.prompt("Enter image URL");
+          if (url) {
+            editor.chain().focus().setImage({ src: url }).run();
+          }
+        },
+      },
+      {
+        title: "Embed Youtube Video",
+        description: "You can search for a Youtube video and embed it.",
+        icon: (
+          <Video className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
+        ),
+        command: (editor: Editor) => {
+          const modal = document.createElement("div");
+          modal.setAttribute("id", "youtube-search-modal");
+          modal.style.display = "block";
+          document.body.appendChild(modal);
+
+          // We'll implement this function next
+          const root = createRoot(modal);
+          root.render(
+            <YoutubeSearchModal
+              onSelect={(videoId) => {
+                editor.chain().focus().setYoutubeVideo({ src: videoId }).run();
+                document.body.removeChild(modal);
+                root.unmount();
+              }}
+              onClose={() => {
+                document.body.removeChild(modal);
+                root.unmount();
+              }}
+            />
+          );
+        },
+      },
+    ],
   },
 ];
 
 interface CommandListComponent
-  extends React.ForwardRefExoticComponent<CommandProps & React.RefAttributes<HTMLDivElement>> {
-  commands?: CommandItem[];
+  extends React.ForwardRefExoticComponent<
+    CommandProps & React.RefAttributes<HTMLDivElement>
+  > {
+  sections?: CommandSection[];
 }
 
-export const CommandList: CommandListComponent = forwardRef<HTMLDivElement, CommandProps>((props, ref) => {
-  const { items = commands, command } = props;
+export const CommandList: CommandListComponent = forwardRef<
+  HTMLDivElement,
+  CommandProps
+>((props, ref) => {
+  const { sections = commands, command } = props;
 
   return (
-    <div 
-      ref={ref} 
-      className="relative bg-white rounded-lg shadow-lg border p-2 max-h-[330px] overflow-y-auto"
+    <div
+      ref={ref}
+      className="relative bg-white rounded-lg shadow-lg border p-2 max-h-[240px] overflow-y-auto"
     >
-      {items.map((item, index) => (
-        <button
-          key={index}
-          onClick={() => command(item)}
-          className="w-full px-2 py-3 rounded-lg hover:bg-gray-100 cursor-pointer text-left"
-        >
-          <div className="flex items-center gap-3">
-            {item.icon}
-            <div className="flex flex-col">
-              <span className="font-medium">{item.title}</span>
-              <span className="text-sm text-gray-500">{item.description}</span>
-            </div>
+      {sections.map((section, sectionIndex) => (
+        <div key={sectionIndex} className="mb-2 last:mb-0">
+          <div className="px-3 py-1.5 text-[11px] font-medium text-gray-500 uppercase">
+            {section.title}
           </div>
-        </button>
+          {section.items.map((item, index) => (
+            <button
+              key={index}
+              onClick={() => command(item)}
+              className="w-full px-3 py-2 rounded-md hover:bg-gray-100 cursor-pointer text-left"
+            >
+              <div className="flex items-center gap-2.5">
+                {item.icon}
+                <div className="flex flex-col">
+                  <span className="font-medium text-sm leading-tight">
+                    {item.title}
+                  </span>
+                  <span className="text-xs leading-tight text-gray-500">
+                    {item.description}
+                  </span>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
       ))}
     </div>
   );
 });
 
-CommandList.displayName = 'CommandList';
-CommandList.commands = commands;
+CommandList.displayName = "CommandList";
+CommandList.sections = commands;

@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useSidebarState } from "@/contexts/SidebarContext";
 import { useToast } from "@/hooks/use-toast";
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabaseClient";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -17,8 +18,8 @@ import { useCallback, useEffect, useState } from "react";
 import MainLayout from "./layout/MainLayout";
 
 // Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+// const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 interface ContentItem {
   id: number;
@@ -42,7 +43,7 @@ const Dashboard02 = () => {
   const [items, setItems] = useState<ContentItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
+  // const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [hasNextPage, setHasNextPage] = useState(true);
   const [page, setPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -56,10 +57,10 @@ const Dashboard02 = () => {
   const searchParams = useSearchParams();
   const projectId = searchParams?.get("projectId") || "";
 
-  useEffect(() => {
-    const supabaseClient = createClient(supabaseUrl, supabaseKey);
-    setSupabase(supabaseClient);
-  }, []);
+  // useEffect(() => {
+  //   const supabaseClient = createClient(supabaseUrl, supabaseKey);
+  //   setSupabase(supabaseClient);
+  // }, []);
 
   const getContent = useCallback(
     async (

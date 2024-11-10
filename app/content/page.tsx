@@ -1,10 +1,12 @@
-'use client';
+"use client";
 
-import { useSearchParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button";
+import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 
-const Dashboard = dynamic(() => import('@/components/dashboard-02'), { ssr: false });
+const Dashboard = dynamic(() => import("@/components/ContentMain"), {
+  ssr: false,
+});
 
 /**
  * ContentPage component responsible for rendering the dashboard
@@ -12,7 +14,7 @@ const Dashboard = dynamic(() => import('@/components/dashboard-02'), { ssr: fals
  */
 export default function ContentPage() {
   const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
+  const projectId = searchParams.get("projectId");
 
   if (!projectId) {
     return (
@@ -24,9 +26,9 @@ export default function ContentPage() {
           <p className="text-sm text-gray-500 mt-2">
             Please make sure you&apos;ve selected a project.
           </p>
-          <Button 
+          <Button
             className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white"
-            onClick={() => window.location.href = '/'}
+            onClick={() => (window.location.href = "/")}
           >
             Go to Projects
           </Button>
@@ -35,5 +37,5 @@ export default function ContentPage() {
     );
   }
 
-  return <Dashboard/>;
+  return <Dashboard />;
 }
