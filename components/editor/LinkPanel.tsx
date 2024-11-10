@@ -59,8 +59,6 @@ export default function LinkPanel({ onSelect }: LinkPanelProps) {
     }
   };
 
-  console.log("Internal links: ", internalLinks);
-
   return (
     <div className="w-full">
       <Command className="rounded-lg border shadow-md">
