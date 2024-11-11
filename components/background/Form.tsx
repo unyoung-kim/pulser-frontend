@@ -32,7 +32,12 @@ export default function BackgroundForm2() {
   const [activeTab, setActiveTab] = useState("basic");
 
   const tabs = [
-    { id: "basic", icon: Building2, label: "Basic Information" },
+    {
+      id: "basic",
+      icon: Building2,
+      label: "Basic Information",
+      required: true,
+    },
     { id: "product", icon: Package, label: "Product Details" },
     { id: "audience", icon: Users, label: "Audience" },
     { id: "voice", icon: MessageSquareText, label: "Voice & Style" },
@@ -93,6 +98,21 @@ export default function BackgroundForm2() {
                   Keywords that best describe your industry and business focus.
                 </p>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="function" className="flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  Company Function
+                  <Badge variant="secondary" className="ml-2">
+                    Required
+                  </Badge>
+                </Label>
+                <Textarea
+                  id="function"
+                  placeholder="Describe what your company does"
+                  defaultValue="Global brands turn to tenet for simplified digital growth strategies. We improve revenue & deliver outcomes that matter, by combining UI UX design, development, and growth marketing."
+                />
+              </div>
             </CardContent>
           </Card>
         );
@@ -116,27 +136,9 @@ export default function BackgroundForm2() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="function" className="flex items-center gap-2">
-                  <Target className="h-4 w-4" />
-                  Company Function
-                  <Badge variant="secondary" className="ml-2">
-                    Required
-                  </Badge>
-                </Label>
-                <Textarea
-                  id="function"
-                  placeholder="Describe what your company does"
-                  defaultValue="Global brands turn to tenet for simplified digital growth strategies. We improve revenue & deliver outcomes that matter, by combining UI UX design, development, and growth marketing."
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="value" className="flex items-center gap-2">
                   <Lightbulb className="h-4 w-4" />
                   Key Value Proposition
-                  <Badge variant="secondary" className="ml-2">
-                    Required
-                  </Badge>
                 </Label>
                 <Textarea
                   id="value"
@@ -149,9 +151,6 @@ export default function BackgroundForm2() {
                 <Label htmlFor="products" className="flex items-center gap-2">
                   <Package className="h-4 w-4" />
                   Products to Sell
-                  <Badge variant="secondary" className="ml-2">
-                    Required
-                  </Badge>
                 </Label>
                 <Textarea
                   id="products"
@@ -203,9 +202,6 @@ export default function BackgroundForm2() {
                 <Label htmlFor="painPoints" className="flex items-center gap-2">
                   <Target className="h-4 w-4" />
                   Customer Pain Points
-                  <Badge variant="secondary" className="ml-2">
-                    Required
-                  </Badge>
                 </Label>
                 <Textarea
                   id="painPoints"
@@ -222,9 +218,6 @@ export default function BackgroundForm2() {
                 <Label htmlFor="profile" className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   Customer Profile
-                  <Badge variant="secondary" className="ml-2">
-                    Required
-                  </Badge>
                 </Label>
                 <Textarea
                   id="profile"
@@ -307,6 +300,9 @@ export default function BackgroundForm2() {
               >
                 <tab.icon className="h-5 w-5" />
                 <span>{tab.label}</span>
+                {tab.required && (
+                  <span className="text-red-600  text-lg">*</span>
+                )}
                 {activeTab === tab.id && (
                   <ChevronRight className="h-5 w-5 ml-auto" />
                 )}
