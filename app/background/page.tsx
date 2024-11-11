@@ -1,6 +1,6 @@
 "use client";
 
-import { BackgroundForm } from "@/components/BackgroundForm";
+import { BackgroundForm } from "@/components/background/BackgroundForm";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import MainLayout from "@/components/layout/MainLayout";
 import { useSidebarState } from "@/contexts/SidebarContext";
@@ -21,6 +21,7 @@ export default function BackgroundPage() {
     >
       <Sidebar projectId={projectId} />
       <MainLayout>
+        {/* <BackgroundForm2 /> */}
         <BackgroundForm projectId={projectId} />
       </MainLayout>
     </div>

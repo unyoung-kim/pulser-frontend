@@ -226,9 +226,12 @@ const Dashboard02 = () => {
     if (pathname === "/content") {
       return (
         <>
-          <div className="pt-3">
-            <div className="flex items-center">
-              <h1 className="text-lg font-semibold md:text-2xl">Content</h1>
+          <div className="">
+            <div className="flex flex-col">
+              <h1 className="text-3xl font-bold tracking-tight">Content</h1>
+              <p className="text-muted-foreground mt-1">
+                Create, edit, and publish your content directly from Pulser.
+              </p>
             </div>
           </div>
           <Separator className="" />

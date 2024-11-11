@@ -11,14 +11,15 @@ import { Project, useProjects } from "@/contexts/ProjectContext";
 import { useSidebarState } from "@/contexts/SidebarContext";
 import { UserButton, useUser } from "@clerk/nextjs";
 import {
+  Activity,
   ActivitySquare,
   BookOpen,
   ChevronLeft,
   ChevronRight,
   ChevronsUpDown,
-  Cog,
   GalleryVerticalEnd,
   Plug,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -49,7 +50,7 @@ export function Sidebar({ projectId, children }: SidebarProps) {
 
   const bottomLinks = [
     { name: "Integration", href: "/integration", icon: Plug },
-    { name: "Settings", href: "/settings", icon: Cog },
+    { name: "Settings", href: "/settings", icon: Settings },
   ];
 
   const handleProjectSelect = useCallback(
@@ -82,8 +83,8 @@ export function Sidebar({ projectId, children }: SidebarProps) {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-black text-white">
-                      <GalleryVerticalEnd className="size-4" />
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
+                      <Activity className="size-5" />
                     </div>
                     {!isCollapsed && (
                       <div className="grid flex-1 text-left text-sm leading-tight">
@@ -110,11 +111,11 @@ export function Sidebar({ projectId, children }: SidebarProps) {
                     <div
                       className={`flex size-6 items-center justify-center rounded-sm ${
                         project.id.toString() === projectId
-                          ? "bg-black text-white"
+                          ? "bg-indigo-600 text-white"
                           : "border"
                       }`}
                     >
-                      <GalleryVerticalEnd className="size-4" />
+                      <GalleryVerticalEnd className="size-4 " />
                     </div>
                     {project.name}
                   </DropdownMenuItem>
@@ -132,7 +133,7 @@ export function Sidebar({ projectId, children }: SidebarProps) {
                   href={`${link.href}${
                     projectId ? `?projectId=${projectId}` : ""
                   }`}
-                  className={`flex items-center rounded-md px-2 py-2 ${
+                  className={`flex items-center rounded-md px-2 py-2.5 ${
                     isActive
                       ? "bg-gray-100 text-gray-900"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -156,7 +157,7 @@ export function Sidebar({ projectId, children }: SidebarProps) {
                   href={`${link.href}${
                     selectedProject ? `?projectId=${selectedProject.id}` : ""
                   }`}
-                  className={`flex items-center rounded-md px-2 py-2 ${
+                  className={`flex items-center rounded-md px-2 py-2.5 ${
                     isActive
                       ? "bg-gray-100 text-gray-900"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
