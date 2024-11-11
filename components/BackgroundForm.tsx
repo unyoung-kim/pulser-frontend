@@ -16,10 +16,10 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Building2,
-  CheckCircle,
   Loader2,
   MessageSquareText,
   Package2,
+  Save,
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -231,7 +231,7 @@ export function BackgroundForm({
       type="submit"
       onClick={form.handleSubmit(handleSubmit)}
       disabled={loading || externalLoading}
-      className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm min-w-[100px]"
+      className="bg-indigo-600 hover:bg-indigo-700"
       size="sm"
     >
       {loading || externalLoading ? (
@@ -241,7 +241,7 @@ export function BackgroundForm({
         </>
       ) : (
         <>
-          <CheckCircle className="w-4 h-4 mr-2" />
+          <Save className="mr-2 h-4 w-4" />
           Save Info
         </>
       )}
@@ -252,11 +252,12 @@ export function BackgroundForm({
     <>
       <div className="flex justify-between items-start gap-8">
         <div className="space-y-0.5">
-          <h2 className="text-2xl font-bold tracking-tight">Background</h2>
-          <p className="text-sm text-muted-foreground max-w-[450px]">
-            Help us get to know your business to generate relevant articles. The
-            more information you provide, the better content we can create for
-            you.
+          <h1 className="text-2xl font-bold leading-7 text-gray-900">
+            Background
+          </h1>
+          <p className="mt-2 text-base text-muted-foreground">
+            The more information you provide, the better content we can create
+            for you.
           </p>
         </div>
 

@@ -228,7 +228,13 @@ const Dashboard02 = () => {
         <>
           <div className="pt-3">
             <div className="flex items-center">
-              <h1 className="text-lg font-semibold md:text-2xl">Content</h1>
+              <h1 className="text-2xl font-bold leading-7 text-gray-900">
+                Content
+              </h1>
+              <p className="mt-2 text-base text-muted-foreground">
+                Create, manage, edit, and publish your content directly from
+                Pulser.
+              </p>
             </div>
           </div>
           <Separator className="" />

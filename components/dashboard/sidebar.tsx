@@ -19,6 +19,7 @@ import {
   Cog,
   GalleryVerticalEnd,
   Plug,
+  WholeWord,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -44,6 +45,7 @@ export function Sidebar({ projectId, children }: SidebarProps) {
 
   const links = [
     { name: "Background", href: "/background", icon: ActivitySquare },
+    { name: "Keyword", href: "/keyword", icon: WholeWord },
     { name: "Content", href: "/content", icon: BookOpen },
   ];
 
