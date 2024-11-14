@@ -35,7 +35,7 @@ export function ViewToggle({
         onValueChange={(value) => setStatus(value)}
         className="w-auto"
       >
-        <TabsList>
+        <TabsList className="grid grid-cols-5 w-full sm:w-auto">
           {statuses.map((s) => (
             <TabsTrigger key={s} value={s} className="text-sm">
               {Case.capital(s)}
@@ -52,7 +52,7 @@ export function ViewToggle({
             view === "cards"
               ? "bg-indigo-50 text-indigo-600 hover:bg-indigo-200"
               : "bg-white text-gray-500 hover:bg-indigo-50"
-          } rounded-full text-sm`}
+          } text-sm`}
         >
           <Grid className="h-4 w-4 mr-2" />
           Cards
@@ -65,7 +65,7 @@ export function ViewToggle({
             view === "table"
               ? "bg-indigo-50 text-indigo-600 hover:bg-indigo-200"
               : "bg-white text-gray-500 hover:bg-indigo-50"
-          } rounded-full text-sm`}
+          }  text-sm`}
         >
           <List className="h-4 w-4 mr-2" />
           Table
@@ -73,12 +73,10 @@ export function ViewToggle({
       </div>
       <div className="flex gap-2 ml-2">
         <Button
-          variant="default"
-          size="sm"
-          className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
+          className="bg-indigo-600 hover:bg-indigo-700"
           onClick={onNewContent}
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="w-4 h-4 mr-2" />
           New Content
         </Button>
       </div>

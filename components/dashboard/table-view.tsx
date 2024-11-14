@@ -1,112 +1,180 @@
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import useInfiniteScroll from 'react-infinite-scroll-hook'
-import { format } from 'date-fns'
-import { useCallback } from 'react'
-import Image from "next/image"
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { format } from "date-fns";
+import { MoreHorizontal } from "lucide-react";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
+import useInfiniteScroll from "react-infinite-scroll-hook";
 
 interface TableViewProps {
   items: Array<{
-    id: number
-    title: string
-    status: string
-    updated_at: string
-    created_at: string
-    image_url: string
-    keywords?: string[]
-    description?: string
-    date?: string
-    type?: string
-    tags?: string[]
-  }>
-  loading: boolean
-  hasNextPage: boolean
-  onLoadMore: () => void
+    id: number;
+    title: string;
+    status: string;
+    updated_at: string;
+    created_at: string;
+    image_url: string;
+    keywords?: string[];
+    description?: string;
+    date?: string;
+    type?: string;
+    tags?: string[];
+  }>;
+  loading: boolean;
+  hasNextPage: boolean;
+  onLoadMore: () => void;
 }
 
-const DEFAULT_IMAGE = 'https://picsum.photos/seed/default/100/100';
+const DEFAULT_IMAGE = "https://picsum.photos/seed/default/100/100";
 
-export function TableView({ items, loading, hasNextPage, onLoadMore }: TableViewProps) {
+const getValidImageUrl = (url?: string) => {
+  if (!url) return DEFAULT_IMAGE;
+  // Check if it's already an absolute URL
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  // Add leading slash if missing
+  return url.startsWith("/") ? url : `/${url}`;
+};
+
+export function TableView({
+  items,
+  loading,
+  hasNextPage,
+  onLoadMore,
+}: TableViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
-  
+  const projectId = searchParams.get("projectId");
+
   const [sentryRef] = useInfiniteScroll({
     loading,
     hasNextPage,
     onLoadMore,
     disabled: false,
-    rootMargin: '0px 0px 400px 0px',
+    rootMargin: "0px 0px 400px 0px",
   });
 
-  const handleRowClick = useCallback((contentId: number) => {
-    router.push(`/content/${contentId}?projectId=${projectId}`);
-  }, [router, projectId]);
+  const handleRowClick = useCallback(
+    (contentId: number) => {
+      router.push(`/content/${contentId}?projectId=${projectId}`);
+    },
+    [router, projectId]
+  );
 
   const formatDate = useCallback((dateString: string) => {
-    return format(new Date(dateString), 'yyyy-MM-dd hh:mm a')
+    return format(new Date(dateString), "yyyy-MM-dd hh:mm a");
   }, []);
 
   return (
     <div className="mt-6 flow-root">
-      <div className="overflow-x-auto">
-        <div className="inline-block min-w-full align-middle">
-          <table className="min-w-full divide-y divide-gray-300">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Image</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Title</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Keywords</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Created At</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 tracking-wider">Updated At</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {items.map((item) => (
-                <tr 
-                  key={item.id} 
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => handleRowClick(item.id)}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <Image
-                      src={item.image_url || DEFAULT_IMAGE}
-                      alt={item.title}
-                      width={100}
-                      height={100}
-                      className="rounded"
-                    />
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{item.title}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-wrap gap-2">
-                      {item.keywords?.map((keyword, index) => (
-                        <Button 
-                          key={index}
-                          variant="ghost" 
-                          className="bg-indigo-50 text-indigo-700 px-2 py-0 h-5 hover:bg-indigo-100 text-xs"
-                        >
-                          {keyword}
-                        </Button>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <Badge variant={item.status === 'Scheduled' ? 'default' : 'secondary'} className="text-xs bg-indigo-100 text-indigo-800 hover:bg-indigo-200 cursor-pointer">
-                      {item.status}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.created_at)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.updated_at)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {hasNextPage && <div ref={sentryRef} />}
-        </div>
+      <div className="rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow className="h-16">
+              <TableHead className="w-12">
+                <Checkbox />
+              </TableHead>
+              <TableHead className="w-[100px]">Image</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead>Keywords</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-[180px]">Created At</TableHead>
+              <TableHead className="w-[180px]">Updated At</TableHead>
+              <TableHead className="w-[70px]"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((item) => (
+              <TableRow key={item.id} className="group h-24">
+                <TableCell className="py-4">
+                  <Checkbox />
+                </TableCell>
+                <TableCell className="py-4">
+                  <Image
+                    src={getValidImageUrl(item.image_url)}
+                    alt={item.title}
+                    width={120}
+                    height={68}
+                    className="rounded object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = DEFAULT_IMAGE;
+                    }}
+                  />
+                </TableCell>
+                <TableCell className="font-medium py-4">
+                  <div className="text-base">{item.title}</div>
+                </TableCell>
+                <TableCell className="py-4">
+                  <div className="flex flex-wrap gap-2">
+                    {item.keywords?.map((keyword, index) => (
+                      <Button
+                        key={index}
+                        variant="ghost"
+                        className="bg-indigo-50 text-indigo-700 px-3 py-1 h-7 hover:bg-indigo-100 text-sm"
+                      >
+                        {keyword}
+                      </Button>
+                    ))}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant="secondary"
+                    className="bg-indigo-100 text-indigo-700 hover:bg-indigo-100"
+                  >
+                    {item.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatDate(item.created_at)}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatDate(item.updated_at)}
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="flex h-8 w-8 p-0 data-[state=open]:bg-muted opacity-0 group-hover:opacity-100"
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                        <span className="sr-only">Open menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[160px]">
+                      <DropdownMenuItem onClick={() => handleRowClick(item.id)}>
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>Make a copy</DropdownMenuItem>
+                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {hasNextPage && <div ref={sentryRef} />}
       </div>
     </div>
-  )
+  );
 }

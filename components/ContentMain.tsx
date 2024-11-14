@@ -256,7 +256,7 @@ const Dashboard02 = () => {
                 <Button
                   variant="default"
                   size="sm"
-                  className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
+                  className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
                   onClick={() => setIsCreateModalOpen(true)}
                 >
                   <Plus className="h-4 w-4 mr-2" />

@@ -120,6 +120,15 @@ export function Sidebar({ projectId, children }: SidebarProps) {
                     {project.name}
                   </DropdownMenuItem>
                 ))}
+                <DropdownMenuItem
+                  onSelect={() => router.push("/")}
+                  className="gap-2 p-2 border-t mt-1"
+                >
+                  <div className="flex size-6 items-center justify-center rounded-sm border">
+                    <GalleryVerticalEnd className="size-4" />
+                  </div>
+                  All Projects
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

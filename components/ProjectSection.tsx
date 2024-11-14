@@ -1,62 +1,78 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { useProjects } from "@/contexts/ProjectContext";
-import { FolderIcon, PlusCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
-import { useUser, useOrganization } from "@clerk/nextjs";
-import { createClient } from '@supabase/supabase-js';
-import { getLastUpdatedText } from '@/lib/date';
+import { useOrganization, useUser } from "@clerk/nextjs";
+import {
+  DocumentTextIcon,
+  FolderIcon,
+  PlusCircleIcon,
+} from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
+// import { createClient } from '@supabase/supabase-js';
+import { getLastUpdatedText } from "@/lib/date";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ProjectSection() {
-  const [newProjectName, setNewProjectName] = useState<string>('');
-  const [newProjectDescription, setNewProjectDescription] = useState<string>('');
+  const [newProjectName, setNewProjectName] = useState<string>("");
+  const [newProjectDescription, setNewProjectDescription] =
+    useState<string>("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
   const { projects, loading, fetchProjects } = useProjects();
   const { user } = useUser();
   const { organization } = useOrganization();
   const router = useRouter();
 
-  const navigateToContent = useCallback((projectId: string) => {
-    router.push(`/content?projectId=${projectId}`);
-  }, [router]);
+  const navigateToContent = useCallback(
+    (projectId: string) => {
+      router.push(`/content?projectId=${projectId}`);
+    },
+    [router]
+  );
 
-  const createProject = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newProjectName.trim() || !user || !organization) return;
+  const createProject = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newProjectName.trim() || !user || !organization) return;
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+      try {
+        const { data, error } = await supabase
+          .from("Project")
+          .insert([
+            {
+              name: newProjectName,
+              description: newProjectDescription,
+              clerk_user_id: user.id,
+              org_id: organization.id,
+            },
+          ])
+          .select();
 
-    try {
-      const { data, error } = await supabase
-        .from('Project')
-        .insert([{ 
-          name: newProjectName,
-          description: newProjectDescription, 
-          clerk_user_id: user.id,
-          org_id: organization.id
-        }])
-        .select();
+        if (error) throw error;
 
-      if (error) throw error;
+        await fetchProjects(); // Refresh the projects list
+        setIsCreateDialogOpen(false);
+        setNewProjectName("");
+        setNewProjectDescription("");
 
-      await fetchProjects(); // Refresh the projects list
-      setIsCreateDialogOpen(false);
-      setNewProjectName('');
-      setNewProjectDescription('');
-      
-      if (data?.[0]) {
-        navigateToContent(data[0].id.toString());
+        if (data?.[0]) {
+          navigateToContent(data[0].id.toString());
+        }
+      } catch (error) {
+        console.error("Error creating project:", error);
       }
-    } catch (error) {
-      console.error('Error creating project:', error);
-    }
-  }, [newProjectName, newProjectDescription, fetchProjects, navigateToContent, user, organization]);
+    },
+    [
+      newProjectName,
+      newProjectDescription,
+      fetchProjects,
+      navigateToContent,
+      user,
+      organization,
+    ]
+  );
 
   return (
     <div className="flex-1 bg-gray-50 min-h-screen">
@@ -65,9 +81,11 @@ export default function ProjectSection() {
         <div className="w-full max-w-7xl mx-auto">
           <div className="mb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Your Projects</h1>
-                <p className="mt-1 text-sm text-gray-500">
+              <div className="space-y-1">
+                <h1 className="text-3xl font-bold tracking-tight">
+                  Your Projects
+                </h1>
+                <p className="text-muted-foreground">
                   Manage and organize your content across different projects
                 </p>
               </div>
@@ -77,7 +95,9 @@ export default function ProjectSection() {
                     <FolderIcon className="w-4 h-4 text-indigo-600" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Projects</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Projects
+                    </p>
                     <p className="text-lg font-semibold text-gray-900">
                       {projects.length}
                     </p>
@@ -89,9 +109,14 @@ export default function ProjectSection() {
                     <DocumentTextIcon className="w-4 h-4 text-indigo-600" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Contents</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Contents
+                    </p>
                     <p className="text-lg font-semibold text-gray-900">
-                      {projects.reduce((sum, project) => sum + (project.content_count || 0), 0)}
+                      {projects.reduce(
+                        (sum, project) => sum + (project.content_count || 0),
+                        0
+                      )}
                     </p>
                   </div>
                 </div>
@@ -100,7 +125,7 @@ export default function ProjectSection() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <div 
+            <div
               className="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer border border-gray-100 overflow-hidden hover:border-green-200"
               onClick={() => setIsCreateDialogOpen(true)}
             >
@@ -108,14 +133,18 @@ export default function ProjectSection() {
                 <div className="flex items-center justify-center w-12 h-12 bg-green-50 rounded-lg mb-4 group-hover:bg-green-100 transition-colors">
                   <PlusCircleIcon className="w-6 h-6 text-green-600" />
                 </div>
-                <h3 className="font-medium text-gray-900 group-hover:text-green-600 transition-colors">New Project</h3>
-                <p className="mt-2 text-sm text-gray-500">Create something amazing</p>
+                <h3 className="font-medium text-gray-900 group-hover:text-green-600 transition-colors">
+                  New Project
+                </h3>
+                <p className="mt-2 text-sm text-gray-500">
+                  Create something amazing
+                </p>
               </div>
             </div>
 
             {projects.map((project) => (
-              <div 
-                key={project.id} 
+              <div
+                key={project.id}
                 className="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer border border-gray-100 overflow-hidden hover:border-indigo-200"
                 onClick={() => navigateToContent(project.id.toString())}
               >
@@ -132,14 +161,15 @@ export default function ProjectSection() {
                     {project.name}
                   </h3>
                   <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-                    {project.description || 'No description provided'}
+                    {project.description || "No description provided"}
                   </p>
                   <div className="mt-4 flex items-center justify-between">
                     <p className="text-xs text-gray-400">
                       Last updated {getLastUpdatedText(project.updated_at)}
                     </p>
                     <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">
-                      {project.content_count} content{project.content_count !== 1 ? 's' : ''}
+                      {project.content_count} content
+                      {project.content_count !== 1 ? "s" : ""}
                     </span>
                   </div>
                 </div>
@@ -159,8 +189,12 @@ export default function ProjectSection() {
                   <FolderIcon className="w-6 h-6 text-indigo-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Create New Project</h2>
-                  <p className="text-sm text-gray-500 mt-1">Add a new project to organize your content</p>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Create New Project
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Add a new project to organize your content
+                  </p>
                 </div>
               </div>
             </div>
@@ -169,7 +203,10 @@ export default function ProjectSection() {
             <form onSubmit={createProject} className="px-8 py-6">
               <div className="space-y-5">
                 <div>
-                  <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="projectName"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Project Name
                   </label>
                   <input
@@ -187,8 +224,12 @@ export default function ProjectSection() {
                 </div>
 
                 <div>
-                  <label htmlFor="projectDescription" className="block text-sm font-medium text-gray-700 mb-2">
-                    Description <span className="text-gray-400">(optional)</span>
+                  <label
+                    htmlFor="projectDescription"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Description{" "}
+                    <span className="text-gray-400">(optional)</span>
                   </label>
                   <textarea
                     id="projectDescription"
@@ -206,16 +247,16 @@ export default function ProjectSection() {
 
               {/* Modal Footer */}
               <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-100">
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   onClick={() => setIsCreateDialogOpen(false)}
                   className="px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 
                            text-gray-700 text-sm font-medium rounded-xl transition-colors"
                 >
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 
                            text-white text-sm font-medium rounded-xl 
                            transition-colors flex items-center gap-2"

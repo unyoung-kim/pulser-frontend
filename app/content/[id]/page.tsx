@@ -4,12 +4,12 @@ import { ContentEditor } from "@/components/content/ContentEditor";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Loader } from "@/components/ui/loader";
 import { useSidebarState } from "@/contexts/SidebarContext";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabaseClient";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+// const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export default function ContentPage() {
   const params = useParams();
@@ -21,7 +21,6 @@ export default function ContentPage() {
   const { data: content, isLoading } = useQuery({
     queryKey: ["content", contentId],
     queryFn: async () => {
-      const supabase = createClient(supabaseUrl, supabaseKey);
       const { data, error } = await supabase
         .from("Content")
         .select("*")

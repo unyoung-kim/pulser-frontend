@@ -3,7 +3,7 @@
 import "@/app/content/editor.css";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounceCallback } from "@/hooks/useDebounceCallback";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabaseClient";
 import { useQuery } from "@tanstack/react-query";
 import BulletList from "@tiptap/extension-bullet-list";
 import Image from "@tiptap/extension-image";
@@ -56,8 +56,6 @@ export function ContentEditor({
 
     setIsSaving(true);
     try {
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
       const { error: contentError } = await supabase
         .from("Content")
         .update({
@@ -149,7 +147,6 @@ export function ContentEditor({
   useQuery({
     queryKey: ["contentBody", contentId],
     queryFn: async () => {
-      const supabase = createClient(supabaseUrl, supabaseKey);
       const { data, error } = await supabase
         .from("ContentBody")
         .select("body")
@@ -192,7 +189,6 @@ export function ContentEditor({
 
     setIsSaving(true);
     try {
-      const supabase = createClient(supabaseUrl, supabaseKey);
       const { error } = await supabase
         .from("Content")
         .update({

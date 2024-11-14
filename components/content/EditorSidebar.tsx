@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabaseClient";
 import { Editor } from "@tiptap/react";
 import {
   ArrowRight,
@@ -42,8 +42,8 @@ interface EditorSidebarProps {
   onStatusChange?: (newStatus: string) => void;
 }
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+// const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export function EditorSidebar({
   editor,
@@ -227,7 +227,6 @@ export function EditorSidebar({
 
     setIsUpdating(true);
     try {
-      const supabase = createClient(supabaseUrl, supabaseKey);
       const updateData: {
         status: "published" | "draft";
         updated_at: string;
