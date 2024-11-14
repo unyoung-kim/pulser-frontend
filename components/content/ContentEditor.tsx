@@ -23,8 +23,8 @@ import { EditorSidebar } from "./EditorSidebar";
 import { SlashCommand } from "./extensions/SlashCommand";
 import { Toolbar } from "./Toolbar";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+// const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 interface ContentEditorProps {
   initialContent: string;
