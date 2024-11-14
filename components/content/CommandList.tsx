@@ -3,15 +3,15 @@ import {
   Heading1,
   Heading2,
   Heading3,
-  Image,
   List,
   ListOrdered,
   Table,
   Type,
-  Video,
+  Youtube,
 } from "lucide-react";
 import React, { forwardRef } from "react";
 import { createRoot } from "react-dom/client";
+import { ImageSearchModal } from "../editor/ImageSearchModal";
 import { YoutubeSearchModal } from "../editor/YoutubeSearchModal";
 
 interface CommandItem {
@@ -109,23 +109,47 @@ const commands: CommandSection[] = [
     title: "Media",
     items: [
       {
-        title: "Image",
-        description: "Upload or embed an image.",
+        title: "Image Search",
+        description: "Search and embed an image.",
         icon: (
-          <Image className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
+          <svg
+            className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
+              fill="#4285F4"
+            />
+          </svg>
         ),
         command: (editor: Editor) => {
-          const url = window.prompt("Enter image URL");
-          if (url) {
-            editor.chain().focus().setImage({ src: url }).run();
-          }
+          const modal = document.createElement("div");
+          modal.setAttribute("id", "image-search-modal");
+          modal.style.display = "block";
+          document.body.appendChild(modal);
+
+          const root = createRoot(modal);
+          root.render(
+            <ImageSearchModal
+              onSelect={(imageUrl) => {
+                editor.chain().focus().setImage({ src: imageUrl }).run();
+                document.body.removeChild(modal);
+                root.unmount();
+              }}
+              onClose={() => {
+                document.body.removeChild(modal);
+                root.unmount();
+              }}
+            />
+          );
         },
       },
       {
-        title: "Embed Youtube Video",
-        description: "You can search for a Youtube video and embed it.",
+        title: "Video Search",
+        description: "Embed a Youtube video by searching for it.",
         icon: (
-          <Video className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
+          <Youtube className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm text-[#FF0000]" />
         ),
         command: (editor: Editor) => {
           const modal = document.createElement("div");

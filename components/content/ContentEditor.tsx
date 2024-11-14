@@ -234,7 +234,7 @@ export function ContentEditor({
 
         {editor && <Toolbar editor={editor} isSaving={isSaving} />}
 
-        <div className="prose-container bg-white rounded-lg shadow-sm p-8 min-h-[500px]">
+        <div className="prose-container bg-white rounded-lg shadow-lg border border-gray-200 p-8 min-h-[500px] px-12">
           <EditorContent editor={editor} />
         </div>
       </div>
