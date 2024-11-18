@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Globe,
   Lightbulb,
+  Link as LinkIcon,
   MessageSquareText,
   Package,
   Sparkles,
@@ -30,6 +31,7 @@ import { Separator } from "../ui/separator";
 
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
+import { getPathFromURL } from "@/lib/url";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 
@@ -71,6 +73,8 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     audience: { painPoints: "", customerProfile: "" },
     voice: { writingStyle: "" },
   });
+  const [domain, setDomain] = useState("");
+  const [isValidDomain, setIsValidDomain] = useState(false);
 
   const tabs = [
     {
@@ -82,6 +86,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     { id: "product", icon: Package, label: "Product Details" },
     { id: "audience", icon: Users, label: "Audience" },
     { id: "voice", icon: MessageSquareText, label: "Voice & Style" },
+    { id: "internalLinks", icon: Globe, label: "Internal Links" },
   ];
 
   const { data: project, isLoading } = useQuery({
@@ -96,6 +101,20 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
       if (error) throw error;
       return data;
     },
+  });
+
+  const { data: internalLinks, isLoading: isLoadingLinks } = useQuery({
+    queryKey: ["internalLinks", projectId],
+    queryFn: async () => {
+      if (!projectId) return [];
+      const { data, error } = await supabase
+        .from("InternalLink")
+        .select("*")
+        .eq("project_id", projectId);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!projectId,
   });
 
   useEffect(() => {
@@ -122,6 +141,13 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
       });
     }
   }, [project]);
+
+  useEffect(() => {
+    if (formData.basic.companyUrl) {
+      setDomain(formData.basic.companyUrl);
+      setIsValidDomain(validateDomain(formData.basic.companyUrl));
+    }
+  }, [formData.basic.companyUrl]);
 
   const handleInputChange = (
     section: keyof typeof formData,
@@ -178,6 +204,45 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     });
   };
 
+  const validateDomain = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    try {
+      const urlObject = new URL(url);
+      return urlObject.protocol === "http:" || urlObject.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  const { mutate: findInternalLinks, isLoading: isFindingLinks } = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(
+        "https://pulser-backend.onrender.com/api/internal-links-handler",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ projectId }),
+        }
+      );
+      if (!response.ok) throw new Error("Failed to find internal links");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["internalLinks", projectId]);
+      toast({
+        title: "Success",
+        description: "Internal links found successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to find internal links",
+        variant: "destructive",
+      });
+    },
+  });
+
   const renderContent = () => {
     switch (activeTab) {
       case "basic":
@@ -213,10 +278,25 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                   id="url"
                   placeholder="https://example.com"
                   value={formData.basic.companyUrl || ""}
-                  onChange={(e) =>
-                    handleInputChange("basic", "companyUrl", e.target.value)
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (validateDomain(value) || value === "") {
+                      handleInputChange("basic", "companyUrl", value);
+                    }
+                  }}
+                  className={
+                    !validateDomain(formData.basic.companyUrl) &&
+                    formData.basic.companyUrl
+                      ? "border-red-500"
+                      : ""
                   }
                 />
+                {formData.basic.companyUrl &&
+                  !validateDomain(formData.basic.companyUrl) && (
+                    <p className="text-sm text-red-500">
+                      Please enter a valid URL (e.g., https://example.com)
+                    </p>
+                  )}
                 <p className="text-sm text-muted-foreground">
                   Your company name and website URL.
                 </p>
@@ -460,6 +540,115 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                   exemplify your preferred writing style. This helps us match
                   your tone of voice.
                 </p>
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case "internalLinks":
+        return (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <CardTitle>Internal Links</CardTitle>
+                  <CardDescription>
+                    Specify your website domain for internal linking.
+                  </CardDescription>
+                </div>
+                <Button
+                  className="gap-2 bg-indigo-600 hover:bg-indigo-700"
+                  onClick={() => findInternalLinks()}
+                  disabled={!isValidDomain || isFindingLinks}
+                >
+                  {isFindingLinks ? (
+                    "Finding Links..."
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      Find Internal Links
+                      <ChevronRight className="h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              <div className="space-y-2">
+                <Label htmlFor="domain" className="flex items-center gap-2">
+                  <Globe className="h-4 w-4" />
+                  <span className="font-semibold">Domain</span>
+                </Label>
+                <Input
+                  id="domain"
+                  placeholder="https://example.com"
+                  value={domain}
+                  disabled={true}
+                  className={!isValidDomain && domain ? "border-red-500" : ""}
+                />
+                {!domain && (
+                  <p className="text-sm text-muted-foreground">
+                    Domain will be automatically loaded from Basic Information{" "}
+                    {">"} Company URL.
+                  </p>
+                )}
+                {domain && !isValidDomain && (
+                  <p className="text-sm text-red-500">
+                    Please enter a valid domain (e.g., https://example.com)
+                  </p>
+                )}
+                {/* <p className="text-sm text-muted-foreground">
+                  Enter your website&apos;s domain for internal linking
+                  purposes.
+                </p> */}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Globe className="h-4 w-4" />
+                  <span className="font-semibold">Found Internal Links</span>
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  These links will be strategically incorporated into your
+                  generated articles to improve internal linking and SEO
+                  performance of your website.
+                </p>
+                <div className="border rounded-lg">
+                  {isLoadingLinks ? (
+                    <p className="p-4">Loading links...</p>
+                  ) : !internalLinks?.length ? (
+                    <p className="p-4 text-sm text-muted-foreground">
+                      No internal links found yet. Click &quot;Find Internal
+                      Links&quot; to scan your website.
+                    </p>
+                  ) : (
+                    <div className="divide-y">
+                      {internalLinks.map((link) => (
+                        <div
+                          key={link.id}
+                          className="flex items-start gap-3 p-4"
+                        >
+                          <LinkIcon className="h-4 w-4 flex-shrink-0 mt-1" />
+                          <div className="flex flex-col flex-1 justify-center">
+                            <a
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm font-bold hover:underline break-all"
+                            >
+                              {getPathFromURL(link.url)}
+                            </a>
+                            {link.summary && (
+                              <span className="text-xs text-muted-foreground break-words">
+                                {link.summary}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
