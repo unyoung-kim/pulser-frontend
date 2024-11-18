@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Case from "case";
 import { Grid, List, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export enum Status {
   All = "All",
@@ -26,7 +27,12 @@ export function ViewToggle({
   setStatus,
   onNewContent,
 }: ViewToggleProps) {
+  const router = useRouter();
   const statuses: Status[] = Object.values(Status);
+
+  const handleNewContent = () => {
+    router.push("/content/new");
+  };
 
   return (
     <div className="flex items-center justify-between h-6 mb-4">
@@ -74,7 +80,7 @@ export function ViewToggle({
       <div className="flex gap-2 ml-2">
         <Button
           className="bg-indigo-600 hover:bg-indigo-700"
-          onClick={onNewContent}
+          onClick={handleNewContent}
         >
           <Plus className="w-4 h-4 mr-2" />
           New Content

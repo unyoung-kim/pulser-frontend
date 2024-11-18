@@ -5,11 +5,22 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import MainLayout from "@/components/layout/MainLayout";
 import { useSidebarState } from "@/contexts/SidebarContext";
 import { useSearchParams } from "next/navigation";
+import { useRestrictedAccess } from "@/hooks/useRestrictedAccess";
+import { Loader } from "@/components/ui/loader";
 
 export default function BackgroundPage() {
+  const { isLoading, isRestricted } = useRestrictedAccess();
   const { isCollapsed } = useSidebarState();
   const searchParams = useSearchParams();
   const projectId = searchParams?.get("projectId") || "";
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (isRestricted) {
+    return null; // The hook will handle redirection
+  }
 
   return (
     <div

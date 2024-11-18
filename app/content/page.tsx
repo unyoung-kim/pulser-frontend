@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
+import { useRestrictedAccess } from "@/hooks/useRestrictedAccess";
+import { Loader } from "@/components/ui/loader";
 
 const Dashboard = dynamic(() => import("@/components/ContentMain"), {
   ssr: false,
@@ -13,8 +15,17 @@ const Dashboard = dynamic(() => import("@/components/ContentMain"), {
  * or an error message if no project is selected.
  */
 export default function ContentPage() {
+  const { isLoading, isRestricted } = useRestrictedAccess();
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (isRestricted) {
+    return null; // The hook will handle redirection
+  }
 
   if (!projectId) {
     return (

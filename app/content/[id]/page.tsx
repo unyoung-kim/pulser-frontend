@@ -7,18 +7,17 @@ import { useSidebarState } from "@/contexts/SidebarContext";
 import { supabase } from "@/lib/supabaseClient";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
-
-// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-// const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+import { useRestrictedAccess } from "@/hooks/useRestrictedAccess";
 
 export default function ContentPage() {
+  const { isLoading: isAuthLoading, isRestricted } = useRestrictedAccess();
   const params = useParams();
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
   const contentId = params.id;
   const { isCollapsed } = useSidebarState();
 
-  const { data: content, isLoading } = useQuery({
+  const { data: content, isLoading: isContentLoading } = useQuery({
     queryKey: ["content", contentId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -33,8 +32,12 @@ export default function ContentPage() {
     enabled: !!contentId,
   });
 
-  if (isLoading) {
+  if (isAuthLoading || isContentLoading) {
     return <Loader />;
+  }
+
+  if (isRestricted) {
+    return null; // The hook will handle redirection
   }
 
   return (
