@@ -100,7 +100,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (supabase && organization) {
-      console.log("Supabase and organization available, fetching projects");
+      // console.log("Supabase and organization available, fetching projects");
       fetchProjects();
     }
   }, [supabase, organization, fetchProjects]);

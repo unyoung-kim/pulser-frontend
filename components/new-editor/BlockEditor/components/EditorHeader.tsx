@@ -2,7 +2,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Toolbar } from "@/components/ui/Toolbar";
 import { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
-import { EditorInfo } from "./EditorInfo";
+import { Check } from "lucide-react";
 
 export type EditorHeaderProps = {
   isSidebarOpen?: boolean;
@@ -10,6 +10,7 @@ export type EditorHeaderProps = {
   editor: Editor;
   // collabState: WebSocketStatus
   // users: EditorUser[];
+  isSaving: boolean;
 };
 
 export const EditorHeader = ({
@@ -17,6 +18,7 @@ export const EditorHeader = ({
   // users,
   isSidebarOpen,
   toggleSidebar,
+  isSaving,
 }: EditorHeaderProps) => {
   const { characters, words } = useEditorState({
     editor,
@@ -43,7 +45,17 @@ export const EditorHeader = ({
           </Toolbar.Button>
         </div>
       </div>
-      <EditorInfo characters={characters} words={words} />
+      <div className="flex items-center px-2 py-1 text-sm text-muted-foreground">
+        {isSaving ? (
+          <span>Saving...</span>
+        ) : (
+          <div className="flex items-center gap-1">
+            <span>Saved</span>
+            <Check className="w-4 h-4 text-green-500" />
+          </div>
+        )}
+      </div>
+      {/* <EditorInfo characters={characters} words={words} /> */}
     </div>
   );
 };

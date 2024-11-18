@@ -1,33 +1,18 @@
 "use client";
 
 import "@/app/content/editor.css";
-import {
-  AiImage,
-  AiWriter,
-  BulletList,
-  Link,
-  OrderedList,
-  SlashCommand,
-  StarterKit,
-  Table,
-  TableCell,
-  TableHeader,
-  TableRow,
-  TextAlign,
-  Underline,
-} from "@/extensions";
+import { AiImage, AiWriter } from "@/extensions";
 import { Ai } from "@/extensions/Ai";
 import ExtensionKit from "@/extensions/extension-kit";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounceCallback } from "@/hooks/useDebounceCallback";
 import { supabase } from "@/lib/supabaseClient";
+import { getJwtToken } from "@/lib/token";
 import { useQuery } from "@tanstack/react-query";
-import Image from "@tiptap/extension-image";
-import Youtube from "@tiptap/extension-youtube";
-import { AnyExtension, EditorContent, useEditor } from "@tiptap/react";
+import { AnyExtension, useEditor } from "@tiptap/react";
 import React, { useCallback, useState } from "react";
+import { BlockEditor } from "../new-editor/BlockEditor";
 import { EditorSidebar } from "./EditorSidebar";
-import { Toolbar } from "./Toolbar";
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 // const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -57,100 +42,105 @@ export function ContentEditor({
   const [currentTitle, setCurrentTitle] = useState<string>(title);
   const { toast } = useToast();
 
-  const aiToken = process.env.NEXT_PUBLIC_TIPTAP_AI_TOKEN;
+  const aiToken = getJwtToken(
+    process.env.NEXT_PUBLIC_TIPTAP_AI_JWT_SECRET ?? ""
+  );
 
-  const saveContent = useDebounceCallback(async (content: string) => {
-    if (!contentId || !projectId) return;
+  const saveContent = useDebounceCallback(
+    async (content: string) => {
+      if (!contentId || !projectId) return;
 
-    setIsSaving(true);
-    try {
-      const { error: contentError } = await supabase
-        .from("Content")
-        .update({
+      try {
+        const { error: contentError } = await supabase
+          .from("Content")
+          .update({
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", contentId);
+
+        if (contentError) throw contentError;
+
+        const { error: bodyError } = await supabase.from("ContentBody").upsert({
+          content_id: contentId,
+          body: content,
           updated_at: new Date().toISOString(),
-        })
-        .eq("id", contentId);
+        });
 
-      if (contentError) throw contentError;
-
-      const { error: bodyError } = await supabase.from("ContentBody").upsert({
-        content_id: contentId,
-        body: content,
-        updated_at: new Date().toISOString(),
-      });
-
-      if (bodyError) throw bodyError;
-    } catch (error) {
-      console.error("Error saving content:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save content",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  }, 4000);
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
-      }),
-      BulletList,
-      OrderedList,
-      Image,
-      Link.configure({
-        openOnClick: true,
-        HTMLAttributes: {
-          target: "_blank",
-          rel: "noopener noreferrer",
-        },
-      }),
-      Table.configure({
-        resizable: true,
-        HTMLAttributes: {
-          class: "tableWrapper",
-        },
-      }),
-      TableRow.configure({
-        HTMLAttributes: {
-          class: "tableRow",
-        },
-      }),
-      TableCell.configure({
-        HTMLAttributes: {
-          class: "tableCell",
-        },
-      }),
-      TableHeader.configure({
-        HTMLAttributes: {
-          class: "tableHeader",
-        },
-      }),
-      Underline,
-      TextAlign.configure({
-        types: ["heading", "paragraph"],
-      }),
-      SlashCommand,
-      Youtube.configure({
-        controls: false,
-        nocookie: true,
-      }),
-    ],
-    content: initialContent,
-    editorProps: {
-      attributes: {
-        class: "prose prose-lg max-w-full focus:outline-none",
-      },
+        if (bodyError) throw bodyError;
+      } catch (error) {
+        console.error("Error saving content:", error);
+        toast({
+          title: "Error",
+          description: "Failed to save content",
+          variant: "destructive",
+        });
+      } finally {
+        setIsSaving(false);
+      }
     },
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      saveContent(html);
-    },
-  });
+    2500,
+    { onStart: () => setIsSaving(true) }
+  );
+
+  // const editor = useEditor({
+  //   extensions: [
+  //     StarterKit.configure({
+  //       heading: {
+  //         levels: [1, 2, 3],
+  //       },
+  //     }),
+  //     BulletList,
+  //     OrderedList,
+  //     Image,
+  //     Link.configure({
+  //       openOnClick: true,
+  //       HTMLAttributes: {
+  //         target: "_blank",
+  //         rel: "noopener noreferrer",
+  //       },
+  //     }),
+  //     Table.configure({
+  //       resizable: true,
+  //       HTMLAttributes: {
+  //         class: "tableWrapper",
+  //       },
+  //     }),
+  //     TableRow.configure({
+  //       HTMLAttributes: {
+  //         class: "tableRow",
+  //       },
+  //     }),
+  //     TableCell.configure({
+  //       HTMLAttributes: {
+  //         class: "tableCell",
+  //       },
+  //     }),
+  //     TableHeader.configure({
+  //       HTMLAttributes: {
+  //         class: "tableHeader",
+  //       },
+  //     }),
+  //     Underline,
+  //     TextAlign.configure({
+  //       types: ["heading", "paragraph"],
+  //     }),
+  //     SlashCommand,
+  //     Youtube.configure({
+  //       controls: false,
+  //       nocookie: true,
+  //     }),
+  //   ],
+  //   content: initialContent,
+  //   editorProps: {
+  //     attributes: {
+  //       class: "prose prose-lg max-w-full focus:outline-none",
+  //     },
+  //   },
+  //   onUpdate: ({ editor }) => {
+  //     const html = editor.getHTML();
+  //     saveContent(html);
+  //   },
+  // });
 
   const editor2 = useEditor({
     immediatelyRender: true,
@@ -238,31 +228,34 @@ export function ContentEditor({
     );
   };
 
-  const saveTitle = useDebounceCallback(async (newTitle: string) => {
-    if (!contentId || !projectId) return;
+  const saveTitle = useDebounceCallback(
+    async (newTitle: string) => {
+      if (!contentId || !projectId) return;
 
-    setIsSaving(true);
-    try {
-      const { error } = await supabase
-        .from("Content")
-        .update({
-          title: newTitle,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", contentId);
+      try {
+        const { error } = await supabase
+          .from("Content")
+          .update({
+            title: newTitle,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", contentId);
 
-      if (error) throw error;
-    } catch (error) {
-      console.error("Error saving title:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save title",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  }, 1000);
+        if (error) throw error;
+      } catch (error) {
+        console.error("Error saving title:", error);
+        toast({
+          title: "Error",
+          description: "Failed to save title",
+          variant: "destructive",
+        });
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    1000,
+    { onStart: () => setIsSaving(true) }
+  );
 
   const handleTitleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -286,15 +279,16 @@ export function ContentEditor({
           />
         </div>
 
-        {editor2 && <Toolbar editor={editor2} isSaving={isSaving} />}
+        {/* {editor2 && <Toolbar editor={editor2} isSaving={isSaving} />} */}
 
         <div className="prose-container bg-white rounded-lg shadow-lg border border-gray-200 p-8 min-h-[500px] px-12">
-          <EditorContent editor={editor} />
-          {/* <BlockEditor
-              aiToken={aiToken ?? undefined}
-              initialContent={initialContent}
-              editor={editor2}
-            /> */}
+          {/* <EditorContent editor={editor} /> */}
+          <BlockEditor
+            aiToken={aiToken ?? undefined}
+            initialContent={initialContent}
+            editor={editor2}
+            isSaving={isSaving}
+          />
         </div>
       </div>
 

@@ -16,7 +16,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Loader } from "@/components/ui/Loader-editor";
 import { Panel, PanelHeadline } from "@/components/ui/Panel-editor";
 import { Surface } from "@/components/ui/Surface";
-import { Textarea } from "@/components/ui/Textarea";
+import { Textarea } from "@/components/ui/Textarea-editor";
 import { Toolbar } from "@/components/ui/Toolbar";
 
 const imageStyles = [

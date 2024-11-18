@@ -11,7 +11,7 @@ import { AiImage, AiWriter } from "@/extensions";
 import { Ai } from "@/extensions/Ai";
 import { ExtensionKit } from "@/extensions/extension-kit";
 import { userColors, userNames } from "@/lib/editor/constants";
-import { initialContent } from "@/lib/editor/data/initialContent";
+// import { initialContent } from "@/lib/editor/data/initialContent";
 
 export function randomElement<T>(array: Array<T>): T {
   return array[Math.floor(Math.random() * array.length)];
@@ -50,12 +50,12 @@ export const useBlockEditor = ({
           provider.on("synced", () => {
             setTimeout(() => {
               if (ctx.editor.isEmpty) {
-                ctx.editor.commands.setContent(initialContent);
+                ctx.editor.commands.setContent("");
               }
             }, 0);
           });
         } else if (ctx.editor.isEmpty) {
-          ctx.editor.commands.setContent(initialContent);
+          ctx.editor.commands.setContent("");
           ctx.editor.commands.focus("start", { scrollIntoView: true });
         }
       },

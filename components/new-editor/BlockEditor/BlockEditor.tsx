@@ -17,10 +17,12 @@ export const BlockEditor = ({
   aiToken,
   initialContent,
   editor,
+  isSaving,
 }: {
   aiToken?: string;
   initialContent: string;
   editor: Editor;
+  isSaving: boolean;
 }) => {
   const menuContainerRef = useRef(null);
   const leftSidebar = useSidebar();
@@ -78,10 +80,11 @@ export const BlockEditor = ({
           editor={editor}
           isSidebarOpen={leftSidebar.isOpen}
           toggleSidebar={leftSidebar.toggle}
+          isSaving={isSaving}
         />
         <EditorContent
           editor={editor}
-          className="flex-1 overflow-y-auto h-full"
+          className="flex-1 overflow-y-auto h-full min-h-[calc(100vh-64px)]"
         />
         <ContentItemMenu editor={editor} />
         <LinkMenu editor={editor} appendTo={menuContainerRef} />

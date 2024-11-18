@@ -48,6 +48,8 @@ import {
 } from ".";
 
 import API from "@/lib/editor/api";
+import { getJwtToken } from "@/lib/token";
+import Export from "@tiptap-pro/extension-export";
 import { isChangeOrigin } from "@tiptap/extension-collaboration";
 import { Image } from "@tiptap/extension-image";
 import Youtube from "@tiptap/extension-youtube";
@@ -176,6 +178,11 @@ export const ExtensionKit = ({ provider }: ExtensionKitProps) => [
   Dropcursor.configure({
     width: 2,
     class: "ProseMirror-dropcursor border-black",
+  }),
+  Export.configure({
+    appId: process.env.NEXT_PUBLIC_TIPTAP_APP_ID,
+    token: getJwtToken(process.env.NEXT_PUBLIC_TIPTAP_CONVERT_JWT_SECRET ?? ""),
+    //  process.env.NEXT_PUBLIC_TIPTAP_CONVERT_TOKEN,
   }),
 ];
 
