@@ -48,7 +48,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     setLoading(true);
     try {
-      console.log("Fetching projects for organization:", organization.id);
+      // console.log("Fetching projects for organization:", organization.id);
 
       // First get all projects
       const { data: projectsData, error: projectsError } = await supabase
@@ -100,7 +100,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (supabase && organization) {
-      console.log("Supabase and organization available, fetching projects");
+      // console.log("Supabase and organization available, fetching projects");
       fetchProjects();
     }
   }, [supabase, organization, fetchProjects]);

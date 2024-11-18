@@ -104,7 +104,7 @@ const Dashboard02 = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, projectId, page, isLoading, getContent]);
+  }, [projectId, page, isLoading, getContent]);
 
   const fetchContent = async () => {
     if (!projectId || !supabase) return [];
