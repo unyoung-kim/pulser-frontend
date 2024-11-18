@@ -97,7 +97,6 @@ export function EditorSidebar({
 
     // Subscribe to editor changes
     const updateListener = () => {
-      console.log("Editor update detected");
       updateHeadingsAndLinks();
     };
 

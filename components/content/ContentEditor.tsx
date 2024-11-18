@@ -1,26 +1,32 @@
 "use client";
 
 import "@/app/content/editor.css";
+import {
+  AiImage,
+  AiWriter,
+  BulletList,
+  Link,
+  OrderedList,
+  SlashCommand,
+  StarterKit,
+  Table,
+  TableCell,
+  TableHeader,
+  TableRow,
+  TextAlign,
+  Underline,
+} from "@/extensions";
+import { Ai } from "@/extensions/Ai";
+import ExtensionKit from "@/extensions/extension-kit";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounceCallback } from "@/hooks/useDebounceCallback";
 import { supabase } from "@/lib/supabaseClient";
 import { useQuery } from "@tanstack/react-query";
-import BulletList from "@tiptap/extension-bullet-list";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
-import OrderedList from "@tiptap/extension-ordered-list";
-import Table from "@tiptap/extension-table";
-import TableCell from "@tiptap/extension-table-cell";
-import TableHeader from "@tiptap/extension-table-header";
-import TableRow from "@tiptap/extension-table-row";
-import TextAlign from "@tiptap/extension-text-align";
-import Underline from "@tiptap/extension-underline";
 import Youtube from "@tiptap/extension-youtube";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+import { AnyExtension, EditorContent, useEditor } from "@tiptap/react";
 import React, { useCallback, useState } from "react";
 import { EditorSidebar } from "./EditorSidebar";
-import { SlashCommand } from "./extensions/SlashCommand";
 import { Toolbar } from "./Toolbar";
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -50,6 +56,8 @@ export function ContentEditor({
   >(status);
   const [currentTitle, setCurrentTitle] = useState<string>(title);
   const { toast } = useToast();
+
+  const aiToken = process.env.NEXT_PUBLIC_TIPTAP_AI_TOKEN;
 
   const saveContent = useDebounceCallback(async (content: string) => {
     if (!contentId || !projectId) return;
@@ -82,7 +90,7 @@ export function ContentEditor({
     } finally {
       setIsSaving(false);
     }
-  }, 1000);
+  }, 4000);
 
   const editor = useEditor({
     extensions: [
@@ -144,6 +152,51 @@ export function ContentEditor({
     },
   });
 
+  const editor2 = useEditor({
+    immediatelyRender: true,
+    shouldRerenderOnTransaction: false,
+    autofocus: true,
+    onCreate: ({ editor }) => {
+      if (editor.isEmpty) {
+        editor.commands.setContent(initialContent);
+        editor.commands.focus("start", { scrollIntoView: true });
+      }
+    },
+    extensions: [
+      ...ExtensionKit({ provider: null }),
+      aiToken
+        ? AiWriter.configure({
+            appId: "y9djg7p9",
+            token: aiToken,
+            authorId: undefined,
+            authorName: undefined,
+          })
+        : undefined,
+      aiToken
+        ? AiImage.configure({
+            appId: "y9djg7p9",
+            token: aiToken,
+            authorId: undefined,
+            authorName: undefined,
+          })
+        : undefined,
+      aiToken ? Ai.configure({ appId: "y9djg7p9", token: aiToken }) : undefined,
+    ].filter((e): e is AnyExtension => e !== undefined),
+    editorProps: {
+      attributes: {
+        autocomplete: "off",
+        autocorrect: "off",
+        autocapitalize: "off",
+        class: "min-h-full",
+      },
+    },
+    // content: initialContent,
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      saveContent(html);
+    },
+  });
+
   useQuery({
     queryKey: ["contentBody", contentId],
     queryFn: async () => {
@@ -156,15 +209,16 @@ export function ContentEditor({
         .single();
 
       if (error) throw error;
+
       return data?.body;
     },
-    enabled: !!contentId && !!editor,
+    enabled: !!contentId && !!editor2,
     onSuccess: (data) => {
-      if (data && editor) {
-        editor.commands.setContent(data);
+      if (data && editor2) {
+        editor2.commands.setContent(data);
 
-        if (editor.getHTML()) {
-          saveContent(editor.getHTML());
+        if (editor2.getHTML()) {
+          saveContent(editor2.getHTML());
         }
       }
     },
@@ -232,17 +286,22 @@ export function ContentEditor({
           />
         </div>
 
-        {editor && <Toolbar editor={editor} isSaving={isSaving} />}
+        {editor2 && <Toolbar editor={editor2} isSaving={isSaving} />}
 
         <div className="prose-container bg-white rounded-lg shadow-lg border border-gray-200 p-8 min-h-[500px] px-12">
           <EditorContent editor={editor} />
+          {/* <BlockEditor
+              aiToken={aiToken ?? undefined}
+              initialContent={initialContent}
+              editor={editor2}
+            /> */}
         </div>
       </div>
 
-      {editor && (
+      {editor2 && (
         <div className="fixed top-0 right-0 h-screen">
           <EditorSidebar
-            editor={editor}
+            editor={editor2}
             status={currentStatus}
             keywords={keywords}
             contentId={contentId}

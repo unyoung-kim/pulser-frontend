@@ -60,18 +60,24 @@ export function CardView({
 
   const DEFAULT_IMAGE = "https://picsum.photos/seed/default/800/600";
 
-  // Add validation for image URLs
   const getValidImageUrl = (url?: string) => {
-    if (!url) return DEFAULT_IMAGE;
-    // Check if it's already an absolute URL
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      return url;
+    if (!url || url === "/timeline-image-url" || url === "timeline-image-url") {
+      return DEFAULT_IMAGE;
     }
-    // Add leading slash if missing
-    return url.startsWith("/") ? url : `/${url}`;
+
+    try {
+      if (url.startsWith("http")) {
+        return url;
+      }
+
+      const urlToTest = url.startsWith("/") ? url : `/${url}`;
+      new URL(urlToTest, window.location.origin);
+      return urlToTest;
+    } catch {
+      return DEFAULT_IMAGE;
+    }
   };
 
-  // Base64 encoded tiny placeholder image
   const blurDataURL =
     "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0fHRsdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0XFyAeIRshGxsdIR0hHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=";
 
@@ -131,6 +137,7 @@ export function CardView({
                 src={getValidImageUrl(item.image_url)}
                 alt={item.title}
                 fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                 className="object-cover transition-transform group-hover:scale-105"
                 placeholder="blur"
                 blurDataURL={blurDataURL}

@@ -48,7 +48,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     setLoading(true);
     try {
-      console.log("Fetching projects for organization:", organization.id);
+      // console.log("Fetching projects for organization:", organization.id);
 
       // First get all projects
       const { data: projectsData, error: projectsError } = await supabase

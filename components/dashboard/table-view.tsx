@@ -44,13 +44,21 @@ interface TableViewProps {
 const DEFAULT_IMAGE = "https://picsum.photos/seed/default/100/100";
 
 const getValidImageUrl = (url?: string) => {
-  if (!url) return DEFAULT_IMAGE;
-  // Check if it's already an absolute URL
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
+  if (!url || url === "/timeline-image-url" || url === "timeline-image-url") {
+    return DEFAULT_IMAGE;
   }
-  // Add leading slash if missing
-  return url.startsWith("/") ? url : `/${url}`;
+
+  try {
+    if (url.startsWith("http")) {
+      return url;
+    }
+
+    const urlToTest = url.startsWith("/") ? url : `/${url}`;
+    new URL(urlToTest, window.location.origin);
+    return urlToTest;
+  } catch {
+    return DEFAULT_IMAGE;
+  }
 };
 
 export function TableView({

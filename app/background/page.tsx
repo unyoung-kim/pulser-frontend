@@ -19,7 +19,7 @@ export default function BackgroundPage() {
           : "grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]"
       }`}
     >
-      <Sidebar projectId={projectId} />
+      <Sidebar projectId={projectId} defaultCollapsed={false} />
       <MainLayout>
         <BackgroundForm2 projectId={projectId} />
         {/* <BackgroundForm projectId={projectId} /> */}
