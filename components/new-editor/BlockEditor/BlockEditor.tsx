@@ -1,5 +1,5 @@
 import { Editor, EditorContent } from "@tiptap/react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import "@/styles/index.css";
 
@@ -18,51 +18,44 @@ export const BlockEditor = ({
   initialContent,
   editor,
   isSaving,
+  onSave,
 }: {
   aiToken?: string;
   initialContent: string;
   editor: Editor;
   isSaving: boolean;
+  onSave: () => void;
 }) => {
   const menuContainerRef = useRef(null);
   const leftSidebar = useSidebar();
+  const [lastSavedContent, setLastSavedContent] = useState(editor.getHTML());
+  const [hasChanges, setHasChanges] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
 
-  // const editor = useEditor({
-  //   immediatelyRender: true,
-  //   shouldRerenderOnTransaction: false,
-  //   autofocus: true,
-  //   onCreate: ({ editor }) => {
-  //     if (editor.isEmpty) {
-  //       editor.commands.setContent(initialContent);
-  //       editor.commands.focus("start", { scrollIntoView: true });
-  //     }
-  //   },
-  //   extensions: [
-  //     ...ExtensionKit({ provider: null }),
-  //     aiToken
-  //       ? AiWriter.configure({
-  //           authorId: undefined,
-  //           authorName: undefined,
-  //         })
-  //       : undefined,
-  //     aiToken
-  //       ? AiImage.configure({
-  //           authorId: undefined,
-  //           authorName: undefined,
-  //         })
-  //       : undefined,
-  //     aiToken ? Ai.configure({ token: aiToken }) : undefined,
-  //   ].filter((e): e is AnyExtension => e !== undefined),
-  //   editorProps: {
-  //     attributes: {
-  //       autocomplete: "off",
-  //       autocorrect: "off",
-  //       autocapitalize: "off",
-  //       class: "min-h-full",
-  //     },
-  //   },
-  //   content: initialContent,
-  // });
+  useEffect(() => {
+    const checkChanges = () => {
+      const currentContent = editor.getHTML();
+      setHasChanges(currentContent !== lastSavedContent);
+      setShowSaved(false);
+    };
+
+    editor.on("update", checkChanges);
+    return () => {
+      editor.off("update", checkChanges);
+    };
+  }, [editor, lastSavedContent]);
+
+  const handleSave = () => {
+    onSave();
+    setLastSavedContent(editor.getHTML());
+    setHasChanges(false);
+    setShowSaved(true);
+
+    // Optionally hide the "Saved" indicator after a few seconds
+    setTimeout(() => {
+      setShowSaved(false);
+    }, 3000);
+  };
 
   if (!editor) {
     return null;
@@ -81,6 +74,9 @@ export const BlockEditor = ({
           isSidebarOpen={leftSidebar.isOpen}
           toggleSidebar={leftSidebar.toggle}
           isSaving={isSaving}
+          onSave={handleSave}
+          hasChanges={hasChanges}
+          showSaved={showSaved}
         />
         <EditorContent
           editor={editor}

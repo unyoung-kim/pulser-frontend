@@ -13,7 +13,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import MainLayout from "./layout/MainLayout";
 
@@ -52,6 +52,7 @@ const Dashboard02 = () => {
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
   const { isCollapsed } = useSidebarState();
+  const router = useRouter();
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -241,7 +242,9 @@ const Dashboard02 = () => {
               setView={setView}
               status={status}
               setStatus={handleSetStatus}
-              onNewContent={() => setIsCreateModalOpen(true)}
+              onNewContent={() =>
+                router.push(`/content/settings?projectId=${projectId}`)
+              }
             />
           </div>
           {items.length === 0 ? (
@@ -257,7 +260,9 @@ const Dashboard02 = () => {
                   variant="default"
                   size="sm"
                   className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
-                  onClick={() => setIsCreateModalOpen(true)}
+                  onClick={() =>
+                    router.push(`/content/settings?projectId=${projectId}`)
+                  }
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   New Content
