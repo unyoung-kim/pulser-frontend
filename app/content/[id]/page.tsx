@@ -6,13 +6,13 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Loader } from "@/components/ui/loader";
 import { useSidebarState } from "@/contexts/SidebarContext";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabaseClient";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+// const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export default function ContentPage() {
   const params = useParams();
@@ -27,7 +27,6 @@ export default function ContentPage() {
   const { data: content, isLoading } = useQuery({
     queryKey: ["content", contentId],
     queryFn: async () => {
-      const supabase = createClient(supabaseUrl, supabaseKey);
       const { data, error } = await supabase
         .from("Content")
         .select("*")
@@ -52,7 +51,7 @@ export default function ContentPage() {
           : "grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]"
       }`}
     >
-      <Sidebar projectId={projectId || ""} />
+      <Sidebar projectId={projectId || ""} defaultCollapsed={true} />
       <div className="flex flex-col">
         <nav className="flex items-center justify-between p-4 border-b bg-white">
           <div className="flex items-center gap-6">

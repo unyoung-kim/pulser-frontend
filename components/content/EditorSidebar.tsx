@@ -7,19 +7,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabaseClient";
 import { Editor } from "@tiptap/react";
 import {
   ArrowRight,
-  CheckCircle,
   CircleDot,
   Download,
   ExternalLink,
+  FileCheck,
   Globe,
   Hash,
   Link as LinkIcon,
   ListTree,
-  Loader2,
+  Loader,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -42,8 +42,8 @@ interface EditorSidebarProps {
   onStatusChange?: (newStatus: string) => void;
 }
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+// const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export function EditorSidebar({
   editor,
@@ -97,7 +97,6 @@ export function EditorSidebar({
 
     // Subscribe to editor changes
     const updateListener = () => {
-      console.log("Editor update detected");
       updateHeadingsAndLinks();
     };
 
@@ -197,19 +196,19 @@ export function EditorSidebar({
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
-      // Create a blob from the editor content
-      const content = editor.getHTML();
-      const blob = new Blob([content], {
-        type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "document.docx";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Use the Export extension to create a Word document
+      editor
+        .chain()
+        .export({
+          format: "docx",
+          onExport(context) {
+            if (context.error) {
+              throw context.error;
+            }
+            context.download();
+          },
+        })
+        .run();
     } catch (error) {
       console.error("Error downloading document:", error);
       toast({
@@ -227,7 +226,6 @@ export function EditorSidebar({
 
     setIsUpdating(true);
     try {
-      const supabase = createClient(supabaseUrl, supabaseKey);
       const updateData: {
         status: "published" | "draft";
         updated_at: string;
@@ -285,7 +283,7 @@ export function EditorSidebar({
               onClick={() => handleStatusChange("draft")}
               disabled={isUpdating}
             >
-              <CheckCircle className="w-4 h-4 mr-2" />
+              <FileCheck className="w-4 h-4 mr-2" />
               {isUpdating ? "Updating..." : "Mark as Draft"}
             </Button>
           </TooltipTrigger>
@@ -305,7 +303,7 @@ export function EditorSidebar({
             onClick={() => handleStatusChange("published")}
             disabled={isUpdating}
           >
-            <CheckCircle className="w-4 h-4 mr-2" />
+            <FileCheck className="w-4 h-4 mr-2" />
             {isUpdating ? "Publishing..." : "Mark as Published"}
           </Button>
         </TooltipTrigger>
@@ -460,7 +458,7 @@ export function EditorSidebar({
                 >
                   {isDownloading ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader className="w-4 h-4 mr-2 animate-spin" />
                       Downloading...
                     </>
                   ) : (

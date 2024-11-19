@@ -1,6 +1,6 @@
 "use client";
 
-import { BackgroundForm } from "@/components/BackgroundForm";
+import BackgroundForm2 from "@/components/background/Form";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import MainLayout from "@/components/layout/MainLayout";
 import { useSidebarState } from "@/contexts/SidebarContext";
@@ -19,9 +19,10 @@ export default function BackgroundPage() {
           : "grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]"
       }`}
     >
-      <Sidebar projectId={projectId} />
+      <Sidebar projectId={projectId} defaultCollapsed={false} />
       <MainLayout>
-        <BackgroundForm projectId={projectId} />
+        <BackgroundForm2 projectId={projectId} />
+        {/* <BackgroundForm projectId={projectId} /> */}
       </MainLayout>
     </div>
   );

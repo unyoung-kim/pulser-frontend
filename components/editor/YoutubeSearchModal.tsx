@@ -12,7 +12,7 @@ export function YoutubeSearchModal({
 }: YoutubeSearchModalProps) {
   return createPortal(
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-4 w-full max-w-3xl mx-4">
+      <div className="bg-white rounded-lg w-full max-w-3xl">
         <YoutubeSearch onSelect={onSelect} onClose={onClose} />
       </div>
     </div>,
