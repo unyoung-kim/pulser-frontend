@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea2";
 import { cn } from "@/lib/utils";
 import {
   Building2,
+  Check,
   ChevronRight,
   Globe,
   Lightbulb,
@@ -186,6 +187,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
       toast({
         title: "Success",
         description: "Background information saved successfully",
+        icon: <Check className="h-4 w-4 text-green-500" />,
       });
     },
     onError: (error) => {

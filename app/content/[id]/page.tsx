@@ -8,9 +8,6 @@ import { supabase } from "@/lib/supabaseClient";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
 
-// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-// const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
 export default function ContentPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -18,12 +15,20 @@ export default function ContentPage() {
   const contentId = params.id;
   const { isCollapsed } = useSidebarState();
 
-  const { data: content, isLoading } = useQuery({
+  const { data: content, isLoading: isContentLoading } = useQuery({
     queryKey: ["content", contentId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("Content")
-        .select("*")
+        .select(
+          `
+          *,
+          Keyword!keyword_id (
+            id,
+            keyword
+          )
+        `
+        )
         .eq("id", contentId)
         .single();
 
@@ -33,7 +38,25 @@ export default function ContentPage() {
     enabled: !!contentId,
   });
 
-  if (isLoading) {
+  // const { data: contentBody, isLoading: isBodyLoading } = useQuery({
+  //   queryKey: ["contentBody", contentId],
+  //   queryFn: async () => {
+  //     const { data, error } = await supabase
+  //       .from("ContentBody")
+  //       .select("body")
+  //       .eq("content_id", contentId)
+  //       .order("updated_at", { ascending: false })
+  //       .limit(1)
+  //       .single();
+
+  //     if (error && error.code === "PGRST116") return null; // No rows found
+  //     if (error) throw error;
+  //     return data;
+  //   },
+  //   enabled: !!contentId,
+  // });
+
+  if (isContentLoading) {
     return <Loader />;
   }
 
@@ -46,19 +69,24 @@ export default function ContentPage() {
       }`}
     >
       <Sidebar projectId={projectId || ""} defaultCollapsed={true} />
+      {/* {!contentBody ? (
+        <div className="flex flex-col flex-1 items-center">
+          <ContentSettings />
+        </div>
+      ) : ( */}
       <div className="flex flex-col">
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-10 bg-gray-50 mr-80 ">
           <ContentEditor
-            initialContent={content?.content || ""}
+            initialContent={""}
             contentId={contentId as string}
             projectId={projectId || ""}
             title={content?.title || ""}
             status={content?.status || "drafted"}
-            mainKeyword={content?.keyword}
-            keywords={content?.keywords || []}
+            keywords={content?.Keyword ? [content.Keyword] : []}
           />
         </main>
       </div>
+      {/* )} */}
     </div>
   );
 }

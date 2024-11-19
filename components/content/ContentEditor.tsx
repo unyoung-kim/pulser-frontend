@@ -46,41 +46,87 @@ export function ContentEditor({
     process.env.NEXT_PUBLIC_TIPTAP_AI_JWT_SECRET ?? ""
   );
 
-  const saveContent = useDebounceCallback(
-    async (content: string) => {
-      if (!contentId || !projectId) return;
+  // const saveContent = useDebounceCallback(
+  //   async (content: string) => {
+  //     // if (!contentId || !projectId) return;
+  //     // try {
+  //     //   const { error: contentError } = await supabase
+  //     //     .from("Content")
+  //     //     .update({
+  //     //       updated_at: new Date().toISOString(),
+  //     //     })
+  //     //     .eq("id", contentId);
+  //     //   if (contentError) throw contentError;
+  //     //   const { error: bodyError } = await supabase.from("ContentBody").upsert({
+  //     //     content_id: contentId,
+  //     //     body: content,
+  //     //     updated_at: new Date().toISOString(),
+  //     //   });
+  //     //   if (bodyError) throw bodyError;
+  //     // } catch (error) {
+  //     //   console.error("Error saving content:", error);
+  //     //   toast({
+  //     //     title: "Error",
+  //     //     description: "Failed to save content",
+  //     //     variant: "destructive",
+  //     //   });
+  //     // } finally {
+  //     //   setIsSaving(false);
+  //     // }
+  //   },
+  //   2500,
+  //   { onStart: () => setIsSaving(true) }
+  // );
 
-      try {
-        const { error: contentError } = await supabase
-          .from("Content")
-          .update({
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", contentId);
+  const saveContent = async (content: string) => {
+    if (!contentId || !projectId) return;
+    try {
+      // Update Content table
+      const { error: contentError } = await supabase
+        .from("Content")
+        .update({
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", contentId);
+      if (contentError) {
+        console.error("Error updating Content table:", contentError);
+        throw new Error(`Content table update failed: ${contentError.message}`);
+      }
 
-        if (contentError) throw contentError;
-
-        const { error: bodyError } = await supabase.from("ContentBody").upsert({
+      // Update ContentBody table with proper upsert configuration
+      const { error: bodyError } = await supabase.from("ContentBody").upsert(
+        {
           content_id: contentId,
           body: content,
           updated_at: new Date().toISOString(),
-        });
-
-        if (bodyError) throw bodyError;
-      } catch (error) {
-        console.error("Error saving content:", error);
-        toast({
-          title: "Error",
-          description: "Failed to save content",
-          variant: "destructive",
-        });
-      } finally {
-        setIsSaving(false);
+        },
+        {
+          onConflict: "content_id", // Specify the column to check for conflicts
+        }
+      );
+      if (bodyError) {
+        console.error("Error updating ContentBody table:", bodyError);
+        throw new Error(
+          `ContentBody table update failed: ${bodyError.message}`
+        );
       }
-    },
-    2500,
-    { onStart: () => setIsSaving(true) }
-  );
+    } catch (error) {
+      console.error("Error saving content:", {
+        error,
+        contentId,
+        contentLength: content.length,
+        timestamp: new Date().toISOString(),
+      });
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to save content",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // const editor = useEditor({
   //   extensions: [
@@ -183,7 +229,7 @@ export function ContentEditor({
     // content: initialContent,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      saveContent(html);
+      // saveContent(html);
     },
   });
 
@@ -205,11 +251,8 @@ export function ContentEditor({
     enabled: !!contentId && !!editor2,
     onSuccess: (data) => {
       if (data && editor2) {
+        console.log("DATA: ", data);
         editor2.commands.setContent(data);
-
-        if (editor2.getHTML()) {
-          saveContent(editor2.getHTML());
-        }
       }
     },
     onError: (error) => {
@@ -288,6 +331,7 @@ export function ContentEditor({
             initialContent={initialContent}
             editor={editor2}
             isSaving={isSaving}
+            onSave={() => saveContent(editor2.getHTML())}
           />
         </div>
       </div>
@@ -297,7 +341,7 @@ export function ContentEditor({
           <EditorSidebar
             editor={editor2}
             status={currentStatus}
-            keywords={keywords}
+            keywords={[]}
             contentId={contentId}
             onStatusChange={handleStatusChange}
           />

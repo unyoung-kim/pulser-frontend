@@ -9,7 +9,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
@@ -110,9 +109,9 @@ export function CardView({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[160px]">
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                  {/* <DropdownMenuItem>Edit</DropdownMenuItem>
                   <DropdownMenuItem>Make a copy</DropdownMenuItem>
-                  <DropdownMenuItem>Delete</DropdownMenuItem>
+                  <DropdownMenuItem>Delete</DropdownMenuItem> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
