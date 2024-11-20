@@ -1,6 +1,5 @@
 "use client";
 
-import { CreateContentDialog } from "@/components/content/CreateContentDialog";
 import { CardView } from "@/components/dashboard/card-view";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { TableView } from "@/components/dashboard/table-view";
@@ -143,67 +142,6 @@ const Dashboard02 = () => {
           (item) => item.status.toLowerCase() === status.toLowerCase()
         );
 
-  const handleCreateContent = async () => {
-    if (keywords.length === 0) {
-      toast({
-        title: "Validation Error",
-        description: "Please add at least one keyword",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!projectId || !supabase) {
-      toast({
-        title: "Error",
-        description: "No project selected",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsCreating(true);
-    try {
-      const backendUrl = "https://pulser-backend.onrender.com";
-      const response = await fetch(`${backendUrl}/api/web-retrieval`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          projectId: projectId,
-          inputTopic: topic,
-          keyword: keywords.join(", "),
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to generate content");
-      }
-
-      const { success, data, error } = await response.json();
-
-      if (!success) {
-        throw new Error(error || "Failed to generate content" || data);
-      }
-
-      fetchContent();
-    } catch (error) {
-      console.error("Error creating content:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create content. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsCreating(false);
-      setIsCreateModalOpen(false);
-      setKeywords([]);
-      setTopic("");
-    }
-  };
-
   const renderContent = () => {
     if (error) {
       return (
@@ -284,17 +222,6 @@ const Dashboard02 = () => {
               onLoadMore={loadMoreItems}
             />
           )}
-
-          <CreateContentDialog
-            open={isCreateModalOpen}
-            onOpenChange={setIsCreateModalOpen}
-            keywords={keywords}
-            topic={topic}
-            onKeywordsChange={setKeywords}
-            onTopicChange={setTopic}
-            onSubmit={handleCreateContent}
-            isCreating={isCreating}
-          />
         </>
       );
     } else {

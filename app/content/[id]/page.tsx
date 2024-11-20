@@ -83,6 +83,7 @@ export default function ContentPage() {
             title={content?.title || ""}
             status={content?.status || "drafted"}
             keywords={content?.Keyword ? [content.Keyword] : []}
+            type={content?.type || "NORMAL"}
           />
         </main>
       </div>

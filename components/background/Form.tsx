@@ -17,14 +17,17 @@ import {
   Building2,
   Check,
   ChevronRight,
+  FileText,
   Globe,
   Lightbulb,
   Link as LinkIcon,
-  MessageSquareText,
+  MessageSquare,
   Package,
   Sparkles,
+  Star,
   Tags,
   Target,
+  Trophy,
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -41,25 +44,23 @@ export const BackgroundSchema2 = z.object({
     companyUrl: z.string().nullish(),
     industryKeywords: z.string().nullish(),
     companyFunction: z.string().nullish(),
-    // Future fields can be added here
     additionalInfo: z.record(z.string()).optional(),
   }),
   product: z.object({
     valueProposition: z.string().nullish(),
     products: z.string().nullish(),
     competitiveAdvantage: z.string().nullish(),
-    // Future fields can be added here
     additionalInfo: z.record(z.string()).optional(),
   }),
   audience: z.object({
     painPoints: z.string().nullish(),
     customerProfile: z.string().nullish(),
-    // Future fields can be added here
     additionalInfo: z.record(z.string()).optional(),
   }),
-  voice: z.object({
-    writingStyle: z.string().nullish(),
-    // Future fields can be added here
+  socialProof: z.object({
+    testimonials: z.string().nullish(),
+    caseStudies: z.string().nullish(),
+    achievements: z.string().nullish(),
     additionalInfo: z.record(z.string()).optional(),
   }),
 });
@@ -72,7 +73,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     basic: { companyUrl: "", industryKeywords: "", companyFunction: "" },
     product: { valueProposition: "", products: "", competitiveAdvantage: "" },
     audience: { painPoints: "", customerProfile: "" },
-    voice: { writingStyle: "" },
+    socialProof: { testimonials: "", caseStudies: "", achievements: "" },
   });
   const [domain, setDomain] = useState("");
   const [isValidDomain, setIsValidDomain] = useState(false);
@@ -86,7 +87,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     },
     { id: "product", icon: Package, label: "Product Details" },
     { id: "audience", icon: Users, label: "Audience" },
-    { id: "voice", icon: MessageSquareText, label: "Voice & Style" },
+    { id: "socialProof", icon: Star, label: "Social Proof" },
     { id: "internalLinks", icon: Globe, label: "Internal Links" },
   ];
 
@@ -136,8 +137,10 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
           painPoints: project.background.audience?.painPoints || "",
           customerProfile: project.background.audience?.customerProfile || "",
         },
-        voice: {
-          writingStyle: project.background.voice?.writingStyle || "",
+        socialProof: {
+          testimonials: project.background.socialProof?.testimonials || "",
+          caseStudies: project.background.socialProof?.caseStudies || "",
+          achievements: project.background.socialProof?.achievements || "",
         },
       });
     }
@@ -187,7 +190,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
       toast({
         title: "Success",
         description: "Background information saved successfully",
-        icon: <Check className="h-4 w-4 text-green-500" />,
+        icon: <Check className="h-6 w-6 text-green-500" />,
       });
     },
     onError: (error) => {
@@ -401,7 +404,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 </Label>
                 <Textarea
                   id="products"
-                  placeholder="Maximum 3 products. Format: Name - Description (one per line)"
+                  placeholder="Maximum 3 products. Format: Name - Description"
                   value={formData.product.products || ""}
                   onChange={(e) =>
                     handleInputChange("product", "products", e.target.value)
@@ -502,15 +505,16 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
           </Card>
         );
 
-      case "voice":
+      case "socialProof":
         return (
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <CardTitle>Brand Voice</CardTitle>
+                  <CardTitle>Social Proof</CardTitle>
                   <CardDescription>
-                    Help us match your brand&apos;s tone and style.
+                    We will naturally embed these into your articles for
+                    credibility.
                   </CardDescription>
                 </div>
                 <Button
@@ -524,24 +528,69 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
             </CardHeader>
             <CardContent className="space-y-8">
               <div className="space-y-2">
-                <Label htmlFor="style" className="flex items-center gap-2">
-                  <MessageSquareText className="h-4 w-4" />
-                  <span className="font-semibold">Writing Style Reference</span>
+                <Label
+                  htmlFor="testimonials"
+                  className="flex items-center gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="font-semibold">Customer Testimonials</span>
                 </Label>
                 <Textarea
-                  id="style"
-                  className="min-h-[200px]"
-                  placeholder="Paste a few paragraphs from your existing content that exemplify your preferred writing style"
-                  value={formData.voice.writingStyle || ""}
+                  id="testimonials"
+                  placeholder="Add key customer testimonials"
+                  value={formData.socialProof?.testimonials || ""}
                   onChange={(e) =>
-                    handleInputChange("voice", "writingStyle", e.target.value)
+                    handleInputChange(
+                      "socialProof",
+                      "testimonials",
+                      e.target.value
+                    )
                   }
                 />
-                <p className="text-sm text-muted-foreground">
-                  Paste a few paragraphs from your existing content that
-                  exemplify your preferred writing style. This helps us match
-                  your tone of voice.
-                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="caseStudies"
+                  className="flex items-center gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span className="font-semibold">Case Studies</span>
+                </Label>
+                <Textarea
+                  id="caseStudies"
+                  placeholder="Summarize your best case studies"
+                  value={formData.socialProof?.caseStudies || ""}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "socialProof",
+                      "caseStudies",
+                      e.target.value
+                    )
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="achievements"
+                  className="flex items-center gap-2"
+                >
+                  <Trophy className="h-4 w-4" />
+                  <span className="font-semibold">Key Achievements</span>
+                </Label>
+                <Textarea
+                  id="achievements"
+                  placeholder="List notable awards, statistics, or milestones"
+                  value={formData.socialProof?.achievements || ""}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "socialProof",
+                      "achievements",
+                      e.target.value
+                    )
+                  }
+                />
               </div>
             </CardContent>
           </Card>

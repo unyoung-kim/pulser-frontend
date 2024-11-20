@@ -25,6 +25,7 @@ interface ContentEditorProps {
   status: "drafted" | "scheduled" | "published" | "archived";
   mainKeyword?: string;
   keywords?: string[];
+  type: string;
 }
 
 export function ContentEditor({
@@ -34,6 +35,7 @@ export function ContentEditor({
   title,
   status,
   keywords = [],
+  type,
 }: ContentEditorProps) {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [currentStatus, setCurrentStatus] = useState<
@@ -341,6 +343,7 @@ export function ContentEditor({
           <EditorSidebar
             editor={editor2}
             status={currentStatus}
+            type={type}
             keywords={[]}
             contentId={contentId}
             onStatusChange={handleStatusChange}

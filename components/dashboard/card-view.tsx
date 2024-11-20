@@ -1,17 +1,11 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import Case from "case";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import useInfiniteScroll from "react-infinite-scroll-hook";
@@ -24,6 +18,7 @@ interface CardViewProps {
     status: string;
     keywords?: string[];
     image_url?: string;
+    type?: string;
   }>;
   loading: boolean;
   hasNextPage: boolean;
@@ -88,32 +83,22 @@ export function CardView({
           className="group overflow-hidden bg-white hover:shadow-md transition-shadow"
           onClick={() => handleCardClick(item.id)}
         >
-          <CardHeader className="p-4 space-y-0">
+          <CardHeader className="p-4 space-y-0 mb-1">
             <div className="flex justify-between items-start mb-2">
               <Badge
                 variant="secondary"
                 className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
               >
-                {item.status}
+                {Case.capital(item.status)}
               </Badge>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MoreHorizontal className="w-4 h-4" />
-                    <span className="sr-only">Options</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[160px]">
-                  {/* <DropdownMenuItem>Edit</DropdownMenuItem>
-                  <DropdownMenuItem>Make a copy</DropdownMenuItem>
-                  <DropdownMenuItem>Delete</DropdownMenuItem> */}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {item.type && (
+                <Badge
+                  variant="secondary"
+                  className="bg-gray-100 text-gray-700 hover:bg-indigo-100"
+                >
+                  {Case.capital(item.type)}
+                </Badge>
+              )}
             </div>
             <h3 className="font-semibold text-base line-clamp-2">
               {item.title}

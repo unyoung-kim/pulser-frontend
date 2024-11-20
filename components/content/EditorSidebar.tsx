@@ -9,6 +9,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { Editor } from "@tiptap/react";
+import * as Case from "case";
 import {
   ArrowRight,
   CircleDot,
@@ -37,6 +38,7 @@ interface LinkCount {
 interface EditorSidebarProps {
   editor: Editor;
   status: "drafted" | "scheduled" | "published" | "archived";
+  type: string;
   keywords: string[];
   contentId: string;
   onStatusChange?: (newStatus: string) => void;
@@ -48,6 +50,7 @@ interface EditorSidebarProps {
 export function EditorSidebar({
   editor,
   status,
+  type,
   keywords = [],
   contentId,
   onStatusChange,
@@ -343,6 +346,19 @@ export function EditorSidebar({
               <span className="text-sm text-gray-500">No keywords added</span>
             )}
           </div>
+        </div>
+
+        {/* Content Type */}
+        <div className="pb-2">
+          <h3 className="text-sm font-medium text-gray-500 mb-2">
+            Content Type
+          </h3>
+          <Badge
+            variant="outline"
+            className="bg-purple-100 text-indigo-800 border-indigo-50 border px-3 py-1 text-xs font-medium capitalize"
+          >
+            {Case.capital(type)}
+          </Badge>
         </div>
 
         {/* Status */}

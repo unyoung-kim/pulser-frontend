@@ -19,6 +19,8 @@ import { useState } from "react";
 
 interface KeywordSelectorProps {
   keywords: string[];
+  selectedKeyword: string;
+  onKeywordChange: (keyword: string) => void;
   onCreateKeyword: (keyword: string) => void;
   isLoading?: boolean;
   error?: string | null;
@@ -26,12 +28,13 @@ interface KeywordSelectorProps {
 
 export default function KeywordSelector({
   keywords,
+  selectedKeyword,
+  onKeywordChange,
   onCreateKeyword,
   isLoading,
   error,
 }: KeywordSelectorProps) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
   const [inputValue, setInputValue] = useState("");
 
   if (isLoading) {
@@ -46,7 +49,7 @@ export default function KeywordSelector({
 
   const createKeyword = (newKeyword: string) => {
     onCreateKeyword(newKeyword);
-    setValue(newKeyword);
+    onKeywordChange(newKeyword);
     setOpen(false);
   };
 
@@ -59,11 +62,7 @@ export default function KeywordSelector({
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value
-            ? keywords.find(
-                (keyword) => keyword.toLowerCase() === value.toLowerCase()
-              )
-            : "Select keyword..."}
+          {selectedKeyword || "Select keyword..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -93,14 +92,16 @@ export default function KeywordSelector({
                 key={keyword}
                 value={keyword}
                 onSelect={(currentValue) => {
-                  setValue(currentValue === value ? "" : currentValue);
+                  onKeywordChange(
+                    currentValue === selectedKeyword ? "" : currentValue
+                  );
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value.toLowerCase() === keyword.toLowerCase()
+                    selectedKeyword.toLowerCase() === keyword.toLowerCase()
                       ? "opacity-100"
                       : "opacity-0"
                   )}

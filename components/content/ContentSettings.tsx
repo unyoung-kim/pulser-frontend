@@ -3,11 +3,22 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, Pencil, Sparkles, Tag } from "lucide-react";
+import {
+  ArrowLeft,
+  BookText,
+  Layout,
+  ListTree,
+  Loader2,
+  Pencil,
+  Sparkles,
+  Tag,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import KeywordSelector from "./KeywordInput";
@@ -20,6 +31,10 @@ export default function ContentSettings() {
   const { toast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
   const [topic, setTopic] = useState("");
+  const [contentType, setContentType] = useState<"NORMAL" | "GLOSSARY">(
+    "NORMAL"
+  );
+  const [selectedKeyword, setSelectedKeyword] = useState("");
 
   const {
     data: keywords = [],
@@ -62,10 +77,10 @@ export default function ContentSettings() {
   });
 
   const handleCreateContent = async () => {
-    if (keywords.length === 0) {
+    if (!selectedKeyword) {
       toast({
         title: "Validation Error",
-        description: "Please add at least one keyword",
+        description: "Please select a keyword",
         variant: "destructive",
       });
       return;
@@ -82,8 +97,21 @@ export default function ContentSettings() {
 
     setIsCreating(true);
     try {
+      const selectedKeywordId = keywords.find(
+        (k) => k.keyword === selectedKeyword
+      )?.id;
+
+      // console.log(
+      //   JSON.stringify({
+      //     projectId: projectId,
+      //     inputTopic: topic,
+      //     keywordId: selectedKeywordId,
+      //     keyword: selectedKeyword,
+      //     type: contentType,
+      //   })
+      // );
+
       const backendUrl = "https://pulser-backend.onrender.com";
-      // const backendUrl = "http://localhost:8000";
       const response = await fetch(`${backendUrl}/api/web-retrieval`, {
         method: "POST",
         headers: {
@@ -92,7 +120,8 @@ export default function ContentSettings() {
         body: JSON.stringify({
           projectId: projectId,
           inputTopic: topic,
-          keyword: keywords.map((k) => k.keyword).join(", "),
+          keywordId: selectedKeywordId,
+          type: contentType,
         }),
       });
 
@@ -153,10 +182,12 @@ export default function ContentSettings() {
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center gap-2">
                 <Tag className="w-4 h-4 text-indigo-600" />
-                Keywords
+                Keyword
               </label>
               <KeywordSelector
                 keywords={keywords.map((k) => k.keyword)}
+                selectedKeyword={selectedKeyword}
+                onKeywordChange={setSelectedKeyword}
                 onCreateKeyword={createKeyword}
                 isLoading={isLoading}
                 error={error instanceof Error ? error.message : null}
@@ -176,53 +207,60 @@ export default function ContentSettings() {
               />
             </div>
 
-            {/* <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Type className="w-4 h-4 text-indigo-600" />
-                Tone
-              </label>
-              <Select defaultValue="bold">
-                <SelectTrigger className="border-indigo-100 focus:ring-indigo-600">
-                  <SelectValue placeholder="Select tone" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bold">Bold</SelectItem>
-                  <SelectItem value="casual">Casual</SelectItem>
-                  <SelectItem value="professional">Professional</SelectItem>
-                  <SelectItem value="friendly">Friendly</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Wand2 className="w-4 h-4 text-indigo-600" />
-                AI Suggestions
-              </label>
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-indigo-100"
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <Layout className="w-4 h-4 text-indigo-600" />
+                Content Type
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Both options will be SEO-optimized & customized to your
+                business.
+              </p>
+              <RadioGroup
+                defaultValue="normal"
+                value={contentType}
+                onValueChange={(value: "NORMAL" | "GLOSSARY") =>
+                  setContentType(value)
+                }
+                className="flex flex-col sm:flex-row gap-4"
+              >
+                <Label
+                  htmlFor="normal"
+                  className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
                 >
-                  Professional tone
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-indigo-100"
+                  <RadioGroupItem value="NORMAL" id="normal" className="mt-1" />
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <BookText className="h-5 w-5" />
+                      <span className="font-medium">Normal</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Standard SEO blog article
+                    </div>
+                  </div>
+                </Label>
+                <Label
+                  htmlFor="glossary"
+                  className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
                 >
-                  Include statistics
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-indigo-100"
-                >
-                  Add case studies
-                </Button>
-              </div>
-            </div> */}
+                  <RadioGroupItem
+                    value="GLOSSARY"
+                    id="glossary"
+                    className="mt-1"
+                  />
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <ListTree className="h-5 w-5" />
+                      <span className="font-medium">Glossary</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      SEO article defining and explaining industry-specific
+                      terms.
+                    </div>
+                  </div>
+                </Label>
+              </RadioGroup>
+            </div>
           </CardContent>
         </Card>
 
@@ -242,7 +280,7 @@ export default function ContentSettings() {
             <Button
               className="bg-indigo-600 hover:bg-indigo-700"
               onClick={handleCreateContent}
-              disabled={isCreating || keywords.length === 0 || !topic.trim()}
+              disabled={isCreating || !selectedKeyword || !topic.trim()}
             >
               {isCreating ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />

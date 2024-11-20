@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Case from "case";
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
@@ -30,11 +31,11 @@ interface TableViewProps {
     updated_at: string;
     created_at: string;
     image_url: string;
-    keywords?: string[];
     description?: string;
     date?: string;
     type?: string;
     tags?: string[];
+    keyword?: string; // Add this line
   }>;
   loading: boolean;
   hasNextPage: boolean;
@@ -103,6 +104,7 @@ export function TableView({
               <TableHead>Title</TableHead>
               <TableHead>Keywords</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead className="w-[180px]">Created At</TableHead>
               <TableHead className="w-[180px]">Updated At</TableHead>
               <TableHead className="w-[70px]"></TableHead>
@@ -132,15 +134,12 @@ export function TableView({
                 </TableCell>
                 <TableCell className="py-4">
                   <div className="flex flex-wrap gap-2">
-                    {item.keywords?.map((keyword, index) => (
-                      <Button
-                        key={index}
-                        variant="ghost"
-                        className="bg-indigo-50 text-indigo-700 px-3 py-1 h-7 hover:bg-indigo-100 text-sm"
-                      >
-                        {keyword}
-                      </Button>
-                    ))}
+                    <Button
+                      variant="ghost"
+                      className="bg-indigo-50 text-indigo-700 px-3 py-1 h-7 hover:bg-indigo-100 text-sm"
+                    >
+                      {item.keyword}
+                    </Button>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -150,6 +149,16 @@ export function TableView({
                   >
                     {item.status}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  {item.type && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-gray-100 text-gray-700 hover:bg-indigo-100"
+                    >
+                      {Case.capital(item.type)}
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {formatDate(item.created_at)}
