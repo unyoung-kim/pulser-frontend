@@ -267,7 +267,7 @@ export default function ContentSettings() {
 
         <div className="mt-6 flex flex-col gap-4">
           <p className="text-sm text-muted-foreground text-center">
-            ⚡ Content generation may take up to 5 minutes. Please be patient.
+            ⚡ Content generation may take up to 5 minutes.
           </p>
           <div className="flex items-center justify-between">
             <Button
