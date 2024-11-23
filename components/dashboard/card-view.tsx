@@ -1,11 +1,19 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Case from "case";
+import { MoreHorizontal, Trash } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import useInfiniteScroll from "react-infinite-scroll-hook";
@@ -23,6 +31,7 @@ interface CardViewProps {
   loading: boolean;
   hasNextPage: boolean;
   onLoadMore: () => void;
+  onDelete?: (id: number) => void;
 }
 
 export function CardView({
@@ -30,6 +39,7 @@ export function CardView({
   loading,
   hasNextPage,
   onLoadMore,
+  onDelete,
 }: CardViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -85,20 +95,64 @@ export function CardView({
         >
           <CardHeader className="p-4 space-y-0 mb-1">
             <div className="flex justify-between items-start mb-2">
-              <Badge
-                variant="secondary"
-                className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
-              >
-                {Case.capital(item.status)}
-              </Badge>
-              {item.type && (
+              <div className="flex gap-2">
                 <Badge
                   variant="secondary"
-                  className="bg-gray-100 text-gray-700 hover:bg-indigo-100"
+                  className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
                 >
-                  {Case.capital(item.type)}
+                  {Case.capital(item.status)}
                 </Badge>
-              )}
+                {item.type && (
+                  <Badge
+                    variant="secondary"
+                    className="bg-gray-100 text-gray-700 hover:bg-indigo-100"
+                  >
+                    {Case.capital(item.type)}
+                  </Badge>
+                )}
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  asChild
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[160px]">
+                  {/* <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit?.(item.id);
+                    }}
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onShare?.(item.id);
+                    }}
+                  >
+                    <Share className="mr-2 h-4 w-4" />
+                    Share
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator /> */}
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete?.(item.id);
+                    }}
+                    className="text-destructive"
+                  >
+                    <Trash className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             <h3 className="font-semibold text-base line-clamp-2">
               {item.title}

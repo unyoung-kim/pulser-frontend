@@ -142,6 +142,36 @@ const Dashboard02 = () => {
           (item) => item.status.toLowerCase() === status.toLowerCase()
         );
 
+  const handleDeleteContent = useCallback(
+    async (id: number) => {
+      if (!supabase || !projectId) return;
+
+      try {
+        const { error } = await supabase.from("Content").delete().eq("id", id);
+
+        if (error) {
+          toast({
+            title: "Error",
+            description: "Failed to delete content",
+            variant: "destructive",
+          });
+          throw error;
+        }
+
+        // Update the local state to remove the deleted item
+        setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+
+        toast({
+          title: "Success",
+          description: "Content deleted successfully",
+        });
+      } catch (err) {
+        console.error("Error deleting content:", err);
+      }
+    },
+    [supabase, projectId, toast]
+  );
+
   const renderContent = () => {
     if (error) {
       return (
@@ -213,6 +243,7 @@ const Dashboard02 = () => {
               loading={isLoading}
               hasNextPage={hasNextPage}
               onLoadMore={loadMoreItems}
+              onDelete={handleDeleteContent}
             />
           ) : (
             <TableView
