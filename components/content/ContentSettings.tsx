@@ -20,7 +20,7 @@ import {
   Tag,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import KeywordSelector from "./KeywordInput";
 
 export default function ContentSettings() {
@@ -45,13 +45,18 @@ export default function ContentSettings() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("Keyword")
-        .select("id, keyword")
+        .select(`id, keyword, content_count:Content!fk_content_keyword(count)`)
         .eq("project_id", projectId);
 
       if (error) throw error;
       return data;
     },
-    select: (data) => data.map((k) => ({ id: k.id, keyword: k.keyword })),
+    select: (data) =>
+      data.map((k) => ({
+        id: k.id,
+        keyword: k.keyword,
+        content_count: k.content_count,
+      })),
   });
 
   const { mutate: createKeyword } = useMutation({
@@ -75,6 +80,22 @@ export default function ContentSettings() {
       queryClient.invalidateQueries({ queryKey: ["keyword", projectId] });
     },
   });
+
+  const usedKeywords: string[] = useMemo(
+    () =>
+      keywords
+        .filter((k) => k.content_count.at(0)?.count > 0)
+        .map((k) => k.keyword) ?? [],
+    [keywords]
+  );
+
+  const unusedKeywords: string[] = useMemo(
+    () =>
+      keywords
+        .filter((k) => k.content_count.at(0)?.count == 0)
+        .map((k) => k.keyword) ?? [],
+    [keywords]
+  );
 
   const handleCreateContent = async () => {
     if (!selectedKeyword) {
@@ -186,7 +207,8 @@ export default function ContentSettings() {
                 Keyword
               </label>
               <KeywordSelector
-                keywords={keywords.map((k) => k.keyword)}
+                usedKeywords={usedKeywords}
+                unusedKeywords={unusedKeywords}
                 selectedKeyword={selectedKeyword}
                 onKeywordChange={setSelectedKeyword}
                 onCreateKeyword={createKeyword}
