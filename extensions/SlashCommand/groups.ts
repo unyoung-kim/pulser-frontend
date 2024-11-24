@@ -181,6 +181,30 @@ export const GROUPS: Group[] = [
       },
     ],
   },
+  {
+    name: 'media',
+    title: 'Media',
+    commands: [
+      {
+        name: 'imageSearch',
+        label: 'Image Search',
+        iconName: 'Image',
+        description: 'Search for images',
+        action: editor => {
+          editor.chain().focus().setImageSearchModal().run();
+        },
+      },
+      {
+        name: 'youtubeSearch',
+        label: 'YouTube Search',
+        iconName: 'Video',
+        description: 'Search for YouTube videos',
+        action: editor => {
+          editor.chain().focus().setYoutubeSearchModal().run();
+        },
+      },
+    ],
+  },
 ]
 
 export default GROUPS

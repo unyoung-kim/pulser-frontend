@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface VideoResult {
   id: string;
@@ -17,44 +18,69 @@ interface VideoResult {
 export interface YoutubeSearchProps {
   onSelect: (videoId: string) => void;
   onClose: () => void;
+  editor: any;
 }
 
 export default function YoutubeSearch({
   onSelect,
   onClose,
+  editor
 }: YoutubeSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<VideoResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Simulated search function - replace with actual YouTube API call
   const handleSearch = async () => {
+    if (!query.trim()) return;
+    
     setIsSearching(true);
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setError(null);
+    
+    try {
+      const response = await fetch(`/api/video-search?q=${encodeURIComponent(query)}`);
+      
+      const result = await response.json();
+      const success = result.result.data.success;
+      const data = result.result.data.data;
+      if (!success) {
+        throw new Error(error || 'Failed to fetch videos');
+      }
+      
+      setResults(data.map((item: any) => ({
+        id: item.link.split('v=')[1],
+        title: item.title,
+        thumbnail: `https://i.ytimg.com/vi/${item.link.split('v=')[1]}/mqdefault.jpg`,
+        channelTitle: item.channelTitle || 'YouTube Channel'
+      })));
+    } catch (err) {
+      setError('Failed to search videos. Please try again.');
+      console.error('Video search error:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
-    // Simulate results
-    setResults([
-      {
-        id: "1",
-        title: "Introduction to Web Development",
-        thumbnail: "/placeholder.svg?height=180&width=320",
-        channelTitle: "Tech Channel",
-      },
-      {
-        id: "2",
-        title: "React Hooks Tutorial",
-        thumbnail: "/placeholder.svg?height=180&width=320",
-        channelTitle: "Code Masters",
-      },
-      {
-        id: "3",
-        title: "Building Modern UIs",
-        thumbnail: "/placeholder.svg?height=180&width=320",
-        channelTitle: "Design Pro",
-      },
-    ]);
-    setIsSearching(false);
+  const handleVideoSelect = (videoId: string) => {
+    console.log('video id', videoId);
+    console.log('editor instance:', editor);
+    
+    if (editor) {
+      console.log('Setting YouTube video...');
+      editor.chain()
+        .focus()
+        .setYoutubeVideo({
+          src: `https://www.youtube.com/watch?v=${videoId}`,
+          width: 640,
+          height: 480,
+        })
+        .run();
+      onClose();
+    } else {
+      console.warn('Editor instance not available');
+      onSelect(videoId);
+      onClose();
+    }
   };
 
   return (
@@ -93,38 +119,44 @@ export default function YoutubeSearch({
           </Button>
         </div>
 
-        {results.length > 0 ? (
-          <div className="grid gap-2">
-            {results.map((video) => (
-              <div
-                key={video.id}
-                className="flex gap-3 p-2 rounded-lg border hover:bg-accent transition-colors cursor-pointer"
-                onClick={() => onSelect(video.id)}
-              >
-                <Image
-                  src={video.thumbnail}
-                  alt={video.title}
-                  width={128}
-                  height={80}
-                  className="object-cover rounded-md"
-                />
-                <div className="flex flex-col gap-1">
-                  <h3 className="font-semibold line-clamp-2 text-sm">
-                    {video.title}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    {video.channelTitle}
-                  </p>
+        <ScrollArea className="h-[400px] w-full rounded-md">
+          {error ? (
+            <div className="min-h-[300px] w-full flex flex-col items-center justify-center text-red-500 text-center">
+              <p>{error}</p>
+            </div>
+          ) : results.length > 0 ? (
+            <div className="grid gap-2 px-4">
+              {results.map((video) => (
+                <div
+                  key={video.id}
+                  className="flex gap-3 p-2 rounded-lg border hover:bg-accent transition-colors cursor-pointer"
+                  onClick={() => handleVideoSelect(video.id)}
+                >
+                  <Image
+                    src={video.thumbnail}
+                    alt={video.title}
+                    width={128}
+                    height={80}
+                    className="object-cover rounded-md"
+                  />
+                  <div className="flex flex-col gap-1">
+                    <h3 className="font-semibold line-clamp-2 text-sm">
+                      {video.title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {video.channelTitle}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="min-h-[300px] w-full flex flex-col items-center justify-center text-muted-foreground text-center">
-            <Search className="h-12 w-12 mb-4 opacity-50" />
-            <p>Search for YouTube videos to get started</p>
-          </div>
-        )}
+              ))}
+            </div>
+          ) : (
+            <div className="min-h-[300px] w-full flex flex-col items-center justify-center text-muted-foreground text-center">
+              <Search className="h-12 w-12 mb-4 opacity-50" />
+              <p>Search for YouTube videos to get started</p>
+            </div>
+          )}
+        </ScrollArea>
       </CardContent>
     </Card>
   );

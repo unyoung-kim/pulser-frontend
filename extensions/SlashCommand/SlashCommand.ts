@@ -11,6 +11,13 @@ const extensionName = 'slashCommand'
 
 let popup: any
 
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    setYoutubeSearchModal: () => ReturnType;
+    setImageSearchModal: () => ReturnType;
+  }
+}
+
 export const SlashCommand = Extension.create({
   name: extensionName,
 
