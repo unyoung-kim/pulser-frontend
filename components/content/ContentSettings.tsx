@@ -122,15 +122,15 @@ export default function ContentSettings() {
         (k) => k.keyword === selectedKeyword
       )?.id;
 
-      // console.log(
-      //   JSON.stringify({
-      //     projectId: projectId,
-      //     inputTopic: topic,
-      //     keywordId: selectedKeywordId,
-      //     keyword: selectedKeyword,
-      //     type: contentType,
-      //   })
-      // );
+      console.log(
+        JSON.stringify({
+          projectId: projectId,
+          inputTopic: topic,
+          keywordId: selectedKeywordId,
+          keyword: selectedKeyword,
+          type: contentType,
+        })
+      );
 
       const backendUrl = "https://pulser-backend.onrender.com";
       // const backendUrl = "http://localhost:8000";
@@ -147,21 +147,15 @@ export default function ContentSettings() {
         }),
       });
 
+      const responseData = await response.json();
+      console.log("Response data:", responseData);
+
       if (!response.ok) {
-        const errorData = await response.json();
         throw new Error(
-          errorData.message || "Failed to generate content: ",
-          errorData
+          responseData.message || responseData.error || "HTTP request failed"
         );
       }
 
-      const { success, data, error } = await response.json();
-
-      if (!success) {
-        throw new Error(error || "Failed to generate content" || data);
-      }
-
-      // Navigate back to content page after successful creation
       router.push(`/content?projectId=${projectId}`);
     } catch (error) {
       console.error("Error creating content:", error);
