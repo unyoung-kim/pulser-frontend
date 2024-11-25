@@ -122,16 +122,6 @@ export default function ContentSettings() {
         (k) => k.keyword === selectedKeyword
       )?.id;
 
-      console.log(
-        JSON.stringify({
-          projectId: projectId,
-          inputTopic: topic,
-          keywordId: selectedKeywordId,
-          keyword: selectedKeyword,
-          type: contentType,
-        })
-      );
-
       const backendUrl = "https://pulser-backend.onrender.com";
       // const backendUrl = "http://localhost:8000";
       const response = await fetch(`${backendUrl}/api/web-retrieval`, {
