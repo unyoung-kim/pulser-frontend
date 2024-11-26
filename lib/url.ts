@@ -23,3 +23,5 @@ export function getPathFromURL(url: string): string {
     return url; // Return the original URL if it's invalid
   }
 }
+
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pulser-backend.onrender.com';

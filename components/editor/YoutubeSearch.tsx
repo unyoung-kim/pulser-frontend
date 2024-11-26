@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { BACKEND_URL } from "@/lib/url";
 
 interface VideoResult {
   id: string;
@@ -38,16 +39,23 @@ export default function YoutubeSearch({
     setError(null);
     
     try {
-      const response = await fetch(`/api/video-search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`${BACKEND_URL}/api/video-search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: query
+        }),
+      });
       
-      const result = await response.json();
-      const success = result.result.data.success;
-      const data = result.result.data.data;
-      if (!success) {
-        throw new Error(error || 'Failed to fetch videos');
+      const data = await response.json();
+      console.log("DATA ===", data)
+      if (!data.success) {
+        throw new Error('Failed to fetch videos');
       }
       
-      setResults(data.map((item: any) => ({
+      setResults(data.data.map((item: any) => ({
         id: item.link.split('v=')[1],
         title: item.title,
         thumbnail: `https://i.ytimg.com/vi/${item.link.split('v=')[1]}/mqdefault.jpg`,

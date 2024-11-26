@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { BACKEND_URL } from "@/lib/url";
 
 interface ImageSearchModalProps {
   onSelect: (imageUrl: string) => void;
@@ -24,8 +25,6 @@ interface ImageSearchResult {
   thumbnail: string;
   title: string;
 }
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
 export function ImageSearchModal({ onSelect, onClose }: ImageSearchModalProps) {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -41,22 +40,25 @@ export function ImageSearchModal({ onSelect, onClose }: ImageSearchModalProps) {
     setError(null);
 
     try {
-      const response = await fetch(`/api/image-search?q=${encodeURIComponent(searchTerm)}`);
+      const response = await fetch(`${BACKEND_URL}/api/image-search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: searchTerm
+        }),
+      });
       
-      if (!response.ok) {
+      const data = await response.json();
+      
+      if (!data.success) {
         throw new Error('Failed to fetch images');
       }
-      
-      const { success, data, error } = await response.json();
-      
-      if (!success) {
-        throw new Error(error || 'Failed to fetch images');
-      }
-      
-      setSearchResults(data.images.map((item: any) => ({
-        url: item.imageUrl || item.link,
-        thumbnail: item.thumbnailUrl || item.thumbnail,
-        title: item.title || item.snippet
+      console.log("DATA ===", data)
+      setSearchResults(data.data.map((item: any) => ({
+        url: item.image_url,
+        title: item.image_title
       })));
     } catch (err) {
       setError('Failed to search images. Please try again.');
@@ -119,7 +121,7 @@ export function ImageSearchModal({ onSelect, onClose }: ImageSearchModalProps) {
                   className="border rounded-md overflow-hidden hover:opacity-80"
                 >
                   <Image
-                    src={image.thumbnail || image.url}
+                    src={image.url}
                     alt={image.title || `Search result ${index + 1}`}
                     width={300}
                     height={200}
