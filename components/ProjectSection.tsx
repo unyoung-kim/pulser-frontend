@@ -32,6 +32,13 @@ export default function ProjectSection() {
     [router]
   );
 
+  const navigateToBackground = useCallback(
+    (projectId: string) => {
+      router.push(`/background?projectId=${projectId}`);
+    },
+    [router]
+  );
+
   const createProject = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -58,7 +65,7 @@ export default function ProjectSection() {
         setNewProjectDescription("");
 
         if (data?.[0]) {
-          navigateToContent(data[0].id.toString());
+          navigateToBackground(data[0].id.toString());
         }
       } catch (error) {
         console.error("Error creating project:", error);
@@ -68,7 +75,7 @@ export default function ProjectSection() {
       newProjectName,
       newProjectDescription,
       fetchProjects,
-      navigateToContent,
+      navigateToBackground,
       user,
       organization,
     ]
