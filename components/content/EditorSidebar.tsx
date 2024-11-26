@@ -155,12 +155,6 @@ export function EditorSidebar({
     }
   };
 
-  const getWordCount = () => {
-    const text = editor.state.doc.textContent;
-    // Only count words if there's actual text
-    return text.trim() ? text.trim().split(/\s+/).length : 0;
-  };
-
   const getHeadingCount = () => {
     let count = 0;
     editor.state.doc.descendants((node) => {
@@ -315,6 +309,12 @@ export function EditorSidebar({
         </TooltipContent>
       </Tooltip>
     );
+  };
+
+  const getWordCount = () => {
+    if (!editor) return 0;
+    const text = editor.state.doc.textContent;
+    return text.split(/\s+/).filter((word) => word.length > 0).length;
   };
 
   return (
