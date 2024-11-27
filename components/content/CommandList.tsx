@@ -157,12 +157,22 @@ const commands: CommandSection[] = [
           modal.style.display = "block";
           document.body.appendChild(modal);
 
-          // We'll implement this function next
+          console.log('Editor instance in command:', editor);
+
           const root = createRoot(modal);
           root.render(
             <YoutubeSearchModal
+              editor={editor}
               onSelect={(videoId) => {
-                editor.chain().focus().setYoutubeVideo({ src: videoId }).run();
+                console.log('Selected video:', videoId);
+                editor.chain()
+                  .focus()
+                  .setYoutubeVideo({
+                    src: videoId,
+                    width: 640,
+                    height: 480,
+                  })
+                  .run();
                 document.body.removeChild(modal);
                 root.unmount();
               }}

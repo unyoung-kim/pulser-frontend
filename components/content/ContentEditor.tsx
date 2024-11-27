@@ -13,6 +13,10 @@ import { AnyExtension, useEditor } from "@tiptap/react";
 import React, { useCallback, useState } from "react";
 import { BlockEditor } from "../new-editor/BlockEditor";
 import { EditorSidebar } from "./EditorSidebar";
+import { ImageSearch } from '@/extensions/ImageSearch/ImageSearch'
+import { YoutubeSearch } from '@/extensions/YoutubeSearch/YoutubeSearch'
+import { YoutubeExtension } from '@/extensions/YoutubeExtension'
+import { CharacterCount } from '@tiptap/extension-character-count'
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 // const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -202,6 +206,7 @@ export function ContentEditor({
     },
     extensions: [
       ...ExtensionKit({ provider: null }),
+      CharacterCount,
       aiToken
         ? AiWriter.configure({
             appId: "y9djg7p9",
@@ -219,6 +224,9 @@ export function ContentEditor({
           })
         : undefined,
       aiToken ? Ai.configure({ appId: "y9djg7p9", token: aiToken }) : undefined,
+      ImageSearch,
+      YoutubeSearch,
+      YoutubeExtension,
     ].filter((e): e is AnyExtension => e !== undefined),
     editorProps: {
       attributes: {

@@ -1,5 +1,5 @@
 import { Editor, EditorContent } from "@tiptap/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 import "@/styles/index.css";
 
@@ -12,6 +12,10 @@ import { ContentItemMenu } from "../menus/ContentItemMenu";
 import { TextMenu } from "../menus/TextMenu";
 import { Sidebar } from "../Sidebar";
 import { EditorHeader } from "./components/EditorHeader";
+import { ImageSearchModal } from "@/components/editor/ImageSearchModal";
+import { YoutubeSearchModal } from "@/components/editor/YoutubeSearchModal";
+import { ImageSearchEventProps } from '@/extensions/ImageSearch/ImageSearch'
+import { YoutubeSearchEventProps } from '@/extensions/YoutubeSearch/YoutubeSearch'
 
 export const BlockEditor = ({
   aiToken,
@@ -31,6 +35,8 @@ export const BlockEditor = ({
   const [lastSavedContent, setLastSavedContent] = useState(editor.getHTML());
   const [hasChanges, setHasChanges] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
+  const [showImageSearch, setShowImageSearch] = useState(false);
+  const [showYoutubeSearch, setShowYoutubeSearch] = useState(false);
 
   useEffect(() => {
     const checkChanges = () => {
@@ -56,6 +62,36 @@ export const BlockEditor = ({
       setShowSaved(false);
     }, 3000);
   };
+
+  const handleImageSelect = useCallback((imageUrl: string) => {
+    editor.chain().focus().setImage({ src: imageUrl }).run();
+    setShowImageSearch(false);
+  }, [editor]);
+
+  const handleYoutubeSelect = useCallback((videoId: string) => {
+    editor.chain().focus().setYoutubeVideo({ src: videoId }).run();
+    setShowYoutubeSearch(false);
+  }, [editor]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleImageSearch = () => {
+      setShowImageSearch(true);
+    };
+
+    const handleYoutubeSearch = () => {
+      setShowYoutubeSearch(true);
+    };
+
+    editor.on('imageSearch', (_: ImageSearchEventProps) => handleImageSearch());
+    editor.on('youtubeSearch', (_: YoutubeSearchEventProps) => handleYoutubeSearch());
+
+    return () => {
+      editor.off('imageSearch', handleImageSearch);
+      editor.off('youtubeSearch', handleYoutubeSearch);
+    };
+  }, [editor]);
 
   if (!editor) {
     return null;
@@ -89,6 +125,19 @@ export const BlockEditor = ({
         <TableRowMenu editor={editor} appendTo={menuContainerRef} />
         <TableColumnMenu editor={editor} appendTo={menuContainerRef} />
         <ImageBlockMenu editor={editor} appendTo={menuContainerRef} />
+        {showImageSearch && (
+          <ImageSearchModal
+            onSelect={handleImageSelect}
+            onClose={() => setShowImageSearch(false)}
+          />
+        )}
+        {showYoutubeSearch && (
+          <YoutubeSearchModal
+            editor={editor}
+            onSelect={handleYoutubeSelect}
+            onClose={() => setShowYoutubeSearch(false)}
+          />
+        )}
       </div>
     </div>
   );

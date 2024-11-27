@@ -13,26 +13,59 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { BACKEND_URL } from "@/lib/url";
 
 interface ImageSearchModalProps {
   onSelect: (imageUrl: string) => void;
   onClose: () => void;
 }
 
+interface ImageSearchResult {
+  url: string;
+  thumbnail: string;
+  title: string;
+}
+
 export function ImageSearchModal({ onSelect, onClose }: ImageSearchModalProps) {
   const [searchTerm, setSearchTerm] = React.useState("");
-  const [searchResults, setSearchResults] = React.useState<string[]>([]);
+  const [searchResults, setSearchResults] = React.useState<ImageSearchResult[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real application, you would call an API here
-    // For this example, we'll just generate some placeholder images
-    const results = Array(12)
-      .fill(null)
-      .map(
-        (_, i) => `/placeholder.svg?height=200&width=300&text=Image ${i + 1}`
-      );
-    setSearchResults(results);
+    if (!searchTerm.trim()) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/image-search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: searchTerm
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error('Failed to fetch images');
+      }
+      console.log("DATA ===", data)
+      setSearchResults(data.data.map((item: any) => ({
+        url: item.image_url,
+        title: item.image_title
+      })));
+    } catch (err) {
+      setError('Failed to search images. Please try again.');
+      console.error('Image search error:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -69,23 +102,27 @@ export function ImageSearchModal({ onSelect, onClose }: ImageSearchModalProps) {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-grow"
           />
-          <Button type="submit">
+          <Button type="submit" disabled={isLoading}>
             <Search className="h-4 w-4 mr-2" />
-            Search
+            {isLoading ? 'Searching...' : 'Search'}
           </Button>
         </form>
         <ScrollArea className="h-[400px] w-full rounded-md border p-4">
-          {searchResults.length > 0 ? (
+          {error ? (
+            <div className="min-h-[300px] w-full flex flex-col items-center justify-center text-red-500 text-center">
+              <p>{error}</p>
+            </div>
+          ) : searchResults.length > 0 ? (
             <div className="grid grid-cols-2 gap-4">
-              {searchResults.map((src, index) => (
+              {searchResults.map((image, index) => (
                 <button
                   key={index}
-                  onClick={() => onSelect(src)}
+                  onClick={() => onSelect(image.url)}
                   className="border rounded-md overflow-hidden hover:opacity-80"
                 >
                   <Image
-                    src={src}
-                    alt={`Search result ${index + 1}`}
+                    src={image.url}
+                    alt={image.title || `Search result ${index + 1}`}
                     width={300}
                     height={200}
                     className="w-full h-auto object-cover"

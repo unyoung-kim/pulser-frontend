@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
-import { Editor } from "@tiptap/react";
+import { Editor, useEditorState } from "@tiptap/react";
 import * as Case from "case";
 import {
   ArrowRight,
@@ -63,6 +63,20 @@ export function EditorSidebar({
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const { words } = useEditorState({
+    editor,
+    selector: (ctx) => {
+      const { words } = ctx.editor?.storage.characterCount || {
+        words: () => 0,
+      };
+      return { words: words() };
+    },
+  });
+
+  const getWordCount = () => {
+    return words;
+  };
 
   // Update headings and links when content changes
   useEffect(() => {
