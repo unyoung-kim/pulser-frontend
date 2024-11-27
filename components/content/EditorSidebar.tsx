@@ -325,11 +325,11 @@ export function EditorSidebar({
     );
   };
 
-  const getWordCount = () => {
-    if (!editor) return 0;
-    const text = editor.state.doc.textContent;
-    return text.split(/\s+/).filter((word) => word.length > 0).length;
-  };
+  // const getWordCount = () => {
+  //   if (!editor) return 0;
+  //   const text = editor.state.doc.textContent;
+  //   return text.split(/\s+/).filter((word) => word.length > 0).length;
+  // };
 
   return (
     <div className="w-80 border-l border-gray-200 p-6 flex flex-col h-screen bg-white">
