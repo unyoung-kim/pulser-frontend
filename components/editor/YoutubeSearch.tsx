@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -91,6 +91,11 @@ export default function YoutubeSearch({
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch();
+  };
+
   return (
     <Card className="w-full">
       <CardHeader className="py-3">
@@ -114,18 +119,18 @@ export default function YoutubeSearch({
         </CardTitle>
       </CardHeader>
       <CardContent className="py-3">
-        <div className="flex gap-2 mb-4">
+        <form onSubmit={handleSubmit} className="flex items-center space-x-2 mb-4 w-full">
           <Input
-            type="text"
-            placeholder="Search for videos..."
+            type="search"
+            placeholder="Search YouTube videos..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1"
+            className="flex-grow"
           />
-          <Button onClick={handleSearch} disabled={!query || isSearching}>
+          <Button type="submit" disabled={!query || isSearching}>
             {isSearching ? "Searching..." : "Search"}
           </Button>
-        </div>
+        </form>
 
         <ScrollArea className="h-[400px] w-full rounded-md">
           {error ? (
