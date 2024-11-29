@@ -87,7 +87,12 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     { id: "product", icon: Package, label: "Product Details" },
     { id: "audience", icon: Users, label: "Audience" },
     { id: "socialProof", icon: Star, label: "Social Proof" },
-    { id: "internalLinks", icon: Globe, label: "Internal Links" },
+    {
+      id: "internalLinks",
+      icon: Globe,
+      label: "Internal Links",
+      required: true,
+    },
   ];
 
   const { data: project, isLoading } = useQuery({
@@ -513,7 +518,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 </Label>
                 <Textarea
                   id="testimonials"
-                  placeholder="Add key customer testimonials"
+                  placeholder={`Enter one or more testimonials. Including the person/company's name and industry helps enhance the articles.`}
                   value={formData.socialProof?.testimonials || ""}
                   onChange={(e) =>
                     handleInputChange(
