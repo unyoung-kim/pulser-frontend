@@ -76,7 +76,6 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     socialProof: { testimonials: "", caseStudies: "", achievements: "" },
   });
   const [domain, setDomain] = useState("");
-  const [isValidDomain, setIsValidDomain] = useState(false);
 
   const tabs = [
     {
@@ -149,7 +148,6 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
   useEffect(() => {
     if (formData.basic.companyUrl) {
       setDomain(formData.basic.companyUrl);
-      setIsValidDomain(validateDomain(formData.basic.companyUrl));
     }
   }, [formData.basic.companyUrl]);
 
@@ -209,16 +207,6 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     });
   };
 
-  const validateDomain = (url: string | null | undefined): boolean => {
-    if (!url) return false;
-    try {
-      const urlObject = new URL(url);
-      return urlObject.protocol === "http:" || urlObject.protocol === "https:";
-    } catch {
-      return false;
-    }
-  };
-
   const { mutate: findInternalLinks, isLoading: isFindingLinks } = useMutation({
     mutationFn: async () => {
       const response = await fetch(
@@ -230,7 +218,10 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
         }
       );
       if (!response.ok) throw new Error("Failed to find internal links");
-      return response.json();
+
+      const data = await response.json();
+
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["internalLinks", projectId]);
@@ -281,27 +272,12 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 </Label>
                 <Input
                   id="url"
-                  placeholder="https://example.com"
+                  placeholder="example.com"
                   value={formData.basic.companyUrl || ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (validateDomain(value) || value === "") {
-                      handleInputChange("basic", "companyUrl", value);
-                    }
-                  }}
-                  className={
-                    !validateDomain(formData.basic.companyUrl) &&
-                    formData.basic.companyUrl
-                      ? "border-red-500"
-                      : ""
+                  onChange={(e) =>
+                    handleInputChange("basic", "companyUrl", e.target.value)
                   }
                 />
-                {formData.basic.companyUrl &&
-                  !validateDomain(formData.basic.companyUrl) && (
-                    <p className="text-sm text-red-500">
-                      Please enter a valid URL (e.g., https://example.com)
-                    </p>
-                  )}
                 <p className="text-sm text-muted-foreground">
                   Your company name and website URL.
                 </p>
@@ -610,7 +586,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 <Button
                   className="gap-2 bg-indigo-600 hover:bg-indigo-700"
                   onClick={() => findInternalLinks()}
-                  disabled={!isValidDomain || isFindingLinks}
+                  disabled={!domain || isFindingLinks}
                 >
                   {isFindingLinks ? (
                     "Finding Links..."
@@ -635,7 +611,6 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                   placeholder="https://example.com"
                   value={domain}
                   disabled={true}
-                  className={!isValidDomain && domain ? "border-red-500" : ""}
                 />
                 {!domain && (
                   <p className="text-sm text-muted-foreground">
@@ -643,15 +618,12 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                     {">"} Company URL.
                   </p>
                 )}
-                {domain && !isValidDomain && (
-                  <p className="text-sm text-red-500">
-                    Please enter a valid domain (e.g., https://example.com)
+                {domain && (
+                  <p className="text-sm text-muted-foreground">
+                    Enter your website&apos;s domain for internal linking
+                    purposes.
                   </p>
                 )}
-                {/* <p className="text-sm text-muted-foreground">
-                  Enter your website&apos;s domain for internal linking
-                  purposes.
-                </p> */}
               </div>
 
               <div className="space-y-2">
