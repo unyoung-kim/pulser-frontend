@@ -18,6 +18,7 @@ import {
   Pencil,
   Sparkles,
   Tag,
+  Lightbulb,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -35,6 +36,8 @@ export default function ContentSettings() {
     "NORMAL"
   );
   const [selectedKeyword, setSelectedKeyword] = useState("");
+  const [isLoadingTopics, setIsLoadingTopics] = useState(false);
+  const [topicSuggestions, setTopicSuggestions] = useState<string[]>([]);
 
   const {
     data: keywords = [],
@@ -96,6 +99,57 @@ export default function ContentSettings() {
         .map((k) => k.keyword) ?? [],
     [keywords]
   );
+
+  const { refetch: fetchTopicSuggestions } = useQuery({
+    queryKey: ["topic-suggestions", projectId, selectedKeyword],
+    queryFn: async () => {
+      if (!selectedKeyword) {
+        toast({
+          title: "Validation Error",
+          description: "Please select a keyword first",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsLoadingTopics(true);
+      try {
+        const backendUrl = "https://pulser-backend.onrender.com";
+        const response = await fetch(`${backendUrl}/api/generate-topic`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectId,
+            keyword: selectedKeyword,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch topic suggestions");
+        }
+
+        const data = await response.json();
+        if (data.success && data.data) {
+          const topics = JSON.parse(data.data);
+          setTopicSuggestions(topics);
+        } else {
+          throw new Error(data.error || "Failed to generate topics");
+        }
+        return data;
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to generate topics",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingTopics(false);
+      }
+    },
+    enabled: false,
+  });
 
   const handleCreateContent = async () => {
     if (!selectedKeyword) {
@@ -159,6 +213,62 @@ export default function ContentSettings() {
     }
   };
 
+  const topicSuggestionsSection = (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <label className="text-sm font-medium flex items-center gap-2">
+          <Pencil className="w-4 h-4 text-indigo-600" />
+          Blog Title
+        </label>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => fetchTopicSuggestions()}
+          className="text-indigo-600"
+          disabled={isLoadingTopics || !selectedKeyword}
+          title={!selectedKeyword ? "Please select a keyword first" : ""}
+        >
+          <Lightbulb className="w-4 h-4 mr-2" />
+          {isLoadingTopics ? "Analyzing search trends..." : "Get AI suggestions"}
+        </Button>
+      </div>
+      <Input
+        value={topic}
+        onChange={(e) => setTopic(e.target.value)}
+        className="border-indigo-100 focus-visible:ring-indigo-600"
+        placeholder="Enter your blog title here..."
+      />
+      
+      {isLoadingTopics && (
+        <div className="text-sm text-muted-foreground flex items-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Analyzing Google search trends for high-intent topics...
+        </div>
+      )}
+      
+      {!isLoadingTopics && topicSuggestions.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Suggested topics based on search trends:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {topicSuggestions.map((suggestion, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                className="text-sm"
+                onClick={() => setTopic(suggestion)}
+              >
+                {suggestion}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="w-full bg-gray-50/50 flex justify-center">
       <div className="max-w-3xl w-full py-10">
@@ -201,18 +311,7 @@ export default function ContentSettings() {
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Pencil className="w-4 h-4 text-indigo-600" />
-                Blog Title
-              </label>
-              <Input
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                className="border-indigo-100 focus-visible:ring-indigo-600"
-                placeholder="Enter your blog title here..."
-              />
-            </div>
+            {topicSuggestionsSection}
 
             <div className="space-y-2">
               <Label className="text-sm font-medium flex items-center gap-2">
