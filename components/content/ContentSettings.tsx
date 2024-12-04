@@ -13,12 +13,12 @@ import {
   ArrowLeft,
   BookText,
   Layout,
+  Lightbulb,
   ListTree,
   Loader2,
   Pencil,
   Sparkles,
   Tag,
-  Lightbulb,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -141,7 +141,10 @@ export default function ContentSettings() {
       } catch (error) {
         toast({
           title: "Error",
-          description: error instanceof Error ? error.message : "Failed to generate topics",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Failed to generate topics",
           variant: "destructive",
         });
       } finally {
@@ -229,7 +232,9 @@ export default function ContentSettings() {
           title={!selectedKeyword ? "Please select a keyword first" : ""}
         >
           <Lightbulb className="w-4 h-4 mr-2" />
-          {isLoadingTopics ? "Analyzing search trends..." : "Get AI suggestions"}
+          {isLoadingTopics
+            ? "Analyzing search trends..."
+            : "Get AI suggestions"}
         </Button>
       </div>
       <Input
@@ -238,14 +243,14 @@ export default function ContentSettings() {
         className="border-indigo-100 focus-visible:ring-indigo-600"
         placeholder="Enter your blog title here..."
       />
-      
+
       {isLoadingTopics && (
         <div className="text-sm text-muted-foreground flex items-center gap-2">
           <Loader2 className="w-4 h-4 animate-spin" />
           Analyzing Google search trends for high-intent topics...
         </div>
       )}
-      
+
       {!isLoadingTopics && topicSuggestions.length > 0 && (
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
