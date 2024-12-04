@@ -41,6 +41,7 @@ import { z } from "zod";
 
 export const BackgroundSchema2 = z.object({
   basic: z.object({
+    companyName: z.string().nullish(),
     companyUrl: z.string().nullish(),
     industryKeywords: z.string().nullish(),
     companyFunction: z.string().nullish(),
@@ -70,7 +71,12 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("basic");
   const [formData, setFormData] = useState<z.infer<typeof BackgroundSchema2>>({
-    basic: { companyUrl: "", industryKeywords: "", companyFunction: "" },
+    basic: {
+      companyName: "",
+      companyUrl: "",
+      industryKeywords: "",
+      companyFunction: "",
+    },
     product: { valueProposition: "", products: "", competitiveAdvantage: "" },
     audience: { painPoints: "", customerProfile: "" },
     socialProof: { testimonials: "", caseStudies: "", achievements: "" },
@@ -127,6 +133,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     if (project?.background) {
       setFormData({
         basic: {
+          companyName: project.background.basic?.companyName || "",
           companyUrl: project.background.basic?.companyUrl || "",
           industryKeywords: project.background.basic?.industryKeywords || "",
           companyFunction: project.background.basic?.companyFunction || "",
@@ -266,6 +273,27 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
               </div>
             </CardHeader>
             <CardContent className="space-y-8">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  <span className="font-semibold">Company Name</span>
+                  <Badge variant="secondary" className="ml-2">
+                    Required
+                  </Badge>
+                </Label>
+                <Input
+                  id="name"
+                  placeholder="Your Company Name"
+                  value={formData.basic.companyName || ""}
+                  onChange={(e) =>
+                    handleInputChange("basic", "companyName", e.target.value)
+                  }
+                />
+                <p className="text-sm text-muted-foreground">
+                  The official name of your company.
+                </p>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="url" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />

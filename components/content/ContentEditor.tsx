@@ -4,19 +4,19 @@ import "@/app/content/editor.css";
 import { AiImage, AiWriter } from "@/extensions";
 import { Ai } from "@/extensions/Ai";
 import ExtensionKit from "@/extensions/extension-kit";
+import { ImageSearch } from "@/extensions/ImageSearch/ImageSearch";
+import { YoutubeExtension } from "@/extensions/YoutubeExtension";
+import { YoutubeSearch } from "@/extensions/YoutubeSearch/YoutubeSearch";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounceCallback } from "@/hooks/useDebounceCallback";
 import { supabase } from "@/lib/supabaseClient";
 import { getJwtToken } from "@/lib/token";
 import { useQuery } from "@tanstack/react-query";
+import { CharacterCount } from "@tiptap/extension-character-count";
 import { AnyExtension, useEditor } from "@tiptap/react";
 import React, { useCallback, useState } from "react";
 import { BlockEditor } from "../new-editor/BlockEditor";
 import { EditorSidebar } from "./EditorSidebar";
-import { ImageSearch } from '@/extensions/ImageSearch/ImageSearch'
-import { YoutubeSearch } from '@/extensions/YoutubeSearch/YoutubeSearch'
-import { YoutubeExtension } from '@/extensions/YoutubeExtension'
-import { CharacterCount } from '@tiptap/extension-character-count'
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 // const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -322,7 +322,7 @@ export function ContentEditor({
   return (
     <div className="flex w-full max-w-screen-2xl mx-auto relative">
       <div className="flex-1 max-w-none">
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <input
             type="text"
             value={currentTitle}
@@ -330,7 +330,7 @@ export function ContentEditor({
             className="text-3xl font-bold w-full bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-2 py-1"
             placeholder="Enter title..."
           />
-        </div>
+        </div> */}
 
         {/* {editor2 && <Toolbar editor={editor2} isSaving={isSaving} />} */}
 
