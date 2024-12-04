@@ -212,16 +212,16 @@ export default function ProjectSection() {
                 <div>
                   <label
                     htmlFor="projectName"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-bold text-gray-700 mb-2"
                   >
-                    Project Name
+                    Company Name
                   </label>
                   <input
                     id="projectName"
                     type="text"
                     value={newProjectName}
                     onChange={(e) => setNewProjectName(e.target.value)}
-                    placeholder="Enter a name for your project"
+                    placeholder="Name of the company you are doing SEO for"
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl 
                              text-gray-900 text-sm placeholder-gray-400
                              focus:outline-none focus:ring-2 focus:ring-indigo-500/20 
