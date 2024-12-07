@@ -55,6 +55,7 @@ export default function ProjectSection() {
               org_id: organization.id,
             },
           ])
+          .order("updated_at", { ascending: false })
           .select();
 
         if (error) throw error;

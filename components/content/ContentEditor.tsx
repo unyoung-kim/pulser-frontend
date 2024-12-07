@@ -27,8 +27,7 @@ interface ContentEditorProps {
   projectId: string;
   title: string;
   status: "drafted" | "scheduled" | "published" | "archived";
-  mainKeyword?: string;
-  keywords?: string[];
+  keyword?: string;
   type: string;
 }
 
@@ -38,7 +37,7 @@ export function ContentEditor({
   projectId,
   title,
   status,
-  keywords = [],
+  keyword,
   type,
 }: ContentEditorProps) {
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -259,6 +258,7 @@ export function ContentEditor({
       return data?.body;
     },
     enabled: !!contentId && !!editor2,
+    refetchOnWindowFocus: false,
     onSuccess: (data) => {
       if (data && editor2) {
         console.log("DATA: ", data);
@@ -352,7 +352,7 @@ export function ContentEditor({
             editor={editor2}
             status={currentStatus}
             type={type}
-            keywords={[]}
+            keyword={keyword}
             contentId={contentId}
             onStatusChange={handleStatusChange}
           />
