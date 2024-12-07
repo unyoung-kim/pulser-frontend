@@ -46,6 +46,7 @@ export function ContentEditor({
   >(status);
   const [currentTitle, setCurrentTitle] = useState<string>(title);
   const { toast } = useToast();
+  const [internalLinkCount, setInternalLinkCount] = useState<number>(0);
 
   const aiToken = getJwtToken(
     process.env.NEXT_PUBLIC_TIPTAP_AI_JWT_SECRET ?? ""
@@ -275,6 +276,32 @@ export function ContentEditor({
     },
   });
 
+  useQuery({
+    queryKey: ['internalLinkCount', contentId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('contentinternallink')
+        .select('*', { count: 'exact', head: true })
+        .eq('content_id', contentId);
+        
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!contentId,
+    onSuccess: (count) => {
+      console.log('Internal link count:', count);
+      setInternalLinkCount(count);
+    },
+    onError: (error) => {
+      console.error('Error fetching internal link count:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load internal links",
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleStatusChange = (newStatus: string) => {
     setCurrentStatus(
       newStatus as "drafted" | "scheduled" | "published" | "archived"
@@ -355,6 +382,7 @@ export function ContentEditor({
             keyword={keyword}
             contentId={contentId}
             onStatusChange={handleStatusChange}
+            internalLinkCount={internalLinkCount}
           />
         </div>
       )}

@@ -42,6 +42,7 @@ interface EditorSidebarProps {
   keyword?: string;
   contentId: string;
   onStatusChange?: (newStatus: string) => void;
+  internalLinkCount: number;
 }
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -54,6 +55,7 @@ export function EditorSidebar({
   keyword,
   contentId,
   onStatusChange,
+  internalLinkCount,
 }: EditorSidebarProps) {
   const { toast } = useToast();
   const [headings, setHeadings] = useState<HeadingNode[]>([]);
@@ -84,7 +86,6 @@ export function EditorSidebar({
       if (!editor) return;
 
       const newHeadings: HeadingNode[] = [];
-      let internalLinks = 0;
       let externalLinks = 0;
 
       editor.state.doc.descendants((node, pos) => {
@@ -95,18 +96,28 @@ export function EditorSidebar({
             pos,
           });
         }
-        if (node.type.name === "link") {
-          const href = node.attrs.href;
-          if (href.startsWith("http")) {
-            externalLinks++;
-          } else {
-            internalLinks++;
+        // Only count external links from editor content
+        if (node.type.name === "link" || node.marks?.some(mark => mark.type.name === "link")) {
+          const href = node.attrs?.href || node.marks?.find(mark => mark.type.name === "link")?.attrs.href;
+          
+          if (href) {
+            try {
+              const url = new URL(href);
+              if (url.protocol === 'http:' || url.protocol === 'https:') {
+                externalLinks++;
+              }
+            } catch {
+              // Ignore parsing errors for external links
+            }
           }
         }
       });
 
       setHeadings(newHeadings);
-      setLinkCount({ internal: internalLinks, external: externalLinks });
+      setLinkCount({ 
+        internal: internalLinkCount, // Use the count from database
+        external: externalLinks 
+      });
     };
 
     // Initial update
@@ -124,7 +135,7 @@ export function EditorSidebar({
       editor.off("update", updateListener);
       editor.off("selectionUpdate", updateListener);
     };
-  }, [editor]);
+  }, [editor, internalLinkCount]); // Add internalLinkCount to dependencies
 
   const scrollToHeading = (pos: number) => {
     try {
