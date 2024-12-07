@@ -27,8 +27,7 @@ interface ContentEditorProps {
   projectId: string;
   title: string;
   status: "drafted" | "scheduled" | "published" | "archived";
-  mainKeyword?: string;
-  keywords?: string[];
+  keyword?: string;
   type: string;
 }
 
@@ -38,7 +37,7 @@ export function ContentEditor({
   projectId,
   title,
   status,
-  keywords = [],
+  keyword,
   type,
 }: ContentEditorProps) {
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -47,6 +46,7 @@ export function ContentEditor({
   >(status);
   const [currentTitle, setCurrentTitle] = useState<string>(title);
   const { toast } = useToast();
+  const [internalLinkCount, setInternalLinkCount] = useState<number>(0);
 
   const aiToken = getJwtToken(
     process.env.NEXT_PUBLIC_TIPTAP_AI_JWT_SECRET ?? ""
@@ -259,6 +259,7 @@ export function ContentEditor({
       return data?.body;
     },
     enabled: !!contentId && !!editor2,
+    refetchOnWindowFocus: false,
     onSuccess: (data) => {
       if (data && editor2) {
         console.log("DATA: ", data);
@@ -273,6 +274,32 @@ export function ContentEditor({
         variant: "destructive",
       });
     },
+  });
+
+  useQuery({
+    queryKey: ['internalLinkCount', contentId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('contentinternallink')
+        .select('*', { count: 'exact', head: true })
+        .eq('content_id', contentId);
+        
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!contentId,
+    onSuccess: (count) => {
+      console.log('Internal link count:', count);
+      setInternalLinkCount(count);
+    },
+    onError: (error) => {
+      console.error('Error fetching internal link count:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load internal links",
+        variant: "destructive",
+      });
+    }
   });
 
   const handleStatusChange = (newStatus: string) => {
@@ -352,9 +379,10 @@ export function ContentEditor({
             editor={editor2}
             status={currentStatus}
             type={type}
-            keywords={[]}
+            keyword={keyword}
             contentId={contentId}
             onStatusChange={handleStatusChange}
+            internalLinkCount={internalLinkCount}
           />
         </div>
       )}
