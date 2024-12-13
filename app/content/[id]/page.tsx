@@ -20,22 +20,19 @@ export default function ContentPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("Content")
-        .select(
-          `
+        .select(`
           *,
-          Keyword!keyword_id (
-            id,
-            keyword
-          )
-        `
-        )
+          Keyword!keyword_id (keyword)
+        `)
         .eq("id", contentId)
         .single();
 
       if (error) throw error;
+      console.log('Content query response:', data);
       return data;
     },
     enabled: !!contentId,
+    refetchOnWindowFocus: false,
   });
 
   // const { data: contentBody, isLoading: isBodyLoading } = useQuery({
@@ -82,7 +79,7 @@ export default function ContentPage() {
             projectId={projectId || ""}
             title={content?.title || ""}
             status={content?.status || "drafted"}
-            keywords={content?.Keyword ? [content.Keyword] : []}
+            keyword={content?.Keyword?.keyword}
             type={content?.type || "NORMAL"}
           />
         </main>

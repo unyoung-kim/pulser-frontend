@@ -39,9 +39,10 @@ interface EditorSidebarProps {
   editor: Editor;
   status: "drafted" | "scheduled" | "published" | "archived";
   type: string;
-  keywords: string[];
+  keyword?: string;
   contentId: string;
   onStatusChange?: (newStatus: string) => void;
+  internalLinkCount: number;
 }
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -51,9 +52,10 @@ export function EditorSidebar({
   editor,
   status,
   type,
-  keywords = [],
+  keyword,
   contentId,
   onStatusChange,
+  internalLinkCount,
 }: EditorSidebarProps) {
   const { toast } = useToast();
   const [headings, setHeadings] = useState<HeadingNode[]>([]);
@@ -84,7 +86,6 @@ export function EditorSidebar({
       if (!editor) return;
 
       const newHeadings: HeadingNode[] = [];
-      let internalLinks = 0;
       let externalLinks = 0;
 
       editor.state.doc.descendants((node, pos) => {
@@ -95,18 +96,28 @@ export function EditorSidebar({
             pos,
           });
         }
-        if (node.type.name === "link") {
-          const href = node.attrs.href;
-          if (href.startsWith("http")) {
-            externalLinks++;
-          } else {
-            internalLinks++;
+        // Only count external links from editor content
+        if (node.type.name === "link" || node.marks?.some(mark => mark.type.name === "link")) {
+          const href = node.attrs?.href || node.marks?.find(mark => mark.type.name === "link")?.attrs.href;
+          
+          if (href) {
+            try {
+              const url = new URL(href);
+              if (url.protocol === 'http:' || url.protocol === 'https:') {
+                externalLinks++;
+              }
+            } catch {
+              // Ignore parsing errors for external links
+            }
           }
         }
       });
 
       setHeadings(newHeadings);
-      setLinkCount({ internal: internalLinks, external: externalLinks });
+      setLinkCount({ 
+        internal: internalLinkCount, // Use the count from database
+        external: externalLinks 
+      });
     };
 
     // Initial update
@@ -124,7 +135,7 @@ export function EditorSidebar({
       editor.off("update", updateListener);
       editor.off("selectionUpdate", updateListener);
     };
-  }, [editor]);
+  }, [editor, internalLinkCount]); // Add internalLinkCount to dependencies
 
   const scrollToHeading = (pos: number) => {
     try {
@@ -344,20 +355,17 @@ export function EditorSidebar({
       <div className="flex-1 space-y-8 overflow-y-auto">
         {/* Keywords Section */}
         <div className="pb-2">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Keywords</h3>
+          <h3 className="text-sm font-medium text-gray-500 mb-2">Keyword</h3>
           <div className="flex flex-wrap gap-2">
-            {keywords && keywords.length > 0 ? (
-              keywords.map((keyword, index) => (
-                <Badge
-                  key={index}
-                  variant="secondary"
-                  className="bg-gray-100 text-gray-800 hover:bg-gray-200"
-                >
-                  {keyword}
-                </Badge>
-              ))
+            {keyword ? (
+              <Badge
+                variant="outline"
+                className="bg-gray-100 text-gray-800 border-gray-50 border px-3 py-1 text-xs font-medium capitalize"
+              >
+                {keyword}
+              </Badge>
             ) : (
-              <span className="text-sm text-gray-500">No keywords added</span>
+              <span className="text-sm text-gray-500">No keyword assigned</span>
             )}
           </div>
         </div>

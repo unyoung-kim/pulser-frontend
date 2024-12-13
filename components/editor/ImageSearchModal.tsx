@@ -133,7 +133,10 @@ export function ImageSearchModal({ onSelect, onClose }: ImageSearchModalProps) {
           ) : (
             <div className="min-h-[300px] w-full flex flex-col items-center justify-center text-muted-foreground text-center">
               <Search className="h-12 w-12 mb-4 opacity-50" />
-              <p>Search for images to get started</p>
+              <p>Search for copyright-free images to use in your content</p>
+              <p className="text-sm mt-2 text-muted-foreground">
+                All results are filtered to be safe for commercial use
+              </p>
             </div>
           )}
         </ScrollArea>
