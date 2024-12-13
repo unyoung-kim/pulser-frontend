@@ -21,7 +21,7 @@ import {
   Tag,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import KeywordSelector from "./KeywordInput";
 
 export default function ContentSettings() {
@@ -38,6 +38,14 @@ export default function ContentSettings() {
   const [selectedKeyword, setSelectedKeyword] = useState("");
   const [isLoadingTopics, setIsLoadingTopics] = useState(false);
   const [topicSuggestions, setTopicSuggestions] = useState<string[]>([]);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [secondaryKeywords, setSecondaryKeywords] = useState("");
+  const [wordCount, setWordCount] = useState<number>(2500);
+  const [outline, setOutline] = useState("");
+
+  useEffect(() => {
+    setWordCount(contentType === "NORMAL" ? 2500 : 1000);
+  }, [contentType]);
 
   const {
     data: keywords = [],
@@ -179,8 +187,8 @@ export default function ContentSettings() {
         (k) => k.keyword === selectedKeyword
       )?.id;
 
-      const backendUrl = "https://pulser-backend.onrender.com";
-      // const backendUrl = "http://localhost:8000";
+      // const backendUrl = "https://pulser-backend.onrender.com";
+      const backendUrl = "http://localhost:8000";
       const response = await fetch(`${backendUrl}/api/web-retrieval`, {
         method: "POST",
         headers: {
@@ -191,6 +199,9 @@ export default function ContentSettings() {
           inputTopic: topic,
           keywordId: selectedKeywordId,
           type: contentType,
+          secondaryKeywords: secondaryKeywords,
+          wordCount: wordCount,
+          outline: outline,
         }),
       });
 
@@ -277,7 +288,7 @@ export default function ContentSettings() {
   return (
     <div className="w-full bg-gray-50/50 flex justify-center">
       <div className="max-w-3xl w-full py-10">
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="flex items-center gap-2 text-sm">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-white">
@@ -300,24 +311,6 @@ export default function ContentSettings() {
             Blog Settings
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Tag className="w-4 h-4 text-indigo-600" />
-                Keyword
-              </label>
-              <KeywordSelector
-                usedKeywords={usedKeywords}
-                unusedKeywords={unusedKeywords}
-                selectedKeyword={selectedKeyword}
-                onKeywordChange={setSelectedKeyword}
-                onCreateKeyword={createKeyword}
-                isLoading={isLoading}
-                error={error instanceof Error ? error.message : null}
-              />
-            </div>
-
-            {topicSuggestionsSection}
-
             <div className="space-y-2">
               <Label className="text-sm font-medium flex items-center gap-2">
                 <Layout className="w-4 h-4 text-indigo-600" />
@@ -372,8 +365,96 @@ export default function ContentSettings() {
                 </Label>
               </RadioGroup>
             </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-2">
+                <Tag className="w-4 h-4 text-indigo-600" />
+                Keyword
+              </label>
+              <KeywordSelector
+                usedKeywords={usedKeywords}
+                unusedKeywords={unusedKeywords}
+                selectedKeyword={selectedKeyword}
+                onKeywordChange={setSelectedKeyword}
+                onCreateKeyword={createKeyword}
+                isLoading={isLoading}
+                error={error instanceof Error ? error.message : null}
+              />
+            </div>
+
+            {topicSuggestionsSection}
           </CardContent>
         </Card>
+
+        {/* <Card className="border-none shadow-lg mt-4">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Settings2 className="w-5 h-5 text-muted-foreground" />
+              <span className="font-semibold">Advanced Settings</span>
+              <Badge
+                variant="secondary"
+                className="text-xs font-normal text-muted-foreground"
+              >
+                Optional
+              </Badge>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+              className="text-indigo-600"
+            >
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  isAdvancedOpen ? "rotate-180" : ""
+                }`}
+              />
+            </Button>
+          </CardHeader>
+          {isAdvancedOpen && (
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <TextQuote className="w-4 h-4 text-indigo-600" />
+                  Word Count
+                </Label>
+                <Input
+                  type="number"
+                  value={wordCount}
+                  onChange={(e) => setWordCount(Number(e.target.value))}
+                  className="border-indigo-100 focus-visible:ring-indigo-600"
+                  min={100}
+                  max={3000}
+                />
+                <p className="text-sm text-muted-foreground">
+                  We recommend {contentType === "NORMAL" ? "2,500" : "1,000"}{" "}
+                  words for{" "}
+                  {contentType === "NORMAL"
+                    ? "optimal SEO performance"
+                    : "glossary entries"}{" "}
+                  (min: 100, max: 3000)
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-indigo-600" />
+                  Instructions / Outline
+                </Label>
+                <Textarea
+                  value={outline}
+                  onChange={(e) => setOutline(e.target.value)}
+                  className="border-indigo-100 focus-visible:ring-indigo-600 min-h-[100px]"
+                  placeholder="Optional: Add specific instructions or outline for the content..."
+                />
+                <p className="text-sm text-muted-foreground">
+                  Add any specific requirements or outline for the content
+                  structure
+                </p>
+              </div>
+            </CardContent>
+          )}
+        </Card> */}
 
         <div className="mt-6 flex flex-col gap-4">
           <p className="text-sm text-muted-foreground text-center">

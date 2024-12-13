@@ -221,8 +221,8 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
 
   const { mutate: findInternalLinks, isLoading: isFindingLinks } = useMutation({
     mutationFn: async () => {
-      const backendUrl = "https://pulser-backend.onrender.com";
-      // const backendUrl = "http://localhost:8000";
+      // const backendUrl = "https://pulser-backend.onrender.com";
+      const backendUrl = "http://localhost:8000";
       const response = await fetch(`${backendUrl}/api/internal-links-handler`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
