@@ -17,18 +17,24 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Activity,
   ArrowLeft,
   BookText,
+  ChevronDown,
+  FileText,
   Layout,
   Lightbulb,
   ListTree,
   Loader2,
   Pencil,
+  Settings2,
   Sparkles,
   Tag,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { Badge } from "../ui/badge";
+import { Textarea } from "../ui/textarea2";
 import KeywordSelector from "./KeywordInput";
 
 type LoadingStage = {
@@ -65,6 +71,7 @@ export default function ContentSettings() {
   const [secondaryKeywords, setSecondaryKeywords] = useState("");
   const [wordCount, setWordCount] = useState<number>(2500);
   const [outline, setOutline] = useState("");
+  const [postLength, setPostLength] = useState<"SHORT" | "LONG">("LONG");
 
   useEffect(() => {
     setWordCount(contentType === "NORMAL" ? 2500 : 1000);
@@ -146,6 +153,7 @@ export default function ContentSettings() {
       setIsLoadingTopics(true);
       try {
         const backendUrl = "https://pulser-backend.onrender.com";
+        // const backendUrl = "http://localhost:8000";
         const response = await fetch(`${backendUrl}/api/generate-topic`, {
           method: "POST",
           headers: {
@@ -244,6 +252,8 @@ export default function ContentSettings() {
 
       // Start the content creation process
       const backendUrl = "https://pulser-backend.onrender.com";
+      // const backendUrl = "http://localhost:8000";
+
       const response = await fetch(`${backendUrl}/api/web-retrieval`, {
         method: "POST",
         headers: {
@@ -254,9 +264,8 @@ export default function ContentSettings() {
           inputTopic: topic,
           keywordId: selectedKeywordId,
           type: contentType,
-          secondaryKeywords: secondaryKeywords,
           wordCount: wordCount,
-          outline: outline,
+          length: postLength.toUpperCase(),
         }),
       });
 
@@ -451,7 +460,7 @@ export default function ContentSettings() {
           </CardContent>
         </Card>
 
-        {/* <Card className="border-none shadow-lg mt-4">
+        <Card className="border-none shadow-lg mt-4">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
               <Settings2 className="w-5 h-5 text-muted-foreground" />
@@ -480,8 +489,65 @@ export default function ContentSettings() {
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-indigo-600" />
+                  Post Length
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Choose the length of your blog post. This will affect the
+                  overall structure and depth of the content.
+                </p>
+                <RadioGroup
+                  defaultValue="LONG"
+                  value={postLength}
+                  onValueChange={(value: "SHORT" | "LONG") =>
+                    setPostLength(value)
+                  }
+                  className="flex flex-col sm:flex-row gap-4"
+                >
+                  <Label
+                    htmlFor="long"
+                    className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
+                  >
+                    <RadioGroupItem value="LONG" id="long" className="mt-1" />
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <Activity className="h-5 w-5" />
+                        <span className="font-medium">Long</span>
+                        <Badge
+                          variant="secondary"
+                          className="bg-indigo-100 text-indigo-700 hover:bg-indigo-100 ml-2"
+                        >
+                          Recommended for SEO
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        Covers the main topic and other related topics (2500+
+                        words)
+                      </div>
+                    </div>
+                  </Label>
+                  <Label
+                    htmlFor="short"
+                    className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
+                  >
+                    <RadioGroupItem value="SHORT" id="short" className="mt-1" />
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <FileText className="h-5 w-5" />
+                        <span className="font-medium">Short</span>
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        Only covers the main topic (1000-1500 words)
+                      </div>
+                    </div>
+                  </Label>
+                </RadioGroup>
+              </div>
+
+              {/* <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-2">
                   <TextQuote className="w-4 h-4 text-indigo-600" />
-                  Word Count
+                  Word Counts
                 </Label>
                 <Input
                   type="number"
@@ -499,7 +565,7 @@ export default function ContentSettings() {
                     : "glossary entries"}{" "}
                   (min: 100, max: 3000)
                 </p>
-              </div>
+              </div> */}
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-2">
@@ -519,7 +585,7 @@ export default function ContentSettings() {
               </div>
             </CardContent>
           )}
-        </Card> */}
+        </Card>
 
         <div className="mt-6 flex flex-col gap-4">
           <p className="text-sm text-muted-foreground text-center">
