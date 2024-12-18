@@ -15,6 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
+import { cn } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
@@ -60,12 +61,14 @@ export default function ContentSettings() {
   const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [loadingStages, setLoadingStages] = useState<LoadingStage[]>([
     {
-      label: "Initializing content generation",
+      label: "Conducting web research",
       isLoading: true,
       isComplete: false,
     },
-    { label: "Processing data", isLoading: false, isComplete: false },
-    { label: "Finalizing content", isLoading: false, isComplete: false },
+    { label: "Generating an outline", isLoading: false, isComplete: false },
+    { label: "Writing Content", isLoading: false, isComplete: false },
+    { label: "Humanizing Content", isLoading: false, isComplete: false },
+    { label: "Optimizing for SEO", isLoading: false, isComplete: false },
   ]);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [secondaryKeywords, setSecondaryKeywords] = useState("");
@@ -152,8 +155,8 @@ export default function ContentSettings() {
 
       setIsLoadingTopics(true);
       try {
-        const backendUrl = "https://pulser-backend.onrender.com";
-        // const backendUrl = "http://localhost:8000";
+        // const backendUrl = "https://pulser-backend.onrender.com";
+        const backendUrl = "http://localhost:8000";
         const response = await fetch(`${backendUrl}/api/generate-topic`, {
           method: "POST",
           headers: {
@@ -246,13 +249,14 @@ export default function ContentSettings() {
         });
       };
 
-      // Update first two stages quickly
-      setTimeout(() => updateStage(1), 1000); // First stage completes after 1s
-      setTimeout(() => updateStage(2), 2000); // Second stage completes after 2s
+      // Update each stage every 10 seconds
+      for (let i = 0; i < loadingStages.length; i++) {
+        setTimeout(() => updateStage(i + 1), i * 10000);
+      }
 
       // Start the content creation process
-      const backendUrl = "https://pulser-backend.onrender.com";
-      // const backendUrl = "http://localhost:8000";
+      // const backendUrl = "https://pulser-backend.onrender.com";
+      const backendUrl = "http://localhost:8000";
 
       const response = await fetch(`${backendUrl}/api/web-retrieval`, {
         method: "POST",
@@ -616,54 +620,82 @@ export default function ContentSettings() {
         </div>
 
         <Dialog open={showLoadingModal} onOpenChange={setShowLoadingModal}>
-          <DialogContent className="sm:max-w-xl p-8">
-            <DialogHeader className="space-y-3">
-              <DialogTitle className="text-2xl font-semibold leading-none tracking-tight">
-                Generating Content
-              </DialogTitle>
-              <DialogDescription className="text-base leading-normal text-muted-foreground">
+          <DialogContent className="sm:max-w-xl">
+            <DialogHeader>
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-2xl font-bold">
+                  Generating Content
+                </DialogTitle>
+                {/* <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setShowLoadingModal(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button> */}
+              </div>
+              <DialogDescription className="text-base">
                 Please don&apos;t leave this page. You can switch browser tabs
                 while we work on your content. This process may take up to 5
                 minutes.
               </DialogDescription>
             </DialogHeader>
-            <div className="mt-8 space-y-6">
-              {loadingStages.map((stage, index) => (
-                <div key={index} className="flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    {stage.isLoading ? (
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                    ) : stage.isComplete ? (
-                      <div className="rounded-full bg-green-500 p-1">
-                        <svg
-                          className="h-4 w-4 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      </div>
-                    ) : (
-                      <div className="h-6 w-6 rounded-full border-2 border-muted" />
+            <div className="mt-4 space-y-4">
+              {loadingStages.map((stage, index) => {
+                const isActive = stage.isLoading;
+                const isComplete = stage.isComplete;
+                return (
+                  <div
+                    key={index}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
+                      isActive && "bg-indigo-50 animate-pulse"
                     )}
-                  </div>
-                  <span
-                    className={`text-base ${stage.isLoading ? "text-primary font-medium" : "text-muted-foreground"}`}
                   >
-                    {stage.label}
-                  </span>
-                </div>
-              ))}
+                    <div
+                      className={cn(
+                        "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors",
+                        isActive &&
+                          "border-indigo-600 bg-indigo-600 text-white",
+                        isComplete &&
+                          "border-indigo-600/50 bg-indigo-100 text-indigo-600",
+                        !isActive && !isComplete && "border-gray-200"
+                      )}
+                    >
+                      {index === 0 && <Activity className="h-4 w-4" />}
+                      {index === 1 && <BookText className="h-4 w-4" />}
+                      {index === 2 && <Pencil className="h-4 w-4" />}
+                      {index === 3 && <Sparkles className="h-4 w-4" />}
+                      {index === 4 && <Tag className="h-4 w-4" />}
+                    </div>
+                    <div className="flex-1">
+                      <p
+                        className={cn(
+                          "text-sm font-medium",
+                          isActive && "text-indigo-600",
+                          isComplete && "text-muted-foreground"
+                        )}
+                      >
+                        {stage.label}
+                      </p>
+                    </div>
+                    <div
+                      className={cn(
+                        "h-2 w-2 rounded-full transition-colors",
+                        isActive &&
+                          "bg-indigo-600 animate-[pulse_2s_ease-in-out_infinite]",
+                        isComplete && "bg-indigo-600/50",
+                        !isActive && !isComplete && "bg-secondary-foreground/20"
+                      )}
+                    />
+                  </div>
+                );
+              })}
             </div>
-            <div className="mt-8 h-[8px] w-full overflow-hidden rounded-full bg-secondary">
+            <div className="mt-8 h-2 w-full overflow-hidden rounded-full bg-gray-100">
               <div
-                className="h-full rounded-full bg-primary transition-all duration-1000 ease-in-out"
+                className="h-full rounded-full bg-indigo-600 transition-all duration-1000 ease-in-out"
                 style={{ width: calculateProgress(loadingStages) }}
               />
             </div>
