@@ -17,6 +17,7 @@ import { AnyExtension, useEditor } from "@tiptap/react";
 import React, { useCallback, useState } from "react";
 import { BlockEditor } from "../new-editor/BlockEditor";
 import { EditorSidebar } from "./EditorSidebar";
+import { ShowVisual } from "@/extensions/ShowVisual/ShowVisual";
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 // const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -225,6 +226,7 @@ export function ContentEditor({
         : undefined,
       aiToken ? Ai.configure({ appId: "y9djg7p9", token: aiToken }) : undefined,
       ImageSearch,
+      ShowVisual,
       YoutubeSearch,
       YoutubeExtension,
     ].filter((e): e is AnyExtension => e !== undefined),
@@ -262,7 +264,6 @@ export function ContentEditor({
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
       if (data && editor2) {
-        console.log("DATA: ", data);
         editor2.commands.setContent(data);
       }
     },
@@ -277,29 +278,29 @@ export function ContentEditor({
   });
 
   useQuery({
-    queryKey: ['internalLinkCount', contentId],
+    queryKey: ["internalLinkCount", contentId],
     queryFn: async () => {
       const { count, error } = await supabase
-        .from('contentinternallink')
-        .select('*', { count: 'exact', head: true })
-        .eq('content_id', contentId);
-        
+        .from("contentinternallink")
+        .select("*", { count: "exact", head: true })
+        .eq("content_id", contentId);
+
       if (error) throw error;
       return count || 0;
     },
     enabled: !!contentId,
     onSuccess: (count) => {
-      console.log('Internal link count:', count);
+      console.log("Internal link count:", count);
       setInternalLinkCount(count);
     },
     onError: (error) => {
-      console.error('Error fetching internal link count:', error);
+      console.error("Error fetching internal link count:", error);
       toast({
         title: "Error",
         description: "Failed to load internal links",
         variant: "destructive",
       });
-    }
+    },
   });
 
   const handleStatusChange = (newStatus: string) => {

@@ -27,6 +27,7 @@ import {
   ImageBlock,
   Link,
   Placeholder,
+  ResizeImage,
   Selection,
   SlashCommand,
   StarterKit,
@@ -120,6 +121,7 @@ export const ExtensionKit = ({ provider }: ExtensionKitProps) => [
     inline: true,
     allowBase64: true,
   }),
+  ResizeImage,
   Youtube.configure({
     controls: false,
     nocookie: true,
