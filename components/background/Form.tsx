@@ -45,6 +45,8 @@ export const BackgroundSchema2 = z.object({
     companyUrl: z.string().nullish(),
     industryKeywords: z.string().nullish(),
     companyFunction: z.string().nullish(),
+    // logo: z.string().nullish(),
+    // brandColor: z.string().nullish(),
     additionalInfo: z.record(z.string()).optional(),
   }),
   product: z.object({
@@ -76,12 +78,15 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
       companyUrl: "",
       industryKeywords: "",
       companyFunction: "",
+      // logo: "",
+      // brandColor: "#6366F1",
     },
     product: { valueProposition: "", products: "", competitiveAdvantage: "" },
     audience: { painPoints: "", customerProfile: "" },
     socialProof: { testimonials: "", caseStudies: "", achievements: "" },
   });
   const [domain, setDomain] = useState("");
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const tabs = [
     {
@@ -137,6 +142,8 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
           companyUrl: project.background.basic?.companyUrl || "",
           industryKeywords: project.background.basic?.industryKeywords || "",
           companyFunction: project.background.basic?.companyFunction || "",
+          // logo: project.background.basic?.logo || "",
+          // brandColor: project.background.basic?.brandColor || "#6366F1",
         },
         product: {
           valueProposition: project.background.product?.valueProposition || "",
@@ -154,6 +161,10 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
           achievements: project.background.socialProof?.achievements || "",
         },
       });
+
+      if (project.background.basic?.logo) {
+        setLogoPreview(project.background.basic.logo);
+      }
     }
   }, [project]);
 
@@ -221,8 +232,8 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
 
   const { mutate: findInternalLinks, isLoading: isFindingLinks } = useMutation({
     mutationFn: async () => {
-      // const backendUrl = "https://pulser-backend.onrender.com";
-      const backendUrl = "http://localhost:8000";
+      const backendUrl = "https://pulser-backend.onrender.com";
+      // const backendUrl = "http://localhost:8000";
       const response = await fetch(`${backendUrl}/api/internal-links-handler`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -249,6 +260,57 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
       });
     },
   });
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "File size must be less than 2MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Upload to Supabase Storage
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${projectId}-logo.${fileExt}`;
+
+      const { data, error } = await supabase.storage
+        .from("logos")
+        .upload(fileName, file, { upsert: true });
+
+      if (error) throw error;
+
+      // Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("logos").getPublicUrl(fileName);
+
+      // Update form data
+      handleInputChange("basic", "logo", publicUrl);
+      setLogoPreview(publicUrl);
+
+      toast({
+        title: "Success",
+        description: "Logo uploaded successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to upload logo",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleColorChange = (value: string) => {
+    handleInputChange("basic", "brandColor", value);
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -361,6 +423,77 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                   }
                 />
               </div>
+
+              {/* <div className="space-y-2">
+                <Label htmlFor="logo" className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  <span className="font-semibold">Company Logo</span>
+                </Label>
+                <div className="border-2 border-dashed rounded-lg p-6 text-center space-y-4">
+                  {logoPreview ? (
+                    <div className="space-y-4">
+                      <Image
+                        src={logoPreview}
+                        alt="Company logo preview"
+                        width={100}
+                        height={100}
+                        className="max-h-32 mx-auto"
+                        style={{ objectFit: "contain" }}
+                      />
+                      <Button
+                        variant="outline"
+                        onClick={() => setLogoPreview(null)}
+                      >
+                        Remove Logo
+                      </Button>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer space-y-2 block">
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload className="h-8 w-8 text-muted-foreground" />
+                        <span className="text-sm font-medium">
+                          Click to upload logo
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          SVG, PNG, JPG (max. 2MB)
+                        </span>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                      />
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="brandColor" className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  <span className="font-semibold">Brand Color</span>
+                </Label>
+                <div className="flex gap-4 items-center">
+                  <Input
+                    type="color"
+                    id="brandColor"
+                    className="w-16 h-10 p-1 cursor-pointer"
+                    value={formData.basic.brandColor || "#6366F1"}
+                    onChange={(e) => handleColorChange(e.target.value)}
+                  />
+                  <Input
+                    type="text"
+                    placeholder="#6366F1"
+                    className="font-mono"
+                    value={formData.basic.brandColor || "#6366F1"}
+                    onChange={(e) => handleColorChange(e.target.value)}
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Choose your primary brand color.
+                </p>
+              </div> */}
             </CardContent>
           </Card>
         );

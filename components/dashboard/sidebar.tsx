@@ -18,15 +18,15 @@ import { useSidebarState } from "@/contexts/SidebarContext";
 import { UserButton, useUser } from "@clerk/nextjs";
 import {
   Activity,
-  ActivitySquare,
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
+  BrainCircuit,
   ChevronsUpDown,
+  Folder,
   GalleryVerticalEnd,
   Plug,
   Settings,
+  WholeWord,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useCallback, useMemo } from "react";
@@ -62,8 +62,8 @@ export function Sidebar({
   );
 
   const links = [
-    { name: "Background", href: "/background", icon: ActivitySquare },
-    { name: "Content", href: "/content", icon: BookOpen },
+    { name: "Knowledge Base", href: "/background", icon: BrainCircuit },
+    { name: "Content", href: "/content", icon: WholeWord },
   ];
 
   const bottomLinks = [
@@ -89,17 +89,28 @@ export function Sidebar({
           <div className="flex-1 overflow-y-auto">
             {children}
             <div className="px-3 py-4">
+              {isCollapsed ? (
+                <Activity className="h-8 w-8 mx-auto text-indigo-600 mb-4" />
+              ) : (
+                <Image
+                  src="/images/logo.png"
+                  alt="Logo"
+                  width={120}
+                  height={32}
+                  className="mx-auto mb-4"
+                />
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant="outline"
+                    variant={isCollapsed ? "ghost" : "outline"}
                     className={`w-full justify-between h-12 text-sm pl-2.5 ${
                       isCollapsed ? "px-0" : ""
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
-                        <Activity className="size-5" />
+                        <Folder className="size-5" />
                       </div>
                       {!isCollapsed && (
                         <div className="grid flex-1 text-left text-sm leading-tight">
@@ -161,7 +172,7 @@ export function Sidebar({
                       isActive
                         ? "bg-gray-100 text-gray-900"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    }`}
+                    } font-[580]`}
                   >
                     <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
                     {!isCollapsed && <span>{link.name}</span>}
@@ -213,26 +224,37 @@ export function Sidebar({
                   }}
                 />
                 {!isCollapsed && (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between h-12 text-sm pl-2"
+                  <div
+                    onClick={() =>
+                      (
+                        document.querySelector(
+                          ".cl-userButtonTrigger"
+                        ) as HTMLElement
+                      )?.click()
+                    }
+                    className="cursor-pointer flex-1"
                   >
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">
-                        {user?.fullName}
-                      </span>
-                      <span className="truncate text-xs">
-                        {user?.primaryEmailAddress?.emailAddress}
-                      </span>
-                    </div>
-                    <ChevronsUpDown className="ml-auto size-4" />
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-between h-12 text-sm pl-2"
+                    >
+                      <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-semibold">
+                          {user?.fullName}
+                        </span>
+                        <span className="truncate text-xs">
+                          {user?.primaryEmailAddress?.emailAddress}
+                        </span>
+                      </div>
+                      <ChevronsUpDown className="ml-auto size-4" />
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
           </div>
         </div>
-        {!defaultCollapsed && (
+        {/* {!defaultCollapsed && (
           <Button
             variant="ghost"
             size="sm"
@@ -245,7 +267,7 @@ export function Sidebar({
               <ChevronLeft className="h-4 w-4" />
             )}
           </Button>
-        )}
+        )} */}
       </div>
     </TooltipProvider>
   );

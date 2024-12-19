@@ -234,14 +234,16 @@ export default function ContentSettings() {
         (k) => k.keyword === selectedKeyword
       )?.id;
 
-      // Simulate progress through stages
+      // Modified stage update logic
       const updateStage = (index: number) => {
         setLoadingStages((prev) => {
           const newStages = [...prev];
+          // Only complete previous stage if there was one
           if (index > 0) {
             newStages[index - 1].isComplete = true;
             newStages[index - 1].isLoading = false;
           }
+          // Set new stage to loading if it exists
           if (index < newStages.length) {
             newStages[index].isLoading = true;
           }
@@ -249,14 +251,17 @@ export default function ContentSettings() {
         });
       };
 
-      // Update each stage every 10 seconds
-      for (let i = 0; i < loadingStages.length; i++) {
-        setTimeout(() => updateStage(i + 1), i * 10000);
+      // Start with first stage
+      updateStage(0);
+
+      // Update subsequent stages every 10 seconds
+      for (let i = 1; i < loadingStages.length; i++) {
+        setTimeout(() => updateStage(i), i * 10000);
       }
 
       // Start the content creation process
-      const backendUrl = "https://pulser-backend.onrender.com";
-      // const backendUrl = "http://localhost:8000";
+      // const backendUrl = "https://pulser-backend.onrender.com";
+      const backendUrl = "http://localhost:8000";
 
       const response = await fetch(`${backendUrl}/api/web-retrieval`, {
         method: "POST",
