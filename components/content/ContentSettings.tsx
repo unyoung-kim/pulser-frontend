@@ -260,8 +260,8 @@ export default function ContentSettings() {
       }
 
       // Start the content creation process
-      // const backendUrl = "https://pulser-backend.onrender.com";
-      const backendUrl = "http://localhost:8000";
+      const backendUrl = "https://pulser-backend.onrender.com";
+      // const backendUrl = "http://localhost:8000";
 
       const response = await fetch(`${backendUrl}/api/web-retrieval`, {
         method: "POST",
