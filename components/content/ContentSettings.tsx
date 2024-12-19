@@ -254,9 +254,9 @@ export default function ContentSettings() {
       // Start with first stage
       updateStage(0);
 
-      // Update subsequent stages every 10 seconds
+      // Update subsequent stages every 15 seconds instead of 10
       for (let i = 1; i < loadingStages.length; i++) {
-        setTimeout(() => updateStage(i), i * 10000);
+        setTimeout(() => updateStage(i), i * 15000);
       }
 
       // Start the content creation process
@@ -496,85 +496,68 @@ export default function ContentSettings() {
           </CardHeader>
           {isAdvancedOpen && (
             <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-indigo-600" />
-                  Post Length
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Choose the length of your blog post. This will affect the
-                  overall structure and depth of the content.
-                </p>
-                <RadioGroup
-                  defaultValue="LONG"
-                  value={postLength}
-                  onValueChange={(value: "SHORT" | "LONG") =>
-                    setPostLength(value)
-                  }
-                  className="flex flex-col sm:flex-row gap-4"
-                >
-                  <Label
-                    htmlFor="long"
-                    className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
-                  >
-                    <RadioGroupItem value="LONG" id="long" className="mt-1" />
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <Activity className="h-5 w-5" />
-                        <span className="font-medium">Long</span>
-                        <Badge
-                          variant="secondary"
-                          className="bg-indigo-100 text-indigo-700 hover:bg-indigo-100 ml-2"
-                        >
-                          Recommended for SEO
-                        </Badge>
-                      </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        Covers the main topic and other related topics (2500+
-                        words)
-                      </div>
-                    </div>
+              {contentType === "NORMAL" && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-indigo-600" />
+                    Post Length
                   </Label>
-                  <Label
-                    htmlFor="short"
-                    className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
+                  <p className="text-sm text-muted-foreground">
+                    Choose the length of your blog post. This will affect the
+                    overall structure and depth of the content.
+                  </p>
+                  <RadioGroup
+                    defaultValue="LONG"
+                    value={postLength}
+                    onValueChange={(value: "SHORT" | "LONG") =>
+                      setPostLength(value)
+                    }
+                    className="flex flex-col sm:flex-row gap-4"
                   >
-                    <RadioGroupItem value="SHORT" id="short" className="mt-1" />
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <FileText className="h-5 w-5" />
-                        <span className="font-medium">Short</span>
+                    <Label
+                      htmlFor="long"
+                      className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
+                    >
+                      <RadioGroupItem value="LONG" id="long" className="mt-1" />
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <Activity className="h-5 w-5" />
+                          <span className="font-medium">Long</span>
+                          <Badge
+                            variant="secondary"
+                            className="bg-indigo-100 text-indigo-700 hover:bg-indigo-100 ml-2"
+                          >
+                            Recommended for SEO
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          Covers the main topic and other related topics (2500+
+                          words)
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        Only covers the main topic (1000-1500 words)
+                    </Label>
+                    <Label
+                      htmlFor="short"
+                      className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
+                    >
+                      <RadioGroupItem
+                        value="SHORT"
+                        id="short"
+                        className="mt-1"
+                      />
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <FileText className="h-5 w-5" />
+                          <span className="font-medium">Short</span>
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          Only covers the main topic (1000-1500 words)
+                        </div>
                       </div>
-                    </div>
-                  </Label>
-                </RadioGroup>
-              </div>
-
-              {/* <div className="space-y-2">
-                <Label className="text-sm font-medium flex items-center gap-2">
-                  <TextQuote className="w-4 h-4 text-indigo-600" />
-                  Word Counts
-                </Label>
-                <Input
-                  type="number"
-                  value={wordCount}
-                  onChange={(e) => setWordCount(Number(e.target.value))}
-                  className="border-indigo-100 focus-visible:ring-indigo-600"
-                  min={100}
-                  max={3000}
-                />
-                <p className="text-sm text-muted-foreground">
-                  We recommend {contentType === "NORMAL" ? "2,500" : "1,000"}{" "}
-                  words for{" "}
-                  {contentType === "NORMAL"
-                    ? "optimal SEO performance"
-                    : "glossary entries"}{" "}
-                  (min: 100, max: 3000)
-                </p>
-              </div> */}
+                    </Label>
+                  </RadioGroup>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-2">

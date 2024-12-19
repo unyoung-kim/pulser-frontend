@@ -29,7 +29,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 interface SidebarProps {
   projectId: string;
@@ -48,11 +48,9 @@ export function Sidebar({
   const { projects } = useProjects();
   const { user } = useUser();
 
-  // Add an effect to set the initial state based on defaultCollapsed
-  React.useEffect(() => {
-    if (defaultCollapsed) {
-      setIsCollapsed(true);
-    }
+  // Update the effect to run whenever defaultCollapsed changes
+  useEffect(() => {
+    setIsCollapsed(defaultCollapsed);
   }, [defaultCollapsed, setIsCollapsed]);
 
   // Memoize the selected project
