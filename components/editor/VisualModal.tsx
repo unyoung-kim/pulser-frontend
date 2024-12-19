@@ -31,13 +31,14 @@ export function VisualModal({ editor, onSelect, onClose }: VisualModalProps) {
   const [visualData, setVisualData] = React.useState<ImageResult[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [isSwitching, setIsSwitching] = React.useState(false);
 
   const handleImageClick = (imgURL: string) => {
-    setIsSwitching(true);
     setSelectedIMG(imgURL);
-    setTimeout(() => setIsSwitching(false), 500); // Simulate image loading time
   };
+
+  // generate visuals for the content
+  const showVisualEvent = editor.storage.showVisualEvent.text;
+  console.log(showVisualEvent);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -60,11 +61,11 @@ export function VisualModal({ editor, onSelect, onClose }: VisualModalProps) {
     };
 
     fetchData();
-  }, []);
+  }, [editor]);
 
   return (
     <Dialog defaultOpen onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[625px]">
+      <DialogContent className="sm:max-w-[720px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 my-1">
             Add Visuals to your content
@@ -72,7 +73,7 @@ export function VisualModal({ editor, onSelect, onClose }: VisualModalProps) {
         </DialogHeader>
         <div className="flex flex-col h-[500px]">
           <div className="flex-grow relative border rounded-md overflow-hidden">
-            {isLoading || isSwitching ? (
+            {isLoading ? (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-200"></div>
               </div>
@@ -81,7 +82,10 @@ export function VisualModal({ editor, onSelect, onClose }: VisualModalProps) {
                 {error}
               </div>
             ) : selectedIMG ? (
-              <img
+              <Image
+                width={0}
+                height={0}
+                sizes="100%"
                 src={selectedIMG}
                 alt="preview visuals"
                 className="w-full h-full object-contain"

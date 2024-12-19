@@ -2,12 +2,13 @@ import { Extension } from "@tiptap/core";
 
 export type ShowVisualEventProps = {
   type: "showVisual";
+  text?: string;
 };
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     showvisual: {
-      setVisualModal: () => ReturnType;
+      setVisualModal: (text: string) => ReturnType;
     };
   }
 
@@ -18,14 +19,22 @@ declare module "@tiptap/core" {
 
 export const ShowVisual = Extension.create({
   name: "showVisual",
+  addStorage() {
+    return {
+      showVisualEvent: null as ShowVisualEventProps | null,
+    };
+  },
   addCommands() {
     return {
       setVisualModal:
-        () =>
+        (text: string) =>
         ({ editor }) => {
-          editor.emit("showVisual", {
+          const event: ShowVisualEventProps = {
             type: "showVisual",
-          } as ShowVisualEventProps);
+            text,
+          };
+          editor.storage.showVisualEvent = event;
+          editor.emit("showVisual", event);
           return true;
         },
     };
