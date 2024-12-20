@@ -16,6 +16,8 @@ import { ImageSearchModal } from "@/components/editor/ImageSearchModal";
 import { YoutubeSearchModal } from "@/components/editor/YoutubeSearchModal";
 import { ImageSearchEventProps } from '@/extensions/ImageSearch/ImageSearch'
 import { YoutubeSearchEventProps } from '@/extensions/YoutubeSearch/YoutubeSearch'
+import { ShowVisualEventProps } from "@/extensions/ShowVisual/ShowVisual";
+import { VisualModal } from "@/components/editor/VisualModal";
 
 export const BlockEditor = ({
   aiToken,
@@ -35,6 +37,7 @@ export const BlockEditor = ({
   const [lastSavedContent, setLastSavedContent] = useState(editor.getHTML());
   const [hasChanges, setHasChanges] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
+  const [showVisualModal, setShowVisualModal] = useState(false);
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [showYoutubeSearch, setShowYoutubeSearch] = useState(false);
 
@@ -63,18 +66,36 @@ export const BlockEditor = ({
     }, 3000);
   };
 
-  const handleImageSelect = useCallback((imageUrl: string) => {
-    editor.chain().focus().setImage({ src: imageUrl }).run();
-    setShowImageSearch(false);
-  }, [editor]);
+  const handleVisualSelect = useCallback(
+    (imageUrl: string) => {
+      editor.chain().focus().setImage({ src: imageUrl }).run();
+      setShowVisualModal(false);
+    },
+    [editor]
+  );
 
-  const handleYoutubeSelect = useCallback((videoId: string) => {
-    editor.chain().focus().setYoutubeVideo({ src: videoId }).run();
-    setShowYoutubeSearch(false);
-  }, [editor]);
+  const handleImageSelect = useCallback(
+    (imageUrl: string) => {
+      editor.chain().focus().setImage({ src: imageUrl }).run();
+      setShowImageSearch(false);
+    },
+    [editor]
+  );
+
+  const handleYoutubeSelect = useCallback(
+    (videoId: string) => {
+      editor.chain().focus().setYoutubeVideo({ src: videoId }).run();
+      setShowYoutubeSearch(false);
+    },
+    [editor]
+  );
 
   useEffect(() => {
     if (!editor) return;
+
+    const handleVisualSelect = () => {
+      setShowVisualModal(true);
+    };
 
     const handleImageSearch = () => {
       setShowImageSearch(true);
@@ -84,10 +105,12 @@ export const BlockEditor = ({
       setShowYoutubeSearch(true);
     };
 
+    editor.on('showVisual', (_: ShowVisualEventProps) => handleVisualSelect());
     editor.on('imageSearch', (_: ImageSearchEventProps) => handleImageSearch());
     editor.on('youtubeSearch', (_: YoutubeSearchEventProps) => handleYoutubeSearch());
 
     return () => {
+      editor.off('showVisual', handleVisualSelect);
       editor.off('imageSearch', handleImageSearch);
       editor.off('youtubeSearch', handleYoutubeSearch);
     };
@@ -125,6 +148,13 @@ export const BlockEditor = ({
         <TableRowMenu editor={editor} appendTo={menuContainerRef} />
         <TableColumnMenu editor={editor} appendTo={menuContainerRef} />
         <ImageBlockMenu editor={editor} appendTo={menuContainerRef} />
+        {showVisualModal && (
+          <VisualModal
+            editor={editor}
+            onSelect={handleVisualSelect}
+            onClose={() => setShowVisualModal(false)}
+          />
+        )}
         {showImageSearch && (
           <ImageSearchModal
             onSelect={handleImageSelect}

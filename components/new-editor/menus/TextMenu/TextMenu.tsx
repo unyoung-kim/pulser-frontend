@@ -67,6 +67,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
           onMakeLonger={commands.onMakeLonger}
           onMakeShorter={commands.onMakeShorter}
           onSimplify={commands.onSimplify}
+          onVisualSelection={commands.onVisualSelection}
           onTldr={commands.onTldr}
           onTone={commands.onTone}
           onTranslate={commands.onTranslate}

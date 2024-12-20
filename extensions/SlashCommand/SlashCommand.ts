@@ -15,6 +15,7 @@ declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     setYoutubeSearchModal: () => ReturnType;
     setImageSearchModal: () => ReturnType;
+    setVisualModal: () => ReturnType;
   }
 }
 
