@@ -74,21 +74,15 @@ export const BlockEditor = ({
     [editor]
   );
 
-  const handleImageSelect = useCallback(
-    (imageUrl: string) => {
-      editor.chain().focus().setImage({ src: imageUrl }).run();
-      setShowImageSearch(false);
-    },
-    [editor]
-  );
+  const handleImageSelect = useCallback((imageUrl: string) => {
+    editor.chain().focus().setImage({ src: imageUrl }).run();
+    setShowImageSearch(false);
+  }, [editor]);
 
-  const handleYoutubeSelect = useCallback(
-    (videoId: string) => {
-      editor.chain().focus().setYoutubeVideo({ src: videoId }).run();
-      setShowYoutubeSearch(false);
-    },
-    [editor]
-  );
+  const handleYoutubeSelect = useCallback((videoId: string) => {
+    editor.chain().focus().setYoutubeVideo({ src: videoId }).run();
+    setShowYoutubeSearch(false);
+  }, [editor]);
 
   useEffect(() => {
     if (!editor) return;
