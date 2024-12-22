@@ -166,7 +166,7 @@ export function Sidebar({
                     href={`${link.href}${
                       projectId ? `?projectId=${projectId}` : ""
                     }`}
-                    className={`flex items-center rounded-md px-2 py-2.5 ${
+                    className={`flex items-center rounded-md px-2 py-2.5 mb-1 ${
                       isActive
                         ? "bg-gray-100 text-gray-900"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"

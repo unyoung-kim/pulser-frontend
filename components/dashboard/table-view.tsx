@@ -197,7 +197,7 @@ export function TableView({
                 <TableCell>
                   <Badge
                     variant="secondary"
-                    className="text-xs justify-start w-24 group relative"
+                    className="text-xs justify-start w-32 group relative"
                   >
                     <span className="line-clamp-2 block">{item.keyword}</span>
                     <span className="invisible group-hover:visible absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap">
