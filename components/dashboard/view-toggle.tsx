@@ -1,19 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Case from "case";
-import { Grid, List, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 export enum Status {
   All = "All",
   Draft = "draft",
   Published = "published",
-  Archived = "archived",
-  Scheduled = "scheduled",
+  // Archived = "archived",
+  // Scheduled = "scheduled",
 }
 
 interface ViewToggleProps {
   view: "cards" | "table";
-  setView: (view: "cards" | "table") => void;
+  // setView: (view: "cards" | "table") => void;
   status: Status;
   setStatus: (status: string) => void;
   onNewContent: () => void;
@@ -21,7 +21,7 @@ interface ViewToggleProps {
 
 export function ViewToggle({
   view,
-  setView,
+  // setView,
   status,
   setStatus,
   onNewContent,
@@ -35,7 +35,7 @@ export function ViewToggle({
         onValueChange={(value) => setStatus(value)}
         className="w-auto"
       >
-        <TabsList className="grid grid-cols-5 w-full sm:w-auto">
+        <TabsList className="grid grid-cols-3 w-full sm:w-auto">
           {statuses.map((s) => (
             <TabsTrigger key={s} value={s} className="text-sm">
               {Case.capital(s)}
@@ -43,7 +43,7 @@ export function ViewToggle({
           ))}
         </TabsList>
       </Tabs>
-      <div className="flex gap-2 ml-auto">
+      {/* <div className="flex gap-2 ml-auto">
         <Button
           variant={view === "cards" ? "default" : "outline"}
           size="sm"
@@ -70,7 +70,7 @@ export function ViewToggle({
           <List className="h-4 w-4 mr-2" />
           Table
         </Button>
-      </div>
+      </div> */}
       <div className="flex gap-2 ml-2">
         <Button
           className="bg-indigo-600 hover:bg-indigo-700"
