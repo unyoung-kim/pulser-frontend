@@ -1,11 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import Tooltip from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { Editor, useEditorState } from "@tiptap/react";
@@ -99,7 +94,7 @@ export function EditorSidebar({
         // Only count external links from editor content
         if (node.type.name === "link" || node.marks?.some(mark => mark.type.name === "link")) {
           const href = node.attrs?.href || node.marks?.find(mark => mark.type.name === "link")?.attrs.href;
-          
+
           if (href) {
             try {
               const url = new URL(href);
@@ -114,9 +109,9 @@ export function EditorSidebar({
       });
 
       setHeadings(newHeadings);
-      setLinkCount({ 
+      setLinkCount({
         internal: internalLinkCount, // Use the count from database
-        external: externalLinks 
+        external: externalLinks
       });
     };
 
@@ -297,8 +292,7 @@ export function EditorSidebar({
   const StatusButton = () => {
     if (status === "published") {
       return (
-        <Tooltip>
-          <TooltipTrigger asChild>
+        <Tooltip side='right' content='Move this content back to drafts'>
             <Button
               className="w-full bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
               size="sm"
@@ -308,17 +302,12 @@ export function EditorSidebar({
               <FileCheck className="w-4 h-4 mr-2" />
               {isUpdating ? "Updating..." : "Mark as Draft"}
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Move this content back to drafts</p>
-          </TooltipContent>
         </Tooltip>
       );
     }
 
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>
+      <Tooltip side='right' content='Mark this content as published manually'>
           <Button
             className="w-full bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
             size="sm"
@@ -328,10 +317,6 @@ export function EditorSidebar({
             <FileCheck className="w-4 h-4 mr-2" />
             {isUpdating ? "Publishing..." : "Mark as Published"}
           </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Mark this content as published manually</p>
-        </TooltipContent>
       </Tooltip>
     );
   };
@@ -483,10 +468,8 @@ export function EditorSidebar({
 
       {/* Action Buttons - Updated spacing */}
       <div className="pt-6 border-t mt-6 space-y-3">
-        <TooltipProvider>
           <div className="flex gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
+            <Tooltip content='Download as Word document'>
                 <Button
                   variant="outline"
                   size="sm"
@@ -506,30 +489,17 @@ export function EditorSidebar({
                     </>
                   )}
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Download as Word document</p>
-              </TooltipContent>
             </Tooltip>
-
             <StatusButton />
           </div>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
+          <Tooltip content='Go to integration section to publish this article to your
+                website'>
               <Button variant="default" size="sm" className="w-full" disabled>
                 <Globe className="w-4 h-4 mr-2" />
                 Publish to Website
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>
-                Go to integration section to publish this article to your
-                website
-              </p>
-            </TooltipContent>
           </Tooltip>
-        </TooltipProvider>
       </div>
     </div>
   );

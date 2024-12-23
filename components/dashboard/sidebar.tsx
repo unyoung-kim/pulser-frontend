@@ -7,12 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import Tooltip from "@/components/ui/tooltip";
 import { Project, useProjects } from "@/contexts/ProjectContext";
 import { useSidebarState } from "@/contexts/SidebarContext";
 import { UserButton, useUser } from "@clerk/nextjs";
@@ -78,7 +73,6 @@ export function Sidebar({
   );
 
   return (
-    <TooltipProvider delayDuration={0}>
       <div
         className={`sticky top-0 h-screen border-r bg-white transition-all duration-300 ${
           isCollapsed ? "w-[60px]" : "w-[220px] lg:w-[270px]"
@@ -184,9 +178,8 @@ export function Sidebar({
                 );
 
                 return isCollapsed ? (
-                  <Tooltip key={link.name}>
-                    <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                    <TooltipContent side="right">{link.name}</TooltipContent>
+                  <Tooltip key={link.name} content={link.name} side='right'>
+                    {linkContent}
                   </Tooltip>
                 ) : (
                   linkContent
@@ -273,6 +266,5 @@ export function Sidebar({
           </Button>
         )} */}
       </div>
-    </TooltipProvider>
   );
 }
