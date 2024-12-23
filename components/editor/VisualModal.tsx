@@ -32,13 +32,29 @@ export function VisualModal({editor, onSelect, onClose}: VisualModalProps) {
     const [isLoading, setIsLoading] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
 
+    const savedText = editor.storage.showVisualEvent.text;
+    const savedSelection = editor.storage.showVisualEvent.savedSelection;
+
+
     const handleImageClick = (imgURL: string) => {
         setSelectedIMG(imgURL);
     };
 
-    // generate visuals for the content
-    const showVisualEvent = editor.storage.showVisualEvent.text;
-    console.log(showVisualEvent);
+    const handleInsert = () => {
+        if (selectedIMG && savedSelection) {
+            editor.commands.insertContentAt(savedSelection.to, {
+                type: "image",
+                attrs: {
+                    src: selectedIMG,
+                },
+            });
+            editor.chain().focus().setSavedSelection({ from: 0, to: 0 }).run();
+            onClose();
+        } else if (selectedIMG) {
+            onSelect(selectedIMG);
+        }
+    };
+
 
     React.useEffect(() => {
         const fetchData = async () => {
@@ -89,7 +105,7 @@ export function VisualModal({editor, onSelect, onClose}: VisualModalProps) {
                                 sizes="100%"
                                 src={selectedIMG}
                                 alt="preview visuals"
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-cover"
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -125,11 +141,7 @@ export function VisualModal({editor, onSelect, onClose}: VisualModalProps) {
                         Cancel
                     </Button>
                     <Button
-                        onClick={() => {
-                            if (selectedIMG) {
-                                onSelect(selectedIMG);
-                            }
-                        }}
+                        onClick={handleInsert}
                         disabled={!selectedIMG}
                     >
                         Insert
