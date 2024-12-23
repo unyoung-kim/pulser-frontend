@@ -24,7 +24,6 @@ const Tooltip = ({
         <TooltipPrimitive.Provider>
             <TooltipPrimitive.Root>
                 <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
-                {/* Tooltip content wrapped in a portal */}
                 <TooltipPrimitive.Portal>
                     <TooltipPrimitive.Content
                         side={side}
