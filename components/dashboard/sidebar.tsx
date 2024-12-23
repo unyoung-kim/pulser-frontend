@@ -165,213 +165,209 @@ export function Sidebar({
   );
 
   return (
-      <div
-        className={`sticky top-0 h-screen border-r bg-white transition-all duration-300 ${
-          isCollapsed ? "w-[60px]" : "w-[220px] lg:w-[270px]"
-        }`}
-      >
-        <div className="flex h-full flex-col">
-          <div className="flex-1 overflow-y-auto">
-            {children}
-            <div className="px-3 py-4">
-              {isCollapsed ? (
-                <Activity className="h-8 w-8 mx-auto text-indigo-600 mb-4" />
-              ) : (
-                <Image
-                  src="/images/logo.png"
-                  alt="Logo"
-                  width={120}
-                  height={32}
-                  className="mx-auto mb-4"
-                />
-              )}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant={isCollapsed ? "ghost" : "outline"}
-                    className={`w-full justify-between h-12 text-sm pl-2.5 ${
-                      isCollapsed ? "px-0" : ""
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
-                        <Folder className="size-5" />
-                      </div>
-                      {!isCollapsed && (
-                        <div className="grid flex-1 text-left text-sm leading-tight">
-                          <span className="truncate font-[550]">
-                            {selectedProject
-                              ? selectedProject.name
-                              : "Select a project"}
-                          </span>
-                        </div>
-                      )}
+    <div
+      className={`sticky top-0 h-screen border-r bg-white transition-all duration-300 ${
+        isCollapsed ? "w-[60px]" : "w-[220px] lg:w-[270px]"
+      }`}
+    >
+      <div className="flex h-full flex-col">
+        <div className="flex-1 overflow-y-auto">
+          {children}
+          <div className="px-3 py-4">
+            {isCollapsed ? (
+              <Activity className="h-8 w-8 mx-auto text-indigo-600 mb-4" />
+            ) : (
+              <Image
+                src="/images/logo.png"
+                alt="Logo"
+                width={120}
+                height={32}
+                className="mx-auto mb-4"
+              />
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant={isCollapsed ? "ghost" : "outline"}
+                  className={`w-full justify-between h-12 text-sm pl-2.5 ${
+                    isCollapsed ? "px-0" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
+                      <Folder className="size-5" />
                     </div>
                     {!isCollapsed && (
-                      <ChevronsUpDown className="ml-auto h-4 w-4" />
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-60 rounded-lg p-1">
-                  {projects.map((project) => (
-                    <DropdownMenuItem
-                      key={project.id}
-                      onSelect={() => handleProjectSelect(project)}
-                      className="gap-2 p-2"
-                    >
-                      <div
-                        className={`flex size-6 items-center justify-center rounded-sm ${
-                          project.id.toString() === projectId
-                            ? "bg-indigo-600 text-white"
-                            : "border"
-                        }`}
-                      >
-                        <GalleryVerticalEnd className="size-4" />
+                      <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-[550]">
+                          {selectedProject
+                            ? selectedProject.name
+                            : "Select a project"}
+                        </span>
                       </div>
-                      {project.name}
-                    </DropdownMenuItem>
-                  ))}
+                    )}
+                  </div>
+                  {!isCollapsed && (
+                    <ChevronsUpDown className="ml-auto h-4 w-4" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-60 rounded-lg p-1">
+                {projects.map((project) => (
                   <DropdownMenuItem
-                    onSelect={() => router.push("/")}
-                    className="gap-2 p-2 border-t mt-1"
+                    key={project.id}
+                    onSelect={() => handleProjectSelect(project)}
+                    className="gap-2 p-2"
                   >
-                    <div className="flex size-6 items-center justify-center rounded-sm border">
+                    <div
+                      className={`flex size-6 items-center justify-center rounded-sm ${
+                        project.id.toString() === projectId
+                          ? "bg-indigo-600 text-white"
+                          : "border"
+                      }`}
+                    >
                       <GalleryVerticalEnd className="size-4" />
                     </div>
-                    All Projects
+                    {project.name}
                   </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            <nav className="grid items-start px-3 text-sm font-medium">
-              {!isCollapsed && (
-                <div className="mb-2">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <NewContentButton disabled={!hasCreditsAvailable} />
-                      </div>
-                    </TooltipTrigger>
-                    {!hasCreditsAvailable && (
-                      <TooltipContent>
-                        You have no credits remaining. Please upgrade your plan
-                        to continue.
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </div>
-              )}
-              {links.map((link) => {
-                const Icon = link.icon;
-                const isActive = pathname === link.href;
-                const linkContent = (
-                  <Link
-                    key={link.name}
-                    href={`${link.href}${
-                      projectId ? `?projectId=${projectId}` : ""
-                    }`}
-                    className={`flex items-center rounded-md px-2 py-2.5 mb-1 ${
-                      isActive
-                        ? "bg-gray-100 text-gray-900"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    } font-medium`}
-                  >
-                    <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
-                    {!isCollapsed && <span>{link.name}</span>}
-                  </Link>
-                );
-
-                return isCollapsed ? (
-                  <Tooltip key={link.name} content={link.name} side='right'>
-                    {linkContent}
+                ))}
+                <DropdownMenuItem
+                  onSelect={() => router.push("/")}
+                  className="gap-2 p-2 border-t mt-1"
+                >
+                  <div className="flex size-6 items-center justify-center rounded-sm border">
+                    <GalleryVerticalEnd className="size-4" />
+                  </div>
+                  All Projects
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <nav className="grid items-start px-3 text-sm font-medium">
+            {!isCollapsed && (
+              <div className="mb-2">
+                {!hasCreditsAvailable ? (
+                  <Tooltip content="No credits remaining" side="right">
+                    <div>
+                      <NewContentButton disabled={true} />
+                    </div>
                   </Tooltip>
                 ) : (
-                  linkContent
-                );
-              })}
-            </nav>
-          </div>
-
-          <div className="mt-auto ">
-            <nav className="grid items-start px-3 text-sm font-medium">
-              {bottomLinks.map((link) => {
-                const Icon = link.icon;
-                const isActive = pathname === link.href;
-                return (
-                  <Link
-                    key={link.name}
-                    href={`${link.href}${
-                      selectedProject ? `?projectId=${selectedProject.id}` : ""
-                    }`}
-                    className={`flex items-center rounded-md px-2 py-2.5 mt-2 ${
-                      isActive
-                        ? "bg-gray-100 text-gray-900"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    } font-medium`}
-                  >
-                    <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
-                    {!isCollapsed && <span>{link.name}</span>}
-                  </Link>
-                );
-              })}
-            </nav>
-            <div className="mt-auto px-3">
-              <div className="px-2 py-1">
-                <span className="text-xs font-medium">Credits Remaining</span>
-              </div>
-              <div className="px-3 py-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">
-                    {isLoadingUsage ? "-" : usedCredits}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    of {isLoadingUsage ? "-" : totalCredits}
-                  </span>
-                </div>
-                <div className="mt-2 h-2 rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-indigo-600 transition-all duration-300"
-                    style={{ width: progressBarWidth }}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 px-3 pb-4">
-              <div className="flex items-center w-full">
-                <UserButton
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      avatarBox: "h-8 w-8",
-                    },
-                  }}
-                />
-                {!isCollapsed && (
-                  <div
-                    onClick={handleUserButtonClick}
-                    className="cursor-pointer flex-1"
-                  >
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-between h-12 text-sm pl-2"
-                    >
-                      <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-semibold">
-                          {user?.fullName}
-                        </span>
-                        <span className="truncate text-xs">
-                          {user?.primaryEmailAddress?.emailAddress}
-                        </span>
-                      </div>
-                      <ChevronsUpDown className="ml-auto size-4" />
-                    </Button>
-                  </div>
+                  <NewContentButton disabled={false} />
                 )}
               </div>
+            )}
+            {links.map((link) => {
+              const Icon = link.icon;
+              const isActive = pathname === link.href;
+              const linkContent = (
+                <Link
+                  key={link.name}
+                  href={`${link.href}${
+                    projectId ? `?projectId=${projectId}` : ""
+                  }`}
+                  className={`flex items-center rounded-md px-2 py-2.5 mb-1 ${
+                    isActive
+                      ? "bg-gray-100 text-gray-900"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  } font-medium`}
+                >
+                  <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
+                  {!isCollapsed && <span>{link.name}</span>}
+                </Link>
+              );
+
+              return isCollapsed ? (
+                <Tooltip key={link.name} content={link.name} side="right">
+                  {linkContent}
+                </Tooltip>
+              ) : (
+                linkContent
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="mt-auto ">
+          <nav className="grid items-start px-3 text-sm font-medium">
+            {bottomLinks.map((link) => {
+              const Icon = link.icon;
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.name}
+                  href={`${link.href}${
+                    selectedProject ? `?projectId=${selectedProject.id}` : ""
+                  }`}
+                  className={`flex items-center rounded-md px-2 py-2.5 mt-2 ${
+                    isActive
+                      ? "bg-gray-100 text-gray-900"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  } font-medium`}
+                >
+                  <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
+                  {!isCollapsed && <span>{link.name}</span>}
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="mt-auto px-3">
+            <div className="px-2 py-1">
+              <span className="text-xs font-medium">Credits Remaining</span>
+            </div>
+            <div className="px-3 py-1">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">
+                  {isLoadingUsage ? "-" : usedCredits}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  of {isLoadingUsage ? "-" : totalCredits}
+                </span>
+              </div>
+              <div className="mt-2 h-2 rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-indigo-600 transition-all duration-300"
+                  style={{ width: progressBarWidth }}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 px-3 pb-4">
+            <div className="flex items-center w-full">
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: "h-8 w-8",
+                  },
+                }}
+              />
+              {!isCollapsed && (
+                <div
+                  onClick={handleUserButtonClick}
+                  className="cursor-pointer flex-1"
+                >
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-between h-12 text-sm pl-2"
+                  >
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">
+                        {user?.fullName}
+                      </span>
+                      <span className="truncate text-xs">
+                        {user?.primaryEmailAddress?.emailAddress}
+                      </span>
+                    </div>
+                    <ChevronsUpDown className="ml-auto size-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
-        {/* {!defaultCollapsed && (
+      </div>
+      {/* {!defaultCollapsed && (
           <Button
             variant="ghost"
             size="sm"
@@ -385,6 +381,6 @@ export function Sidebar({
             )}
           </Button>
         )} */}
-      </div>
+    </div>
   );
 }
