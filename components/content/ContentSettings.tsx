@@ -44,6 +44,22 @@ type LoadingStage = {
   isLoading: boolean;
 };
 
+// Create separate loading stage configurations
+const normalLoadingStages: LoadingStage[] = [
+  { label: "Conducting web research", isLoading: true, isComplete: false },
+  { label: "Generating an outline", isLoading: false, isComplete: false },
+  { label: "Writing Content", isLoading: false, isComplete: false },
+  { label: "Humanizing Content", isLoading: false, isComplete: false },
+  { label: "Optimizing for SEO", isLoading: false, isComplete: false },
+];
+
+const glossaryLoadingStages: LoadingStage[] = [
+  { label: "Generating an outline", isLoading: true, isComplete: false },
+  { label: "Writing Content", isLoading: false, isComplete: false },
+  { label: "Humanizing Content", isLoading: false, isComplete: false },
+  { label: "Optimizing for SEO", isLoading: false, isComplete: false },
+];
+
 export default function ContentSettings() {
   const searchParams = useSearchParams();
   const projectId = searchParams?.get("projectId") || "";
@@ -59,17 +75,8 @@ export default function ContentSettings() {
   const [isLoadingTopics, setIsLoadingTopics] = useState(false);
   const [topicSuggestions, setTopicSuggestions] = useState<string[]>([]);
   const [showLoadingModal, setShowLoadingModal] = useState(false);
-  const [loadingStages, setLoadingStages] = useState<LoadingStage[]>([
-    {
-      label: "Conducting web research",
-      isLoading: true,
-      isComplete: false,
-    },
-    { label: "Generating an outline", isLoading: false, isComplete: false },
-    { label: "Writing Content", isLoading: false, isComplete: false },
-    { label: "Humanizing Content", isLoading: false, isComplete: false },
-    { label: "Optimizing for SEO", isLoading: false, isComplete: false },
-  ]);
+  const [loadingStages, setLoadingStages] =
+    useState<LoadingStage[]>(normalLoadingStages);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [secondaryKeywords, setSecondaryKeywords] = useState("");
   const [wordCount, setWordCount] = useState<number>(2500);
@@ -239,20 +246,24 @@ export default function ContentSettings() {
     setShowLoadingModal(true);
 
     try {
+      // Reset loading stages based on content type
+      const stages =
+        contentType === "GLOSSARY"
+          ? glossaryLoadingStages
+          : normalLoadingStages;
+      setLoadingStages(stages);
+
       const selectedKeywordId = keywords.find(
         (k) => k.keyword === selectedKeyword
       )?.id;
 
-      // Modified stage update logic
       const updateStage = (index: number) => {
         setLoadingStages((prev) => {
           const newStages = [...prev];
-          // Only complete previous stage if there was one
           if (index > 0) {
             newStages[index - 1].isComplete = true;
             newStages[index - 1].isLoading = false;
           }
-          // Set new stage to loading if it exists
           if (index < newStages.length) {
             newStages[index].isLoading = true;
           }
@@ -263,9 +274,10 @@ export default function ContentSettings() {
       // Start with first stage
       updateStage(0);
 
-      // Update subsequent stages every 15 seconds instead of 10
-      for (let i = 1; i < loadingStages.length; i++) {
-        setTimeout(() => updateStage(i), i * 15000);
+      // Update subsequent stages with different timing based on content type
+      const transitionTime = contentType === "GLOSSARY" ? 6000 : 15000;
+      for (let i = 1; i < stages.length; i++) {
+        setTimeout(() => updateStage(i), i * transitionTime);
       }
 
       // Start the content creation process

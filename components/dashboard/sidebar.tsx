@@ -30,6 +30,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
+import { NewContentButton } from "./new-content-button";
 
 interface SidebarProps {
   projectId: string;
@@ -139,7 +140,7 @@ export function Sidebar({
                             : "border"
                         }`}
                       >
-                        <GalleryVerticalEnd className="size-4 " />
+                        <GalleryVerticalEnd className="size-4" />
                       </div>
                       {project.name}
                     </DropdownMenuItem>
@@ -157,6 +158,11 @@ export function Sidebar({
               </DropdownMenu>
             </div>
             <nav className="grid items-start px-3 text-sm font-medium">
+              {!isCollapsed && (
+                <div className="mb-2">
+                  <NewContentButton />
+                </div>
+              )}
               {links.map((link) => {
                 const Icon = link.icon;
                 const isActive = pathname === link.href;
@@ -166,11 +172,11 @@ export function Sidebar({
                     href={`${link.href}${
                       projectId ? `?projectId=${projectId}` : ""
                     }`}
-                    className={`flex items-center rounded-md px-2 py-2.5 ${
+                    className={`flex items-center rounded-md px-2 py-2.5 mb-1 ${
                       isActive
                         ? "bg-gray-100 text-gray-900"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    } font-[580]`}
+                    } font-medium`}
                   >
                     <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
                     {!isCollapsed && <span>{link.name}</span>}

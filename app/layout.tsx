@@ -1,11 +1,13 @@
-import React from 'react';
+import { Toaster } from "@/components/ui/toaster";
+import { ProjectProvider } from "@/contexts/ProjectContext";
+import { SidebarProvider } from "@/contexts/SidebarContext";
+import { ClerkProvider } from "@clerk/nextjs";
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
+import React from "react";
 import "./globals.css";
-import { ClerkProvider } from '@clerk/nextjs'
-import { Providers } from './providers';
-import { Toaster } from "@/components/ui/toaster"
-import { ProjectProvider } from '@/contexts/ProjectContext';
-import { SidebarProvider } from '@/contexts/SidebarContext';
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Pulser",
@@ -15,10 +17,10 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body>
         <SidebarProvider>
           <ClerkProvider>

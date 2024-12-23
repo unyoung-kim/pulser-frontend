@@ -1,6 +1,5 @@
 "use client";
 
-import { CardView } from "@/components/dashboard/card-view";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { TableView } from "@/components/dashboard/table-view";
 import { Status, ViewToggle } from "@/components/dashboard/view-toggle";
@@ -31,13 +30,14 @@ interface ContentItem {
   date?: string;
   type?: string;
   tags?: string[];
-  keyword?: string; // Add this line
+  keyword?: string;
+  keyword_id?: number;
 }
 
 const ITEMS_PER_PAGE = 20;
 
 const Dashboard02 = () => {
-  const [view, setView] = useState<"cards" | "table">("cards");
+  const [view, setView] = useState<"cards">("cards");
   const [status, setStatus] = useState<Status>(Status.All);
   const [items, setItems] = useState<ContentItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,7 +73,14 @@ const Dashboard02 = () => {
 
       const { data, error } = await supabase
         .from("Content")
-        .select("*")
+        .select(
+          `
+          *,
+          keywords:keyword_id (
+            keyword
+          )
+        `
+        )
         .eq("project_id", projectId)
         .range(start, end)
         .order("created_at", { ascending: false });
@@ -82,7 +89,12 @@ const Dashboard02 = () => {
         throw new Error(`Error fetching content: ${error.message}`);
       }
 
-      return data as ContentItem[];
+      const transformedData = data.map((item: any) => ({
+        ...item,
+        keyword: item.keywords?.keyword || null,
+      }));
+
+      return transformedData as ContentItem[];
     },
     []
   );
@@ -207,7 +219,7 @@ const Dashboard02 = () => {
           <div className="mt-2">
             <ViewToggle
               view={view}
-              setView={setView}
+              // setView={setView}
               status={status}
               setStatus={handleSetStatus}
               onNewContent={() =>
@@ -237,21 +249,21 @@ const Dashboard02 = () => {
                 </Button>
               </div>
             </div>
-          ) : view === "cards" ? (
-            <CardView
-              items={filteredItems}
-              loading={isLoading}
-              hasNextPage={hasNextPage}
-              onLoadMore={loadMoreItems}
-              onDelete={handleDeleteContent}
-            />
           ) : (
             <TableView
               items={filteredItems}
               loading={isLoading}
               hasNextPage={hasNextPage}
               onLoadMore={loadMoreItems}
+              onDelete={handleDeleteContent}
             />
+            // <CardView
+            //   items={filteredItems}
+            //   loading={isLoading}
+            //   hasNextPage={hasNextPage}
+            //   onLoadMore={loadMoreItems}
+            //   onDelete={handleDeleteContent}
+            // />
           )}
         </>
       );
