@@ -10,14 +10,15 @@ import {
 import Tooltip from "@/components/ui/tooltip";
 import { Project, useProjects } from "@/contexts/ProjectContext";
 import { useSidebarState } from "@/contexts/SidebarContext";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { supabase } from "@/lib/supabaseClient";
+import { useAuth, UserButton, useUser } from "@clerk/nextjs";
+import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
   BrainCircuit,
   ChevronsUpDown,
   Folder,
   GalleryVerticalEnd,
-  Plug,
   Settings,
   WholeWord,
 } from "lucide-react";
@@ -33,11 +34,18 @@ interface SidebarProps {
   defaultCollapsed?: boolean;
 }
 
+interface Usage {
+  credits_charged: number;
+  additional_credits_charged: number;
+  credits_used: number;
+}
+
 export function Sidebar({
   projectId,
   children,
   defaultCollapsed = false,
 }: SidebarProps) {
+  const { orgId } = useAuth();
   const { isCollapsed, toggleSidebar, setIsCollapsed } = useSidebarState();
   const pathname = usePathname();
   const router = useRouter();
@@ -61,7 +69,7 @@ export function Sidebar({
   ];
 
   const bottomLinks = [
-    { name: "Integration", href: "/integration", icon: Plug },
+    // { name: "Integration", href: "/integration", icon: Plug },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
@@ -70,6 +78,90 @@ export function Sidebar({
       router.push(`/content?projectId=${project.id}`);
     },
     [router]
+  );
+
+  const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
+    queryKey: ["usage", orgId],
+    queryFn: async () => {
+      if (!orgId) throw new Error("No organization ID found");
+
+      // First try to get existing data
+      const { data, error } = await supabase
+        .from("Usage")
+        .select("credits_charged, additional_credits_charged, credits_used")
+        .eq("org_id", orgId)
+        .is("end_date", null)
+        .single();
+
+      if (error) {
+        // If no rows found, create a new row
+        if (error.code === "PGRST116") {
+          const { data: newData, error: insertError } = await supabase
+            .from("Usage")
+            .insert([
+              {
+                org_id: orgId,
+                start_date: new Date().toISOString().split("T")[0],
+                credits_used: 0,
+                credits_charged: 0,
+                additional_credits_charged: 0,
+                end_date: null,
+              },
+            ])
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error("Error inserting usage data:", insertError);
+            throw insertError;
+          }
+
+          return {
+            credits_charged: newData?.credits_charged || 0,
+            additional_credits_charged:
+              newData?.additional_credits_charged || 0,
+            credits_used: newData?.credits_used || 0,
+          };
+        }
+
+        // For other errors, log and throw
+        console.error("Supabase error:", error);
+        throw error;
+      }
+
+      return {
+        credits_charged: data.credits_charged || 0,
+        additional_credits_charged: data.additional_credits_charged || 0,
+        credits_used: data.credits_used || 0,
+      };
+    },
+    enabled: !!orgId,
+  });
+
+  // Memoize credits calculations
+  const totalCredits = useMemo(
+    () =>
+      usage ? usage.credits_charged + usage.additional_credits_charged : 0,
+    [usage]
+  );
+
+  const usedCredits = useMemo(() => usage?.credits_used || 0, [usage]);
+
+  // Memoize the width calculation for the progress bar
+  const progressBarWidth = useMemo(
+    () => `${totalCredits > 0 ? (usedCredits / totalCredits) * 100 : 0}%`,
+    [totalCredits, usedCredits]
+  );
+
+  // Add useCallback for the UserButton click handler
+  const handleUserButtonClick = useCallback(() => {
+    (document.querySelector(".cl-userButtonTrigger") as HTMLElement)?.click();
+  }, []);
+
+  // Memoize if credits are available
+  const hasCreditsAvailable = useMemo(
+    () => totalCredits > usedCredits,
+    [totalCredits, usedCredits]
   );
 
   return (
@@ -154,7 +246,19 @@ export function Sidebar({
             <nav className="grid items-start px-3 text-sm font-medium">
               {!isCollapsed && (
                 <div className="mb-2">
-                  <NewContentButton />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <NewContentButton disabled={!hasCreditsAvailable} />
+                      </div>
+                    </TooltipTrigger>
+                    {!hasCreditsAvailable && (
+                      <TooltipContent>
+                        You have no credits remaining. Please upgrade your plan
+                        to continue.
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
                 </div>
               )}
               {links.map((link) => {
@@ -187,7 +291,8 @@ export function Sidebar({
               })}
             </nav>
           </div>
-          <div className="mt-auto border-t">
+
+          <div className="mt-auto ">
             <nav className="grid items-start px-3 text-sm font-medium">
               {bottomLinks.map((link) => {
                 const Icon = link.icon;
@@ -198,11 +303,11 @@ export function Sidebar({
                     href={`${link.href}${
                       selectedProject ? `?projectId=${selectedProject.id}` : ""
                     }`}
-                    className={`flex items-center rounded-md px-2 py-2.5 ${
+                    className={`flex items-center rounded-md px-2 py-2.5 mt-2 ${
                       isActive
                         ? "bg-gray-100 text-gray-900"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    }`}
+                    } font-medium`}
                   >
                     <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
                     {!isCollapsed && <span>{link.name}</span>}
@@ -210,6 +315,27 @@ export function Sidebar({
                 );
               })}
             </nav>
+            <div className="mt-auto px-3">
+              <div className="px-2 py-1">
+                <span className="text-xs font-medium">Credits Remaining</span>
+              </div>
+              <div className="px-3 py-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">
+                    {isLoadingUsage ? "-" : usedCredits}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    of {isLoadingUsage ? "-" : totalCredits}
+                  </span>
+                </div>
+                <div className="mt-2 h-2 rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-indigo-600 transition-all duration-300"
+                    style={{ width: progressBarWidth }}
+                  />
+                </div>
+              </div>
+            </div>
             <div className="mt-4 px-3 pb-4">
               <div className="flex items-center w-full">
                 <UserButton
@@ -222,13 +348,7 @@ export function Sidebar({
                 />
                 {!isCollapsed && (
                   <div
-                    onClick={() =>
-                      (
-                        document.querySelector(
-                          ".cl-userButtonTrigger"
-                        ) as HTMLElement
-                      )?.click()
-                    }
+                    onClick={handleUserButtonClick}
                     className="cursor-pointer flex-1"
                   >
                     <Button
