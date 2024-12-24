@@ -2,12 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BACKEND_URL } from "@/lib/api/backend";
 import { plans } from "@/lib/pricing-plan";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, Settings } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 interface Usage {
   credits_charged: number;
@@ -17,12 +18,8 @@ interface Usage {
 
 export default function PricingPage() {
   const { orgId } = useAuth();
-  const [activeTab, setActiveTab] = useState<"plan" | "subscription">(
-    "subscription"
-  );
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
-    "yearly"
-  );
+  const [activeTab, setActiveTab] = useState<"plan" | "subscription">("subscription");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
 
   const previousPurchases = [
     { date: "-", credits: "-", amount: "-" },
@@ -61,8 +58,7 @@ export default function PricingPage() {
           if (insertError) throw insertError;
           return {
             credits_charged: newData?.credits_charged || 0,
-            additional_credits_charged:
-              newData?.additional_credits_charged || 0,
+            additional_credits_charged: newData?.additional_credits_charged || 0,
             credits_used: newData?.credits_used || 0,
           };
         }
@@ -78,20 +74,50 @@ export default function PricingPage() {
     enabled: !!orgId,
   });
 
-  const totalCredits = usage
-    ? usage.credits_charged + usage.additional_credits_charged
-    : 0;
+  const totalCredits = usage ? usage.credits_charged + usage.additional_credits_charged : 0;
   const usedCredits = usage?.credits_used ?? 0;
   const remainingCredits = totalCredits - usedCredits;
+
+  const handleChoosePlan = useCallback(
+    async (planName: string) => {
+      if (!orgId) {
+        console.log("No orgId found");
+        return;
+      }
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/create-stripe-session`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            orgId: orgId,
+            plan: planName as "SOLO" | "BUSINESS" | "AGENCY",
+            term: billingCycle === "monthly" ? "MONTHLY" : "YEARLY",
+            mode: "subscription",
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.error);
+        }
+
+        window.location.href = data.data;
+      } catch (error) {
+        console.error("Error creating stripe session:", error);
+      }
+    },
+    [orgId, billingCycle],
+  );
 
   return (
     <div className="container mx-auto max-w-6xl">
       <div className="space-y-6">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">
-            Manage your subscription and billing details.
-          </p>
+          <p className="text-muted-foreground">Manage your subscription and billing details.</p>
         </div>
 
         {/* <Separator className="" /> */}
@@ -111,9 +137,7 @@ export default function PricingPage() {
           <button
             onClick={() => setActiveTab("subscription")}
             className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
-              activeTab === "subscription"
-                ? "text-foreground"
-                : "text-muted-foreground"
+              activeTab === "subscription" ? "text-foreground" : "text-muted-foreground"
             }`}
           >
             Subscription
@@ -127,19 +151,12 @@ export default function PricingPage() {
           <div className="space-y-6">
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-base text-muted-foreground font-normal mb-4">
-                  Credits left
-                </h3>
+                <h3 className="text-base text-muted-foreground font-normal mb-4">Credits left</h3>
                 <div className="flex justify-between items-baseline mb-4">
                   <p className="text-5xl font-semibold">{remainingCredits}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Renews on Jan 1, 2025
-                  </p>
+                  <p className="text-sm text-muted-foreground">Renews on Jan 1, 2025</p>
                 </div>
-                <Button
-                  variant="link"
-                  className="text-indigo-600 p-0 h-auto font-semibold"
-                >
+                <Button variant="link" className="text-indigo-600 p-0 h-auto font-semibold">
                   Buy Credits
                 </Button>
               </CardContent>
@@ -147,9 +164,7 @@ export default function PricingPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg font-semibold">
-                  Previous Purchases
-                </CardTitle>
+                <CardTitle className="text-lg font-semibold">Previous Purchases</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
@@ -159,11 +174,7 @@ export default function PricingPage() {
                       className="flex justify-between text-sm py-2 border-b last:border-b-0"
                     >
                       <span>{purchase.date}</span>
-                      <span>
-                        {purchase.credits === "-"
-                          ? "-"
-                          : `${purchase.credits} credits`}
-                      </span>
+                      <span>{purchase.credits === "-" ? "-" : `${purchase.credits} credits`}</span>
                       <span className="font-medium">
                         {purchase.amount === "-" ? "-" : `$${purchase.amount}`}
                       </span>
@@ -180,9 +191,7 @@ export default function PricingPage() {
                 <button
                   onClick={() => setBillingCycle("monthly")}
                   className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                    billingCycle === "monthly"
-                      ? "bg-background shadow-sm"
-                      : "text-muted-foreground"
+                    billingCycle === "monthly" ? "bg-background shadow-sm" : "text-muted-foreground"
                   }`}
                 >
                   Monthly
@@ -190,9 +199,7 @@ export default function PricingPage() {
                 <button
                   onClick={() => setBillingCycle("yearly")}
                   className={`px-4 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${
-                    billingCycle === "yearly"
-                      ? "bg-background shadow-sm"
-                      : "text-muted-foreground"
+                    billingCycle === "yearly" ? "bg-background shadow-sm" : "text-muted-foreground"
                   }`}
                 >
                   Yearly
@@ -205,9 +212,7 @@ export default function PricingPage() {
               {plans.map((plan) => (
                 <Card
                   key={plan.name}
-                  className={`relative ${
-                    plan.popular ? "border-indigo-600 shadow-md" : ""
-                  }`}
+                  className={`relative ${plan.popular ? "border-indigo-600 shadow-md" : ""}`}
                 >
                   {plan.popular && (
                     <span className="absolute right-4 top-4 bg-indigo-600 text-white text-sm px-3 py-1 rounded-full">
@@ -222,21 +227,17 @@ export default function PricingPage() {
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-4xl font-bold">
-                          $
-                          {billingCycle === "yearly"
-                            ? plan.yearlyPrice
-                            : plan.monthlyPrice}
+                          ${billingCycle === "yearly" ? plan.yearlyPrice : plan.monthlyPrice}
                         </span>
                         <span className="text-muted-foreground">USD / mo</span>
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        Billed yearly
-                      </div>
+                      <div className="text-sm text-muted-foreground mt-1">Billed yearly</div>
                     </div>
 
                     <Button
                       variant={plan.popular ? "default" : "outline"}
-                      className="w-full mb-6 "
+                      className="w-full mb-6"
+                      onClick={() => handleChoosePlan(plan.name.toUpperCase())}
                     >
                       Choose Plan
                     </Button>
@@ -265,12 +266,9 @@ export default function PricingPage() {
               <div className="flex items-start gap-4">
                 <Settings className="w-8 h-8 text-indigo-600 mt-1" />
                 <div>
-                  <h3 className="text-lg font-semibold mb-1">
-                    Need a Custom Plan?
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-1">Need a Custom Plan?</h3>
                   <p className="text-muted-foreground">
-                    Have specific needs or special requests? Contact us for a
-                    tailored solution.
+                    Have specific needs or special requests? Contact us for a tailored solution.
                   </p>
                 </div>
               </div>
