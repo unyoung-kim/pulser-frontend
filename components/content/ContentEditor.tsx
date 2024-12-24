@@ -14,7 +14,7 @@ import { getJwtToken } from "@/lib/token";
 import { useQuery } from "@tanstack/react-query";
 import { CharacterCount } from "@tiptap/extension-character-count";
 import { AnyExtension, useEditor } from "@tiptap/react";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { BlockEditor } from "../new-editor/BlockEditor";
 import { EditorSidebar } from "./EditorSidebar";
 
@@ -300,6 +300,12 @@ export function ContentEditor({
       });
     },
   });
+
+  useEffect(() => {
+    return () => {
+      editor2?.destroy();
+    };
+  }, [editor2]);
 
   const handleStatusChange = (newStatus: string) => {
     setCurrentStatus(
