@@ -1,3 +1,5 @@
+import tailwindcssAnimate from "tailwindcss-animate";
+import typography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -62,6 +64,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [tailwindcssAnimate, typography],
 };
+
 export default config;

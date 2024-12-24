@@ -16,9 +16,11 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
+  AlertTriangle,
   ArrowLeft,
   BookText,
   ChevronDown,
@@ -32,6 +34,7 @@ import {
   Sparkles,
   Tag,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "../ui/badge";
@@ -82,6 +85,7 @@ export default function ContentSettings() {
   const [wordCount, setWordCount] = useState<number>(2500);
   const [outline, setOutline] = useState("");
   const [postLength, setPostLength] = useState<"SHORT" | "LONG">("LONG");
+  const { orgId } = useAuth();
 
   useEffect(() => {
     setWordCount(contentType === "NORMAL" ? 2500 : 1000);
@@ -393,6 +397,40 @@ export default function ContentSettings() {
     </div>
   );
 
+  const { data: usage } = useQuery<{
+    credits_charged: number;
+    additional_credits_charged: number;
+    credits_used: number;
+  }>({
+    queryKey: ["usage", orgId],
+    queryFn: async () => {
+      if (!orgId) throw new Error("No organization ID found");
+
+      const { data, error } = await supabase
+        .from("Usage")
+        .select("credits_charged, additional_credits_charged, credits_used")
+        .eq("org_id", orgId)
+        .is("end_date", null)
+        .single();
+
+      if (error) throw error;
+
+      return {
+        credits_charged: data?.credits_charged || 0,
+        additional_credits_charged: data?.additional_credits_charged || 0,
+        credits_used: data?.credits_used || 0,
+      };
+    },
+    enabled: !!orgId,
+  });
+
+  const totalCredits = usage
+    ? usage.credits_charged + usage.additional_credits_charged
+    : 0;
+  const remainingCredits = totalCredits - (usage?.credits_used || 0);
+  const requiredCredits = contentType === "NORMAL" ? 3 : 1;
+  const hasEnoughCredits = remainingCredits >= requiredCredits;
+
   return (
     <div className="w-full bg-gray-50/50 flex justify-center">
       <div className="max-w-3xl w-full py-10">
@@ -418,6 +456,24 @@ export default function ContentSettings() {
           <CardHeader className="text-lg font-semibold">
             Blog Settings
           </CardHeader>
+
+          {!hasEnoughCredits && (
+            <div className="px-6 -mt-2 mb-4">
+              <div className="flex items-center gap-2 text-red-500 text-sm">
+                <AlertTriangle className="h-4 w-4" />
+                <span>
+                  You have {remainingCredits} credits remaining.
+                  <Link
+                    href="/settings"
+                    className="text-indigo-600 hover:underline"
+                  >
+                    {" "}
+                    Add more credits
+                  </Link>
+                </span>
+              </div>
+            </div>
+          )}
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label className="text-sm font-medium flex items-center gap-2">
@@ -445,6 +501,12 @@ export default function ContentSettings() {
                     <div className="flex items-center space-x-2">
                       <BookText className="h-5 w-5" />
                       <span className="font-medium">Normal</span>
+                      <Badge
+                        variant="secondary"
+                        className="bg-gray-100 hover:bg-gray-100"
+                      >
+                        3 Credits
+                      </Badge>
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
                       Standard SEO blog article
@@ -464,6 +526,12 @@ export default function ContentSettings() {
                     <div className="flex items-center space-x-2">
                       <ListTree className="h-5 w-5" />
                       <span className="font-medium">Glossary</span>
+                      <Badge
+                        variant="secondary"
+                        className="bg-gray-100 hover:bg-gray-100"
+                      >
+                        1 Credit
+                      </Badge>
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
                       SEO article defining and explaining industry-specific
@@ -620,7 +688,13 @@ export default function ContentSettings() {
             <Button
               className="bg-indigo-600 hover:bg-indigo-700"
               onClick={handleCreateContent}
-              disabled={isCreating || !selectedKeyword || !topic.trim()}
+              disabled={
+                isCreating ||
+                !selectedKeyword ||
+                !topic.trim() ||
+                !hasEnoughCredits
+              }
+              title={!hasEnoughCredits ? "Not enough credits available" : ""}
             >
               {isCreating ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />

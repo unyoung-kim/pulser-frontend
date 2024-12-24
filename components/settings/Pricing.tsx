@@ -2,16 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Briefcase,
-  Building2,
-  ExternalLink,
-  Settings,
-  User,
-} from "lucide-react";
+import { plans } from "@/lib/pricing-plan";
+import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "@clerk/nextjs";
+import { useQuery } from "@tanstack/react-query";
+import { ExternalLink, Settings } from "lucide-react";
 import { useState } from "react";
 
+interface Usage {
+  credits_charged: number;
+  additional_credits_charged: number;
+  credits_used: number;
+}
+
 export default function PricingPage() {
+  const { orgId } = useAuth();
   const [activeTab, setActiveTab] = useState<"plan" | "subscription">(
     "subscription"
   );
@@ -20,35 +25,64 @@ export default function PricingPage() {
   );
 
   const previousPurchases = [
-    { date: "2024-03-01", credits: 100, amount: 49 },
-    { date: "2024-02-01", credits: 50, amount: 25 },
+    { date: "-", credits: "-", amount: "-" },
     // Add more purchase history as needed
   ];
 
-  const plans = [
-    {
-      name: "Solo",
-      icon: User,
-      monthlyPrice: 49,
-      yearlyPrice: 39,
-      credits: 100,
+  const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
+    queryKey: ["usage", orgId],
+    queryFn: async () => {
+      if (!orgId) throw new Error("No organization ID found");
+
+      const { data, error } = await supabase
+        .from("Usage")
+        .select("credits_charged, additional_credits_charged, credits_used")
+        .eq("org_id", orgId)
+        .is("end_date", null)
+        .single();
+
+      if (error) {
+        if (error.code === "PGRST116") {
+          const { data: newData, error: insertError } = await supabase
+            .from("Usage")
+            .insert([
+              {
+                org_id: orgId,
+                start_date: new Date().toISOString().split("T")[0],
+                credits_used: 0,
+                credits_charged: 0,
+                additional_credits_charged: 0,
+                end_date: null,
+              },
+            ])
+            .select()
+            .single();
+
+          if (insertError) throw insertError;
+          return {
+            credits_charged: newData?.credits_charged || 0,
+            additional_credits_charged:
+              newData?.additional_credits_charged || 0,
+            credits_used: newData?.credits_used || 0,
+          };
+        }
+        throw error;
+      }
+
+      return {
+        credits_charged: data.credits_charged || 0,
+        additional_credits_charged: data.additional_credits_charged || 0,
+        credits_used: data.credits_used || 0,
+      };
     },
-    {
-      name: "Business",
-      icon: Briefcase,
-      monthlyPrice: 109,
-      yearlyPrice: 99,
-      credits: 250,
-      popular: true,
-    },
-    {
-      name: "Agency",
-      icon: Building2,
-      monthlyPrice: 419,
-      yearlyPrice: 379,
-      credits: 1000,
-    },
-  ];
+    enabled: !!orgId,
+  });
+
+  const totalCredits = usage
+    ? usage.credits_charged + usage.additional_credits_charged
+    : 0;
+  const usedCredits = usage?.credits_used || 0;
+  const remainingCredits = totalCredits - usedCredits;
 
   return (
     <div className="container mx-auto max-w-6xl">
@@ -97,7 +131,7 @@ export default function PricingPage() {
                   Credits left
                 </h3>
                 <div className="flex justify-between items-baseline mb-4">
-                  <p className="text-5xl font-semibold">2</p>
+                  <p className="text-5xl font-semibold">{remainingCredits}</p>
                   <p className="text-sm text-muted-foreground">
                     Renews on Jan 1, 2025
                   </p>
@@ -124,11 +158,15 @@ export default function PricingPage() {
                       key={index}
                       className="flex justify-between text-sm py-2 border-b last:border-b-0"
                     >
+                      <span>{purchase.date}</span>
                       <span>
-                        {new Date(purchase.date).toLocaleDateString()}
+                        {purchase.credits === "-"
+                          ? "-"
+                          : `${purchase.credits} credits`}
                       </span>
-                      <span>{purchase.credits} credits</span>
-                      <span className="font-medium">${purchase.amount}</span>
+                      <span className="font-medium">
+                        {purchase.amount === "-" ? "-" : `$${purchase.amount}`}
+                      </span>
                     </li>
                   ))}
                 </ul>
