@@ -129,7 +129,9 @@ const Dashboard02 = () => {
     data: contentData,
     error: fetchError,
     isLoading: fetchLoading,
-  } = useQuery(["content", projectId], fetchContent, {
+  } = useQuery({
+    queryKey: ["content", projectId],
+    queryFn: fetchContent,
     enabled: !!projectId && !!supabase, // Only run if projectId and supabase are available
   });
 

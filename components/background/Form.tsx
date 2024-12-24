@@ -230,7 +230,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     });
   };
 
-  const { mutate: findInternalLinks, isLoading: isFindingLinks } = useMutation({
+  const { mutate: findInternalLinks, isPending: isFindingLinks } = useMutation({
     mutationFn: async () => {
       const backendUrl = "https://pulser-backend.onrender.com";
       // const backendUrl = "http://localhost:8000";
@@ -246,7 +246,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["internalLinks", projectId]);
+      queryClient.invalidateQueries({ queryKey: ["internalLinks", projectId] });
       toast({
         title: "Success",
         description: "Internal links found successfully",

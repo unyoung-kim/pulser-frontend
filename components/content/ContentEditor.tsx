@@ -244,7 +244,7 @@ export function ContentEditor({
     },
   });
 
-  useQuery({
+  const contentBodyQuery = useQuery({
     queryKey: ["contentBody", contentId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -261,23 +261,9 @@ export function ContentEditor({
     },
     enabled: !!contentId && !!editor2,
     refetchOnWindowFocus: false,
-    onSuccess: (data) => {
-      if (data && editor2) {
-        console.log("DATA: ", data);
-        editor2.commands.setContent(data);
-      }
-    },
-    onError: (error) => {
-      console.error("Error fetching body content:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load content body",
-        variant: "destructive",
-      });
-    },
   });
 
-  useQuery({
+  const internalLinkCountQuery = useQuery({
     queryKey: ["internalLinkCount", contentId],
     queryFn: async () => {
       const { count, error } = await supabase
@@ -289,19 +275,44 @@ export function ContentEditor({
       return count || 0;
     },
     enabled: !!contentId,
-    onSuccess: (count) => {
-      console.log("Internal link count:", count);
-      setInternalLinkCount(count);
-    },
-    onError: (error) => {
-      console.error("Error fetching internal link count:", error);
+  });
+
+  React.useEffect(() => {
+    if (contentBodyQuery.isSuccess && contentBodyQuery.data && editor2) {
+      console.log("DATA: ", contentBodyQuery.data);
+      editor2.commands.setContent(contentBodyQuery.data);
+    }
+  }, [contentBodyQuery.isSuccess, contentBodyQuery.data, editor2]);
+
+  React.useEffect(() => {
+    if (contentBodyQuery.isError && contentBodyQuery.error) {
+      console.error("Error fetching body content:", contentBodyQuery.error);
+      toast({
+        title: "Error",
+        description: "Failed to load content body",
+        variant: "destructive",
+      });
+    }
+  }, [contentBodyQuery.isError, contentBodyQuery.error, toast]);
+
+  React.useEffect(() => {
+    if (internalLinkCountQuery.isSuccess) {
+      console.log("Internal link count:", internalLinkCountQuery.data);
+      setInternalLinkCount(internalLinkCountQuery.data);
+    }
+  }, [internalLinkCountQuery.isSuccess, internalLinkCountQuery.data]);
+
+  React.useEffect(() => {
+    if (internalLinkCountQuery.isError && internalLinkCountQuery.error) {
+      console.error("Error fetching internal link count:", internalLinkCountQuery.error);
       toast({
         title: "Error",
         description: "Failed to load internal links",
         variant: "destructive",
       });
-    },
-  });
+    }
+  }, [internalLinkCountQuery.isError, internalLinkCountQuery.error, toast]);
+
 
   const handleStatusChange = (newStatus: string) => {
     setCurrentStatus(
