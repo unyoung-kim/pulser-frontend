@@ -183,7 +183,7 @@ const Dashboard02 = () => {
         console.error("Error deleting content:", err);
       }
     },
-    [supabase, projectId, toast]
+    [projectId, toast]
   );
 
   const renderContent = () => {

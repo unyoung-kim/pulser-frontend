@@ -36,7 +36,7 @@ export default function SettingsMain() {
     isLoading: usageLoading,
     error: usageError,
   } = useQuery({
-    queryKey: ["usage", orgId],
+    queryKey: ["usage", orgId, organization?.current_usage_id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("Usage")
