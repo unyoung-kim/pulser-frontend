@@ -7,7 +7,7 @@
     - **Option 1: Using** `nvm` (recommended):
         - Install `nvm` from [nvm's GitHub page](https://github.com/nvm-sh/nvm#installing-and-updating):
           ```bash
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
           ```
         - Restart your terminal and verify installation:
           ```bash
