@@ -81,7 +81,7 @@ export default function PricingPage() {
   const totalCredits = usage
     ? usage.credits_charged + usage.additional_credits_charged
     : 0;
-  const usedCredits = usage?.credits_used || 0;
+  const usedCredits = usage?.credits_used ?? 0;
   const remainingCredits = totalCredits - usedCredits;
 
   return (
