@@ -1,55 +1,62 @@
-'use client';
+"use client";
 
-import { useCallback, useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
-import { useQuery } from '@tanstack/react-query';
-import { ExternalLink, Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BACKEND_URL } from '@/lib/api/backend';
-import { plans } from '@/lib/pricing-plan';
-import { supabase } from '@/lib/supabaseClient';
-
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { BACKEND_URL } from "@/lib/api/backend";
+import { plans } from "@/lib/pricing-plan";
+import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "@clerk/nextjs";
+import { useQuery } from "@tanstack/react-query";
+import Case from "case";
+import { ExternalLink, Settings } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Badge } from "../ui/badge";
 
 interface Usage {
   credits_charged: number;
   additional_credits_charged: number;
   credits_used: number;
+  plan: string;
+  term: "MONTHLY" | "YEARLY";
 }
 
 export default function PricingPage() {
   const { orgId } = useAuth();
-  const [activeTab, setActiveTab] = useState<'plan' | 'subscription'>('subscription');
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
+  const [activeTab, setActiveTab] = useState<"plan" | "subscription">("subscription");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
+  const { toast } = useToast();
 
   const previousPurchases = [
-    { date: '-', credits: '-', amount: '-' },
+    { date: "-", credits: "-", amount: "-" },
     // Add more purchase history as needed
   ];
 
   const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
-    queryKey: ['usage', orgId],
+    queryKey: ["usage", orgId],
     queryFn: async () => {
-      if (!orgId) throw new Error('No organization ID found');
+      if (!orgId) throw new Error("No organization ID found");
 
       const { data, error } = await supabase
-        .from('Usage')
-        .select('credits_charged, additional_credits_charged, credits_used')
-        .eq('org_id', orgId)
-        .is('end_date', null)
+        .from("Usage")
+        .select("plan, credits_charged, additional_credits_charged, credits_used, term")
+        .eq("org_id", orgId)
+        .is("end_date", null)
         .single();
 
       if (error) {
-        if (error.code === 'PGRST116') {
+        if (error.code === "PGRST116") {
           const { data: newData, error: insertError } = await supabase
-            .from('Usage')
+            .from("Usage")
             .insert([
               {
                 org_id: orgId,
-                start_date: new Date().toISOString().split('T')[0],
+                start_date: new Date().toISOString().split("T")[0],
                 credits_used: 0,
                 credits_charged: 0,
                 additional_credits_charged: 0,
+                plan: "FREE_CREDIT",
+                term: "YEARLY",
                 end_date: null,
               },
             ])
@@ -57,23 +64,38 @@ export default function PricingPage() {
             .single();
 
           if (insertError) throw insertError;
+
           return {
-            credits_charged: newData?.credits_charged || 0,
-            additional_credits_charged: newData?.additional_credits_charged || 0,
-            credits_used: newData?.credits_used || 0,
+            credits_charged: newData?.credits_charged ?? 0,
+            additional_credits_charged: newData?.additional_credits_charged ?? 0,
+            credits_used: newData?.credits_used ?? 0,
+            plan: newData?.plan ?? "FREE_CREDIT",
+            term: newData?.term ?? "YEARLY",
           };
         }
         throw error;
       }
 
+      setBillingCycle(data?.term?.toLowerCase() as "monthly" | "yearly");
+
       return {
-        credits_charged: data.credits_charged || 0,
-        additional_credits_charged: data.additional_credits_charged || 0,
-        credits_used: data.credits_used || 0,
+        credits_charged: data?.credits_charged ?? 0,
+        additional_credits_charged: data?.additional_credits_charged ?? 0,
+        credits_used: data?.credits_used ?? 0,
+        plan: data?.plan ?? "FREE_CREDIT",
+        term: data?.term ?? "YEARLY",
       };
     },
     enabled: !!orgId,
   });
+
+  useEffect(() => {
+    if (usage?.plan && usage.plan !== "FREE_CREDIT") {
+      setActiveTab("plan");
+    } else {
+      setActiveTab("subscription");
+    }
+  }, [usage?.plan]);
 
   const totalCredits = usage ? usage.credits_charged + usage.additional_credits_charged : 0;
   const usedCredits = usage?.credits_used ?? 0;
@@ -82,20 +104,20 @@ export default function PricingPage() {
   const handleChoosePlan = useCallback(
     async (planName: string) => {
       if (!orgId) {
-        console.log('No orgId found');
+        console.log("No orgId found");
         return;
       }
       try {
         const response = await fetch(`${BACKEND_URL}/api/create-stripe-session`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             orgId: orgId,
-            plan: planName as 'SOLO' | 'BUSINESS' | 'AGENCY',
-            term: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
-            mode: 'subscription',
+            plan: planName as "SOLO" | "BUSINESS" | "AGENCY",
+            term: billingCycle === "monthly" ? "MONTHLY" : "YEARLY",
+            mode: "subscription",
           }),
         });
 
@@ -107,10 +129,58 @@ export default function PricingPage() {
 
         window.location.href = data.data;
       } catch (error) {
-        console.error('Error creating stripe session:', error);
+        console.error("Error creating stripe session:", error);
       }
     },
     [orgId, billingCycle],
+  );
+
+  const handleUpdatePlan = useCallback(
+    async (planName: string) => {
+      if (!orgId) {
+        console.log("No orgId found");
+        return;
+      }
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/update-subscription`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            orgId: orgId,
+            plan: planName as "BASIC" | "PRO" | "AGENCY",
+            term: billingCycle === "monthly" ? "MONTHLY" : "YEARLY",
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: data.error || "Failed to update subscription",
+          });
+          return;
+        }
+
+        toast({
+          title: "Success",
+          description: "Your subscription has been updated successfully",
+        });
+
+        window.location.reload();
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to update subscription. Please try again later.",
+        });
+        console.error("Error updating subscription:", error);
+      }
+    },
+    [orgId, billingCycle, toast],
   );
 
   return (
@@ -125,41 +195,71 @@ export default function PricingPage() {
 
         <div className="flex gap-8 border-b mb-8">
           <button
-            onClick={() => setActiveTab('plan')}
+            onClick={() => setActiveTab("plan")}
             className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
-              activeTab === 'plan' ? 'text-foreground' : 'text-muted-foreground'
+              activeTab === "plan" ? "text-foreground" : "text-muted-foreground"
             }`}
           >
             Plan
-            {activeTab === 'plan' && (
+            {activeTab === "plan" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
             )}
           </button>
           <button
-            onClick={() => setActiveTab('subscription')}
+            onClick={() => setActiveTab("subscription")}
             className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
-              activeTab === 'subscription' ? 'text-foreground' : 'text-muted-foreground'
+              activeTab === "subscription" ? "text-foreground" : "text-muted-foreground"
             }`}
           >
             Subscription
-            {activeTab === 'subscription' && (
+            {activeTab === "subscription" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
             )}
           </button>
         </div>
 
-        {activeTab === 'plan' ? (
+        {activeTab === "plan" ? (
           <div className="space-y-6">
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-base text-muted-foreground font-normal mb-4">Credits left</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base text-muted-foreground font-normal">Credits left</h3>
+                  <Badge
+                    variant="secondary"
+                    className="text-sm font-medium capitalize bg-secondary/100 text-secondary-foreground"
+                  >
+                    {Case.capital(usage?.plan ?? "")}
+                  </Badge>
+                </div>
                 <div className="flex justify-between items-baseline mb-4">
-                  <p className="text-5xl font-semibold">{remainingCredits}</p>
+                  <p className="text-5xl font-semibold">
+                    {remainingCredits}
+                    <span className="text-2xl text-muted-foreground font-normal ml-2">
+                      /{totalCredits}
+                    </span>
+                  </p>
                   <p className="text-sm text-muted-foreground">Renews on Jan 1, 2025</p>
                 </div>
-                <Button variant="link" className="text-indigo-600 p-0 h-auto font-semibold">
-                  Buy Credits
-                </Button>
+                {/* Add subscription info section */}
+                {usage?.plan && (
+                  <div className="mt-6 pt-6 border-t">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-medium">Current Subscription</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {Case.capital(usage.plan)} Plan ({Case.capital(usage.term.toLowerCase())})
+                        </p>
+                      </div>
+                      <Button
+                        variant="link"
+                        className="text-indigo-600 p-0 h-auto font-semibold"
+                        onClick={() => setActiveTab("subscription")}
+                      >
+                        Manage Subscription
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -175,9 +275,9 @@ export default function PricingPage() {
                       className="flex justify-between text-sm py-2 border-b last:border-b-0"
                     >
                       <span>{purchase.date}</span>
-                      <span>{purchase.credits === '-' ? '-' : `${purchase.credits} credits`}</span>
+                      <span>{purchase.credits === "-" ? "-" : `${purchase.credits} credits`}</span>
                       <span className="font-medium">
-                        {purchase.amount === '-' ? '-' : `$${purchase.amount}`}
+                        {purchase.amount === "-" ? "-" : `$${purchase.amount}`}
                       </span>
                     </li>
                   ))}
@@ -190,17 +290,17 @@ export default function PricingPage() {
             <div className="flex justify-center mb-12">
               <div className="inline-flex items-center bg-secondary rounded-lg p-1">
                 <button
-                  onClick={() => setBillingCycle('monthly')}
+                  onClick={() => setBillingCycle("monthly")}
                   className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                    billingCycle === 'monthly' ? 'bg-background shadow-sm' : 'text-muted-foreground'
+                    billingCycle === "monthly" ? "bg-background shadow-sm" : "text-muted-foreground"
                   }`}
                 >
                   Monthly
                 </button>
                 <button
-                  onClick={() => setBillingCycle('yearly')}
+                  onClick={() => setBillingCycle("yearly")}
                   className={`px-4 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${
-                    billingCycle === 'yearly' ? 'bg-background shadow-sm' : 'text-muted-foreground'
+                    billingCycle === "yearly" ? "bg-background shadow-sm" : "text-muted-foreground"
                   }`}
                 >
                   Yearly
@@ -213,13 +313,31 @@ export default function PricingPage() {
               {plans.map((plan) => (
                 <Card
                   key={plan.name}
-                  className={`relative ${plan.popular ? 'border-indigo-600 shadow-md' : ''}`}
+                  className={`relative ${
+                    usage?.plan === plan.name.toUpperCase() &&
+                    usage?.plan !== "FREE_CREDIT" &&
+                    usage?.term.toLowerCase() === billingCycle
+                      ? "border-indigo-600 shadow-md"
+                      : ""
+                  }`}
                 >
-                  {plan.popular && (
+                  {plan.popular && usage?.plan === "FREE_CREDIT" && (
                     <span className="absolute right-4 top-4 bg-indigo-600 text-white text-sm px-3 py-1 rounded-full">
                       Most Popular
                     </span>
                   )}
+                  {(() => {
+                    const isCurrentPlan =
+                      usage?.plan === plan.name.toUpperCase() &&
+                      usage?.plan !== "FREE_CREDIT" &&
+                      usage?.term.toLowerCase() === billingCycle;
+
+                    return isCurrentPlan ? (
+                      <span className="absolute right-4 top-4 bg-indigo-600 text-white text-sm px-3 py-1 rounded-full">
+                        Current Plan
+                      </span>
+                    ) : null;
+                  })()}
                   <CardContent className="pt-6 pb-8 px-6">
                     <div className="mb-6">
                       <div className="flex items-center gap-2 mb-4">
@@ -228,20 +346,36 @@ export default function PricingPage() {
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-4xl font-bold">
-                          ${billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice}
+                          ${billingCycle === "yearly" ? plan.yearlyPrice : plan.monthlyPrice}
                         </span>
                         <span className="text-muted-foreground">USD / mo</span>
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">Billed yearly</div>
                     </div>
 
-                    <Button
-                      variant={plan.popular ? 'default' : 'outline'}
-                      className="w-full mb-6"
-                      onClick={() => handleChoosePlan(plan.name.toUpperCase())}
-                    >
-                      Choose Plan
-                    </Button>
+                    {!(
+                      usage?.plan === plan.name.toUpperCase() &&
+                      usage?.plan !== "FREE_CREDIT" &&
+                      usage?.term.toLowerCase() === billingCycle
+                    ) && (
+                      <Button
+                        variant={
+                          usage?.plan !== "FREE_CREDIT"
+                            ? "default"
+                            : plan.popular
+                              ? "default"
+                              : "outline"
+                        }
+                        className={`w-full mb-6 ${usage?.plan !== "FREE_CREDIT" ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
+                        onClick={() =>
+                          usage?.plan !== "FREE_CREDIT"
+                            ? handleUpdatePlan(plan.name.toUpperCase())
+                            : handleChoosePlan(plan.name.toUpperCase())
+                        }
+                      >
+                        Choose Plan
+                      </Button>
+                    )}
 
                     <div className="flex items-center gap-2 text-sm">
                       <div className="w-4 h-4 rounded-full bg-indigo-600/10 flex items-center justify-center">
