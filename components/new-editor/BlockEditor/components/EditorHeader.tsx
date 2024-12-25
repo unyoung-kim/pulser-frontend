@@ -1,9 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/Icon";
-import { Toolbar } from "@/components/ui/Toolbar";
-import { Editor } from "@tiptap/core";
-import { useEditorState } from "@tiptap/react";
-import { Check, Save } from "lucide-react";
+import { Editor } from '@tiptap/core';
+import { useEditorState } from '@tiptap/react';
+import { Check, Save } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/Icon';
+import { Toolbar } from '@/components/ui/Toolbar';
+
 
 export type EditorHeaderProps = {
   isSidebarOpen?: boolean;
@@ -40,12 +41,12 @@ export const EditorHeader = ({
       <div className="flex flex-row gap-x-1.5 items-center">
         <div className="flex items-center gap-x-1.5">
           <Toolbar.Button
-            tooltip={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
+            tooltip={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
             onClick={toggleSidebar}
             active={isSidebarOpen}
-            className={isSidebarOpen ? "bg-transparent" : ""}
+            className={isSidebarOpen ? 'bg-transparent' : ''}
           >
-            <Icon name={isSidebarOpen ? "PanelLeftClose" : "PanelLeft"} />
+            <Icon name={isSidebarOpen ? 'PanelLeftClose' : 'PanelLeft'} />
           </Toolbar.Button>
         </div>
       </div>
@@ -57,7 +58,7 @@ export const EditorHeader = ({
         )}
         <Button
           className={
-            hasChanges ? "bg-indigo-600 hover:bg-indigo-700" : "bg-gray-400"
+            hasChanges ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400'
           }
           size="sm"
           onClick={onSave}

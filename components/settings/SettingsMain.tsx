@@ -1,13 +1,14 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { supabase } from "@/lib/supabaseClient";
-import { useAuth } from "@clerk/nextjs";
-import { useQuery } from "@tanstack/react-query";
-import { Separator } from "../ui/separator";
+import { useAuth } from '@clerk/nextjs';
+import { useQuery } from '@tanstack/react-query';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { supabase } from '@/lib/supabaseClient';
+import { Separator } from '../ui/separator';
+
 
 export default function SettingsMain() {
   const { orgId } = useAuth();
@@ -17,12 +18,12 @@ export default function SettingsMain() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["organization", orgId],
+    queryKey: ['organization', orgId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("Organization")
-        .select("*")
-        .eq("org_id", orgId as string)
+        .from('Organization')
+        .select('*')
+        .eq('org_id', orgId as string)
         .single();
 
       if (error) throw error;
@@ -36,12 +37,12 @@ export default function SettingsMain() {
     isLoading: usageLoading,
     error: usageError,
   } = useQuery({
-    queryKey: ["usage", orgId],
+    queryKey: ['usage', orgId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("Usage")
-        .select("*")
-        .eq("id", organization?.current_usage_id)
+        .from('Usage')
+        .select('*')
+        .eq('id', organization?.current_usage_id)
         .single();
 
       if (error) throw error;
@@ -84,7 +85,7 @@ export default function SettingsMain() {
                 <Button variant="outline">Edit payment details</Button>
               </div>
               <p className="text-sm text-gray-600">
-                New monthly Pro subscription begins {usage?.end_date ?? "-"}
+                New monthly Pro subscription begins {usage?.end_date ?? '-'}
               </p>
             </CardContent>
           </Card>

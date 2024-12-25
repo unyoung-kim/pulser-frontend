@@ -1,5 +1,6 @@
-import { cn } from '@/lib/utils'
-import React from 'react'
+import React from 'react';
+import { cn } from '@/lib/utils';
+
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'quaternary' | 'ghost'
 export type ButtonSize = 'medium' | 'small' | 'icon' | 'iconSmall'
@@ -61,14 +62,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       buttonSize === 'iconSmall' && 'w-6 h-6',
 
       className,
-    )
+    );
 
     return (
       <button ref={ref} disabled={disabled} className={buttonClassName} {...rest}>
         {children}
       </button>
-    )
+    );
   },
-)
+);
 
-Button.displayName = 'Button'
+Button.displayName = 'Button';

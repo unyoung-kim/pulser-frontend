@@ -1,11 +1,12 @@
-"use client";
+'use client';
 
-import React from 'react'
-import { Search, Package2 } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { UserButton } from "@clerk/nextjs"
-import Link from "next/link"
-import { usePathname } from 'next/navigation'
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { UserButton } from '@clerk/nextjs';
+import { Search, Package2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+
 
 interface HeaderProps {
   children?: React.ReactNode
@@ -42,5 +43,5 @@ export function Header({ children, showSearch = false }: HeaderProps) {
         </div>
       </div>
     </header>
-  )
+  );
 }

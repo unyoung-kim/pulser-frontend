@@ -1,21 +1,22 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@/components/ui/command";
+} from '@/components/ui/command';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown, PlusCircle } from "lucide-react";
-import { useState } from "react";
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+
 
 interface KeywordSelectorProps {
   usedKeywords: string[];
@@ -37,7 +38,7 @@ export default function KeywordSelector({
   error,
 }: KeywordSelectorProps) {
   const [open, setOpen] = useState(false);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
 
   if (isLoading) {
     return (
@@ -64,7 +65,7 @@ export default function KeywordSelector({
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {selectedKeyword || "Select keyword..."}
+          {selectedKeyword || 'Select keyword...'}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -95,17 +96,17 @@ export default function KeywordSelector({
                 value={keyword}
                 onSelect={(currentValue) => {
                   onKeywordChange(
-                    currentValue === selectedKeyword ? "" : currentValue
+                    currentValue === selectedKeyword ? '' : currentValue
                   );
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
-                    "mr-2 h-4 w-4",
+                    'mr-2 h-4 w-4',
                     selectedKeyword.toLowerCase() === keyword.toLowerCase()
-                      ? "opacity-100"
-                      : "opacity-0"
+                      ? 'opacity-100'
+                      : 'opacity-0'
                   )}
                 />
                 {keyword}
@@ -119,17 +120,17 @@ export default function KeywordSelector({
                 value={keyword}
                 onSelect={(currentValue) => {
                   onKeywordChange(
-                    currentValue === selectedKeyword ? "" : currentValue
+                    currentValue === selectedKeyword ? '' : currentValue
                   );
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
-                    "mr-2 h-4 w-4",
+                    'mr-2 h-4 w-4',
                     selectedKeyword.toLowerCase() === keyword.toLowerCase()
-                      ? "opacity-100"
-                      : "opacity-0"
+                      ? 'opacity-100'
+                      : 'opacity-0'
                   )}
                 />
                 {keyword}
@@ -140,16 +141,16 @@ export default function KeywordSelector({
             ![...usedKeywords, ...unusedKeywords].some(
               (k) => k.toLowerCase() === inputValue.toLowerCase()
             ) && (
-              <CommandGroup>
-                <CommandItem
-                  className="text-muted-foreground"
-                  onSelect={() => createKeyword(inputValue)}
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" />
+            <CommandGroup>
+              <CommandItem
+                className="text-muted-foreground"
+                onSelect={() => createKeyword(inputValue)}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
                   Create &quot;{inputValue}&quot;
-                </CommandItem>
-              </CommandGroup>
-            )}
+              </CommandItem>
+            </CommandGroup>
+          )}
         </Command>
       </PopoverContent>
     </Popover>

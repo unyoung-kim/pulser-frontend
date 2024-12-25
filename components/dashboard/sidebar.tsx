@@ -1,18 +1,11 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Tooltip from "@/components/ui/tooltip";
-import { Project, useProjects } from "@/contexts/ProjectContext";
-import { useSidebarState } from "@/contexts/SidebarContext";
-import { supabase } from "@/lib/supabaseClient";
-import { useAuth, UserButton, useUser } from "@clerk/nextjs";
-import { useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth, UserButton, useUser } from '@clerk/nextjs';
+import { useQuery } from '@tanstack/react-query';
 import {
   Activity,
   BrainCircuit,
@@ -21,12 +14,20 @@ import {
   GalleryVerticalEnd,
   Settings,
   WholeWord,
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
-import { NewContentButton } from "./new-content-button";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import Tooltip from '@/components/ui/tooltip';
+import { Project, useProjects } from '@/contexts/ProjectContext';
+import { useSidebarState } from '@/contexts/SidebarContext';
+import { supabase } from '@/lib/supabaseClient';
+import { NewContentButton } from './new-content-button';
+
 
 interface SidebarProps {
   projectId: string;
@@ -64,13 +65,13 @@ export function Sidebar({
   );
 
   const links = [
-    { name: "Knowledge Base", href: "/background", icon: BrainCircuit },
-    { name: "Content", href: "/content", icon: WholeWord },
+    { name: 'Knowledge Base', href: '/background', icon: BrainCircuit },
+    { name: 'Content', href: '/content', icon: WholeWord },
   ];
 
   const bottomLinks = [
     // { name: "Integration", href: "/integration", icon: Plug },
-    { name: "Settings", href: "/settings", icon: Settings },
+    { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
   const handleProjectSelect = useCallback(
@@ -81,27 +82,27 @@ export function Sidebar({
   );
 
   const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
-    queryKey: ["usage", orgId],
+    queryKey: ['usage', orgId],
     queryFn: async () => {
-      if (!orgId) throw new Error("No organization ID found");
+      if (!orgId) throw new Error('No organization ID found');
 
       // First try to get existing data
       const { data, error } = await supabase
-        .from("Usage")
-        .select("credits_charged, additional_credits_charged, credits_used")
-        .eq("org_id", orgId)
-        .is("end_date", null)
+        .from('Usage')
+        .select('credits_charged, additional_credits_charged, credits_used')
+        .eq('org_id', orgId)
+        .is('end_date', null)
         .single();
 
       if (error) {
         // If no rows found, create a new row
-        if (error.code === "PGRST116") {
+        if (error.code === 'PGRST116') {
           const { data: newData, error: insertError } = await supabase
-            .from("Usage")
+            .from('Usage')
             .insert([
               {
                 org_id: orgId,
-                start_date: new Date().toISOString().split("T")[0],
+                start_date: new Date().toISOString().split('T')[0],
                 credits_used: 0,
                 credits_charged: 0,
                 additional_credits_charged: 0,
@@ -112,7 +113,7 @@ export function Sidebar({
             .single();
 
           if (insertError) {
-            console.error("Error inserting usage data:", insertError);
+            console.error('Error inserting usage data:', insertError);
             throw insertError;
           }
 
@@ -125,7 +126,7 @@ export function Sidebar({
         }
 
         // For other errors, log and throw
-        console.error("Supabase error:", error);
+        console.error('Supabase error:', error);
         throw error;
       }
 
@@ -155,7 +156,7 @@ export function Sidebar({
 
   // Add useCallback for the UserButton click handler
   const handleUserButtonClick = useCallback(() => {
-    (document.querySelector(".cl-userButtonTrigger") as HTMLElement)?.click();
+    (document.querySelector('.cl-userButtonTrigger') as HTMLElement)?.click();
   }, []);
 
   // Memoize if credits are available
@@ -167,7 +168,7 @@ export function Sidebar({
   return (
     <div
       className={`sticky top-0 h-screen border-r bg-white transition-all duration-300 ${
-        isCollapsed ? "w-[60px]" : "w-[220px] lg:w-[270px]"
+        isCollapsed ? 'w-[60px]' : 'w-[220px] lg:w-[270px]'
       }`}
     >
       <div className="flex h-full flex-col">
@@ -188,9 +189,9 @@ export function Sidebar({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant={isCollapsed ? "ghost" : "outline"}
+                  variant={isCollapsed ? 'ghost' : 'outline'}
                   className={`w-full justify-between h-12 text-sm pl-2.5 ${
-                    isCollapsed ? "px-0" : ""
+                    isCollapsed ? 'px-0' : ''
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -202,7 +203,7 @@ export function Sidebar({
                         <span className="truncate font-[550]">
                           {selectedProject
                             ? selectedProject.name
-                            : "Select a project"}
+                            : 'Select a project'}
                         </span>
                       </div>
                     )}
@@ -222,8 +223,8 @@ export function Sidebar({
                     <div
                       className={`flex size-6 items-center justify-center rounded-sm ${
                         project.id.toString() === projectId
-                          ? "bg-indigo-600 text-white"
-                          : "border"
+                          ? 'bg-indigo-600 text-white'
+                          : 'border'
                       }`}
                     >
                       <GalleryVerticalEnd className="size-4" />
@@ -232,7 +233,7 @@ export function Sidebar({
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuItem
-                  onSelect={() => router.push("/")}
+                  onSelect={() => router.push('/')}
                   className="gap-2 p-2 border-t mt-1"
                 >
                   <div className="flex size-6 items-center justify-center rounded-sm border">
@@ -264,15 +265,15 @@ export function Sidebar({
                 <Link
                   key={link.name}
                   href={`${link.href}${
-                    projectId ? `?projectId=${projectId}` : ""
+                    projectId ? `?projectId=${projectId}` : ''
                   }`}
                   className={`flex items-center rounded-md px-2 py-2.5 mb-1 ${
                     isActive
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   } font-medium`}
                 >
-                  <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
+                  <Icon className={`${isCollapsed ? '' : 'mr-3'} h-4 w-4`} />
                   {!isCollapsed && <span>{link.name}</span>}
                 </Link>
               );
@@ -297,15 +298,15 @@ export function Sidebar({
                 <Link
                   key={link.name}
                   href={`${link.href}${
-                    selectedProject ? `?projectId=${selectedProject.id}` : ""
+                    selectedProject ? `?projectId=${selectedProject.id}` : ''
                   }`}
                   className={`flex items-center rounded-md px-2 py-2.5 mt-2 ${
                     isActive
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   } font-medium`}
                 >
-                  <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
+                  <Icon className={`${isCollapsed ? '' : 'mr-3'} h-4 w-4`} />
                   {!isCollapsed && <span>{link.name}</span>}
                 </Link>
               );
@@ -318,10 +319,10 @@ export function Sidebar({
             <div className="px-3 py-1">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">
-                  {isLoadingUsage ? "-" : usedCredits}
+                  {isLoadingUsage ? '-' : usedCredits}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  of {isLoadingUsage ? "-" : totalCredits}
+                  of {isLoadingUsage ? '-' : totalCredits}
                 </span>
               </div>
               <div className="mt-2 h-2 rounded-full bg-muted">
@@ -338,7 +339,7 @@ export function Sidebar({
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "h-8 w-8",
+                    avatarBox: 'h-8 w-8',
                   },
                 }}
               />

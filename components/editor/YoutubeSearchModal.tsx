@@ -1,6 +1,7 @@
+import { createPortal } from 'react-dom';
 import { Editor } from '@tiptap/core';
-import { createPortal } from "react-dom";
-import YoutubeSearch from "../editor/YoutubeSearch";
+import YoutubeSearch from '../editor/YoutubeSearch';
+
 
 interface YoutubeSearchModalProps {
   onSelect: (videoId: string) => void;

@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import { useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import Dashboard from "@/components/ContentMain";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
+import Dashboard from '@/components/ContentMain';
+
 
 export default function IntegrationPage() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -11,7 +12,7 @@ export default function IntegrationPage() {
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      router.push("/sign-in");
+      router.push('/sign-in');
     }
   }, [isLoaded, isSignedIn, router]);
 

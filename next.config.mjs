@@ -18,6 +18,9 @@ const nextConfig = {
     //   // Add other known domains here
     // ],
   },
+  eslint: {
+    ignoreDuringBuilds: true, // Skips ESLint checks during builds
+  },
 };
 
 export default nextConfig;

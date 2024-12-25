@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { Search } from "lucide-react";
-import Image from "next/image";
-import * as React from "react";
-
-import { Button } from "@/components/ui/button";
+import * as React from 'react';
+import Image from 'next/image';
+import { Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { BACKEND_URL } from "@/lib/url";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { BACKEND_URL } from '@/lib/url';
+
 
 interface ImageSearchModalProps {
   onSelect: (imageUrl: string) => void;
@@ -27,7 +27,7 @@ interface ImageSearchResult {
 }
 
 export function ImageSearchModal({ onSelect, onClose }: ImageSearchModalProps) {
-  const [searchTerm, setSearchTerm] = React.useState("");
+  const [searchTerm, setSearchTerm] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<ImageSearchResult[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -55,7 +55,7 @@ export function ImageSearchModal({ onSelect, onClose }: ImageSearchModalProps) {
       if (!data.success) {
         throw new Error('Failed to fetch images');
       }
-      console.log("DATA ===", data)
+      console.log('DATA ===', data);
       setSearchResults(data.data.map((item: any) => ({
         url: item.image_url,
         title: item.image_title

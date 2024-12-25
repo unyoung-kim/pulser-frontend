@@ -1,10 +1,11 @@
-import { Icon } from '@/components/ui/Icon'
-import { icons } from 'lucide-react'
-import { useMemo } from 'react'
-import * as Dropdown from '@radix-ui/react-dropdown-menu'
-import { Toolbar } from '@/components/ui/Toolbar'
-import { Surface } from '@/components/ui/Surface'
-import { DropdownButton, DropdownCategoryTitle } from '@/components/ui/Dropdown'
+import { useMemo } from 'react';
+import * as Dropdown from '@radix-ui/react-dropdown-menu';
+import { icons } from 'lucide-react';
+import { DropdownButton, DropdownCategoryTitle } from '@/components/ui/Dropdown';
+import { Icon } from '@/components/ui/Icon';
+import { Surface } from '@/components/ui/Surface';
+import { Toolbar } from '@/components/ui/Toolbar';
+
 
 export type ContentTypePickerOption = {
   label: string
@@ -29,12 +30,12 @@ export type ContentTypePickerProps = {
 }
 
 const isOption = (option: ContentTypePickerOption | ContentTypePickerCategory): option is ContentTypePickerOption =>
-  option.type === 'option'
+  option.type === 'option';
 const isCategory = (option: ContentTypePickerOption | ContentTypePickerCategory): option is ContentTypePickerCategory =>
-  option.type === 'category'
+  option.type === 'category';
 
 export const ContentTypePicker = ({ options }: ContentTypePickerProps) => {
-  const activeItem = useMemo(() => options.find(option => option.type === 'option' && option.isActive()), [options])
+  const activeItem = useMemo(() => options.find(option => option.type === 'option' && option.isActive()), [options]);
 
   return (
     <Dropdown.Root>
@@ -53,17 +54,17 @@ export const ContentTypePicker = ({ options }: ContentTypePickerProps) => {
                   <Icon name={option.icon} className="w-4 h-4 mr-1" />
                   {option.label}
                 </DropdownButton>
-              )
+              );
             } else if (isCategory(option)) {
               return (
                 <div className="mt-2 first:mt-0" key={option.id}>
                   <DropdownCategoryTitle key={option.id}>{option.label}</DropdownCategoryTitle>
                 </div>
-              )
+              );
             }
           })}
         </Surface>
       </Dropdown.Content>
     </Dropdown.Root>
-  )
-}
+  );
+};

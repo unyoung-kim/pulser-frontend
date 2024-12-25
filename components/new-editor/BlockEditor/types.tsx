@@ -1,4 +1,5 @@
-import type { Language } from '@/extensions/Ai'
+import type { Language } from '@/extensions/Ai';
+
 
 export type EditorUser = {
   clientId: string

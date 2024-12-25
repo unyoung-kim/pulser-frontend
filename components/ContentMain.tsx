@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { Sidebar } from "@/components/dashboard/sidebar";
-import { TableView } from "@/components/dashboard/table-view";
-import { Status, ViewToggle } from "@/components/dashboard/view-toggle";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { useSidebarState } from "@/contexts/SidebarContext";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabaseClient";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { useQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import MainLayout from "./layout/MainLayout";
+import { useCallback, useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { useQuery } from '@tanstack/react-query';
+import { Plus } from 'lucide-react';
+import { Sidebar } from '@/components/dashboard/sidebar';
+import { TableView } from '@/components/dashboard/table-view';
+import { Status, ViewToggle } from '@/components/dashboard/view-toggle';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { useSidebarState } from '@/contexts/SidebarContext';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabaseClient';
+import MainLayout from './layout/MainLayout';
 
 // Initialize Supabase client
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -37,7 +37,7 @@ interface ContentItem {
 const ITEMS_PER_PAGE = 20;
 
 const Dashboard02 = () => {
-  const [view, setView] = useState<"cards">("cards");
+  const [view, setView] = useState<'cards'>('cards');
   const [status, setStatus] = useState<Status>(Status.All);
   const [items, setItems] = useState<ContentItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,7 +47,7 @@ const Dashboard02 = () => {
   const [page, setPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [keywords, setKeywords] = useState<string[]>([]);
-  const [topic, setTopic] = useState("");
+  const [topic, setTopic] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
   const { isCollapsed } = useSidebarState();
@@ -55,7 +55,7 @@ const Dashboard02 = () => {
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const projectId = searchParams?.get("projectId") || "";
+  const projectId = searchParams?.get('projectId') || '';
 
   // useEffect(() => {
   //   const supabaseClient = createClient(supabaseUrl, supabaseKey);
@@ -72,7 +72,7 @@ const Dashboard02 = () => {
       const end = start + ITEMS_PER_PAGE - 1;
 
       const { data, error } = await supabase
-        .from("Content")
+        .from('Content')
         .select(
           `
           *,
@@ -81,9 +81,9 @@ const Dashboard02 = () => {
           )
         `
         )
-        .eq("project_id", projectId)
+        .eq('project_id', projectId)
         .range(start, end)
-        .order("created_at", { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) {
         throw new Error(`Error fetching content: ${error.message}`);
@@ -111,8 +111,8 @@ const Dashboard02 = () => {
       setItems((prevItems) => [...prevItems, ...newItems]);
       setPage((prevPage) => prevPage + 1);
     } catch (err) {
-      setError("Failed to fetch more content");
-      console.error("Error fetching more content:", err);
+      setError('Failed to fetch more content');
+      console.error('Error fetching more content:', err);
     } finally {
       setIsLoading(false);
     }
@@ -129,7 +129,7 @@ const Dashboard02 = () => {
     data: contentData,
     error: fetchError,
     isLoading: fetchLoading,
-  } = useQuery(["content", projectId], fetchContent, {
+  } = useQuery(['content', projectId], fetchContent, {
     enabled: !!projectId && !!supabase, // Only run if projectId and supabase are available
   });
 
@@ -141,8 +141,8 @@ const Dashboard02 = () => {
       setHasNextPage(contentData.length === ITEMS_PER_PAGE);
     }
     if (fetchError) {
-      setError("Failed to fetch content");
-      console.error("Error fetching content:", fetchError);
+      setError('Failed to fetch content');
+      console.error('Error fetching content:', fetchError);
     }
     setIsLoading(fetchLoading);
   }, [contentData, fetchError, fetchLoading]);
@@ -151,21 +151,21 @@ const Dashboard02 = () => {
     status === Status.All
       ? items
       : items.filter(
-          (item) => item.status.toLowerCase() === status.toLowerCase()
-        );
+        (item) => item.status.toLowerCase() === status.toLowerCase()
+      );
 
   const handleDeleteContent = useCallback(
     async (id: number) => {
       if (!supabase || !projectId) return;
 
       try {
-        const { error } = await supabase.from("Content").delete().eq("id", id);
+        const { error } = await supabase.from('Content').delete().eq('id', id);
 
         if (error) {
           toast({
-            title: "Error",
-            description: "Failed to delete content",
-            variant: "destructive",
+            title: 'Error',
+            description: 'Failed to delete content',
+            variant: 'destructive',
           });
           throw error;
         }
@@ -174,11 +174,11 @@ const Dashboard02 = () => {
         setItems((prevItems) => prevItems.filter((item) => item.id !== id));
 
         toast({
-          title: "Success",
-          description: "Content deleted successfully",
+          title: 'Success',
+          description: 'Content deleted successfully',
         });
       } catch (err) {
-        console.error("Error deleting content:", err);
+        console.error('Error deleting content:', err);
       }
     },
     [supabase, projectId, toast]
@@ -204,7 +204,7 @@ const Dashboard02 = () => {
       );
     }
 
-    if (pathname === "/content") {
+    if (pathname === '/content') {
       return (
         <>
           <div className="">
@@ -270,7 +270,7 @@ const Dashboard02 = () => {
     } else {
       const title = pathname
         ? pathname.slice(1).charAt(0).toUpperCase() + pathname.slice(2)
-        : "";
+        : '';
       return (
         <>
           <div className="flex items-center">
@@ -302,8 +302,8 @@ const Dashboard02 = () => {
     <div
       className={`grid min-h-screen w-full transition-[grid-template-columns] duration-300 ${
         isCollapsed
-          ? "grid-cols-[60px_1fr]"
-          : "grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]"
+          ? 'grid-cols-[60px_1fr]'
+          : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
       }`}
     >
       <Sidebar projectId={projectId} />

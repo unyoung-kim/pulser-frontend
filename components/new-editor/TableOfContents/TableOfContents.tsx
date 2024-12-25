@@ -1,10 +1,11 @@
-'use client'
+'use client';
 
-import { Editor as CoreEditor } from '@tiptap/core'
-import { memo } from 'react'
-import { TableOfContentsStorage } from '@tiptap-pro/extension-table-of-contents'
-import { cn } from '@/lib/utils'
-import { useEditorState } from '@tiptap/react'
+import { memo } from 'react';
+import { Editor as CoreEditor } from '@tiptap/core';
+import { useEditorState } from '@tiptap/react';
+import { TableOfContentsStorage } from '@tiptap-pro/extension-table-of-contents';
+import { cn } from '@/lib/utils';
+
 
 export type TableOfContentsProps = {
   editor: CoreEditor
@@ -15,13 +16,13 @@ export const TableOfContents = memo(({ editor, onItemClick }: TableOfContentsPro
   const content = useEditorState({
     editor,
     selector: ctx => (ctx.editor.storage.tableOfContents as TableOfContentsStorage).content,
-  })
+  });
 
   const handleClick = (id: string) => {
-    onItemClick?.()
-    const element = document.getElementById(id)
-    element?.scrollIntoView({ behavior: 'smooth' })
-  }
+    onItemClick?.();
+    const element = document.getElementById(id);
+    element?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <>
@@ -50,7 +51,7 @@ export const TableOfContents = memo(({ editor, onItemClick }: TableOfContentsPro
         <div className="text-sm text-neutral-500">Start adding headlines to your document …</div>
       )}
     </>
-  )
-})
+  );
+});
 
-TableOfContents.displayName = 'TableOfContents'
+TableOfContents.displayName = 'TableOfContents';
