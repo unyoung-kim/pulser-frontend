@@ -1,15 +1,16 @@
-import { Button } from "@/components/ui/Button-editor";
-import { Card, CardContent } from "@/components/ui/card";
-import { Icon } from "@/components/ui/Icon";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/lib/supabaseClient";
-import { getPathFromURL } from "@/lib/url";
-import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/Button-editor';
+import { Card, CardContent } from '@/components/ui/card';
+import { Icon } from '@/components/ui/Icon';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
+import { supabase } from '@/lib/supabaseClient';
+import { getPathFromURL } from '@/lib/url';
+
 
 export type LinkEditorPanelProps = {
   initialUrl?: string;
@@ -22,23 +23,23 @@ export const useLinkEditorState = ({
   initialOpenInNewTab,
   onSetLink,
 }: LinkEditorPanelProps) => {
-  const [url, setUrl] = useState(initialUrl || "");
+  const [url, setUrl] = useState(initialUrl || '');
   const [openInNewTab, setOpenInNewTab] = useState(
     initialOpenInNewTab || false
   );
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
 
   const searchParams = useSearchParams();
-  const projectId = searchParams.get("projectId");
+  const projectId = searchParams.get('projectId');
 
   const { data: internalLinks } = useQuery({
-    queryKey: ["internalLinks", projectId],
+    queryKey: ['internalLinks', projectId],
     queryFn: async () => {
       if (!projectId) return [];
       const { data, error } = await supabase
-        .from("InternalLink")
-        .select("*")
-        .eq("project_id", projectId);
+        .from('InternalLink')
+        .select('*')
+        .eq('project_id', projectId);
       if (error) throw error;
       return data ?? [];
     },

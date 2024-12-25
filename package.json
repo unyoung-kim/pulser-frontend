@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:quiet": "next lint --quiet",
+    "lint:fix": "next lint --fix",
     "cleanse": "rm -rf package-lock.json && rm -rf node_modules && npm install"
   },
   "dependencies": {

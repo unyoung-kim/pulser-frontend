@@ -1,5 +1,6 @@
-import { Editor, useEditorState } from '@tiptap/react'
-import { ContentPickerOptions } from '../components/ContentTypePicker'
+import { Editor, useEditorState } from '@tiptap/react';
+import { ContentPickerOptions } from '../components/ContentTypePicker';
+
 
 export const useTextmenuContentTypes = (editor: Editor) => {
   return useEditorState({
@@ -86,5 +87,5 @@ export const useTextmenuContentTypes = (editor: Editor) => {
         type: 'option',
       },
     ],
-  })
-}
+  });
+};

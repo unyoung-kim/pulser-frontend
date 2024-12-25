@@ -1,14 +1,15 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BACKEND_URL } from "@/lib/api/backend";
-import { plans } from "@/lib/pricing-plan";
-import { supabase } from "@/lib/supabaseClient";
-import { useAuth } from "@clerk/nextjs";
-import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, Settings } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
+import { useQuery } from '@tanstack/react-query';
+import { ExternalLink, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BACKEND_URL } from '@/lib/api/backend';
+import { plans } from '@/lib/pricing-plan';
+import { supabase } from '@/lib/supabaseClient';
+
 
 interface Usage {
   credits_charged: number;
@@ -18,34 +19,34 @@ interface Usage {
 
 export default function PricingPage() {
   const { orgId } = useAuth();
-  const [activeTab, setActiveTab] = useState<"plan" | "subscription">("subscription");
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
+  const [activeTab, setActiveTab] = useState<'plan' | 'subscription'>('subscription');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
 
   const previousPurchases = [
-    { date: "-", credits: "-", amount: "-" },
+    { date: '-', credits: '-', amount: '-' },
     // Add more purchase history as needed
   ];
 
   const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
-    queryKey: ["usage", orgId],
+    queryKey: ['usage', orgId],
     queryFn: async () => {
-      if (!orgId) throw new Error("No organization ID found");
+      if (!orgId) throw new Error('No organization ID found');
 
       const { data, error } = await supabase
-        .from("Usage")
-        .select("credits_charged, additional_credits_charged, credits_used")
-        .eq("org_id", orgId)
-        .is("end_date", null)
+        .from('Usage')
+        .select('credits_charged, additional_credits_charged, credits_used')
+        .eq('org_id', orgId)
+        .is('end_date', null)
         .single();
 
       if (error) {
-        if (error.code === "PGRST116") {
+        if (error.code === 'PGRST116') {
           const { data: newData, error: insertError } = await supabase
-            .from("Usage")
+            .from('Usage')
             .insert([
               {
                 org_id: orgId,
-                start_date: new Date().toISOString().split("T")[0],
+                start_date: new Date().toISOString().split('T')[0],
                 credits_used: 0,
                 credits_charged: 0,
                 additional_credits_charged: 0,
@@ -81,20 +82,20 @@ export default function PricingPage() {
   const handleChoosePlan = useCallback(
     async (planName: string) => {
       if (!orgId) {
-        console.log("No orgId found");
+        console.log('No orgId found');
         return;
       }
       try {
         const response = await fetch(`${BACKEND_URL}/api/create-stripe-session`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             orgId: orgId,
-            plan: planName as "SOLO" | "BUSINESS" | "AGENCY",
-            term: billingCycle === "monthly" ? "MONTHLY" : "YEARLY",
-            mode: "subscription",
+            plan: planName as 'SOLO' | 'BUSINESS' | 'AGENCY',
+            term: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+            mode: 'subscription',
           }),
         });
 
@@ -106,7 +107,7 @@ export default function PricingPage() {
 
         window.location.href = data.data;
       } catch (error) {
-        console.error("Error creating stripe session:", error);
+        console.error('Error creating stripe session:', error);
       }
     },
     [orgId, billingCycle],
@@ -124,30 +125,30 @@ export default function PricingPage() {
 
         <div className="flex gap-8 border-b mb-8">
           <button
-            onClick={() => setActiveTab("plan")}
+            onClick={() => setActiveTab('plan')}
             className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
-              activeTab === "plan" ? "text-foreground" : "text-muted-foreground"
+              activeTab === 'plan' ? 'text-foreground' : 'text-muted-foreground'
             }`}
           >
             Plan
-            {activeTab === "plan" && (
+            {activeTab === 'plan' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
             )}
           </button>
           <button
-            onClick={() => setActiveTab("subscription")}
+            onClick={() => setActiveTab('subscription')}
             className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
-              activeTab === "subscription" ? "text-foreground" : "text-muted-foreground"
+              activeTab === 'subscription' ? 'text-foreground' : 'text-muted-foreground'
             }`}
           >
             Subscription
-            {activeTab === "subscription" && (
+            {activeTab === 'subscription' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
             )}
           </button>
         </div>
 
-        {activeTab === "plan" ? (
+        {activeTab === 'plan' ? (
           <div className="space-y-6">
             <Card>
               <CardContent className="p-6">
@@ -174,9 +175,9 @@ export default function PricingPage() {
                       className="flex justify-between text-sm py-2 border-b last:border-b-0"
                     >
                       <span>{purchase.date}</span>
-                      <span>{purchase.credits === "-" ? "-" : `${purchase.credits} credits`}</span>
+                      <span>{purchase.credits === '-' ? '-' : `${purchase.credits} credits`}</span>
                       <span className="font-medium">
-                        {purchase.amount === "-" ? "-" : `$${purchase.amount}`}
+                        {purchase.amount === '-' ? '-' : `$${purchase.amount}`}
                       </span>
                     </li>
                   ))}
@@ -189,17 +190,17 @@ export default function PricingPage() {
             <div className="flex justify-center mb-12">
               <div className="inline-flex items-center bg-secondary rounded-lg p-1">
                 <button
-                  onClick={() => setBillingCycle("monthly")}
+                  onClick={() => setBillingCycle('monthly')}
                   className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                    billingCycle === "monthly" ? "bg-background shadow-sm" : "text-muted-foreground"
+                    billingCycle === 'monthly' ? 'bg-background shadow-sm' : 'text-muted-foreground'
                   }`}
                 >
                   Monthly
                 </button>
                 <button
-                  onClick={() => setBillingCycle("yearly")}
+                  onClick={() => setBillingCycle('yearly')}
                   className={`px-4 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${
-                    billingCycle === "yearly" ? "bg-background shadow-sm" : "text-muted-foreground"
+                    billingCycle === 'yearly' ? 'bg-background shadow-sm' : 'text-muted-foreground'
                   }`}
                 >
                   Yearly
@@ -212,7 +213,7 @@ export default function PricingPage() {
               {plans.map((plan) => (
                 <Card
                   key={plan.name}
-                  className={`relative ${plan.popular ? "border-indigo-600 shadow-md" : ""}`}
+                  className={`relative ${plan.popular ? 'border-indigo-600 shadow-md' : ''}`}
                 >
                   {plan.popular && (
                     <span className="absolute right-4 top-4 bg-indigo-600 text-white text-sm px-3 py-1 rounded-full">
@@ -227,7 +228,7 @@ export default function PricingPage() {
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-4xl font-bold">
-                          ${billingCycle === "yearly" ? plan.yearlyPrice : plan.monthlyPrice}
+                          ${billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice}
                         </span>
                         <span className="text-muted-foreground">USD / mo</span>
                       </div>
@@ -235,7 +236,7 @@ export default function PricingPage() {
                     </div>
 
                     <Button
-                      variant={plan.popular ? "default" : "outline"}
+                      variant={plan.popular ? 'default' : 'outline'}
                       className="w-full mb-6"
                       onClick={() => handleChoosePlan(plan.name.toUpperCase())}
                     >

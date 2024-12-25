@@ -1,17 +1,18 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState } from 'react';
+import { ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { plans } from "@/lib/pricing-plan";
-import { ExternalLink } from "lucide-react";
-import { useState } from "react";
+} from '@/components/ui/dialog';
+import { plans } from '@/lib/pricing-plan';
+
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -28,8 +29,8 @@ export default function PaymentModal({
   onClose,
   selectedPlan,
 }: PaymentModalProps) {
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
-    "monthly"
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>(
+    'monthly'
   );
 
   return (
@@ -46,21 +47,21 @@ export default function PaymentModal({
           <div className="flex justify-center mb-12">
             <div className="inline-flex items-center bg-secondary rounded-lg p-1">
               <button
-                onClick={() => setBillingCycle("monthly")}
+                onClick={() => setBillingCycle('monthly')}
                 className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                  billingCycle === "monthly"
-                    ? "bg-background shadow-sm"
-                    : "text-muted-foreground"
+                  billingCycle === 'monthly'
+                    ? 'bg-background shadow-sm'
+                    : 'text-muted-foreground'
                 }`}
               >
                 Monthly
               </button>
               <button
-                onClick={() => setBillingCycle("yearly")}
+                onClick={() => setBillingCycle('yearly')}
                 className={`px-4 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${
-                  billingCycle === "yearly"
-                    ? "bg-background shadow-sm"
-                    : "text-muted-foreground"
+                  billingCycle === 'yearly'
+                    ? 'bg-background shadow-sm'
+                    : 'text-muted-foreground'
                 }`}
               >
                 Yearly
@@ -74,7 +75,7 @@ export default function PaymentModal({
               <Card
                 key={plan.name}
                 className={`relative ${
-                  plan.popular ? "border-indigo-600 shadow-md" : ""
+                  plan.popular ? 'border-indigo-600 shadow-md' : ''
                 }`}
               >
                 {plan.popular && (
@@ -91,19 +92,19 @@ export default function PaymentModal({
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-bold">
                         $
-                        {billingCycle === "yearly"
+                        {billingCycle === 'yearly'
                           ? plan.yearlyPrice
                           : plan.monthlyPrice}
                       </span>
                       <span className="text-muted-foreground">USD / mo</span>
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
-                      Billed {billingCycle === "yearly" ? "yearly" : "monthly"}
+                      Billed {billingCycle === 'yearly' ? 'yearly' : 'monthly'}
                     </div>
                   </div>
 
                   <Button
-                    variant={plan.popular ? "default" : "outline"}
+                    variant={plan.popular ? 'default' : 'outline'}
                     className="w-full mb-6"
                   >
                     Choose Plan

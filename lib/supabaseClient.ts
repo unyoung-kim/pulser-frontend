@@ -1,5 +1,6 @@
 // lib/supabaseClient.ts
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
@@ -14,6 +15,6 @@ declare global {
 const supabase = global.supabase || createClient(supabaseUrl, supabaseAnonKey);
 
 // Ensure the client is created only once in a server environment
-if (typeof window === "undefined") global.supabase = supabase;
+if (typeof window === 'undefined') global.supabase = supabase;
 
 export { supabase };

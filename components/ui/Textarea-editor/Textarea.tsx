@@ -1,5 +1,6 @@
-import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { forwardRef } from 'react';
+import { cn } from '@/lib/utils';
+
 
 export const Textarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
   ({ className, ...rest }, ref) => {
@@ -11,10 +12,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttrib
       'focus:bg-transparent active:bg-transparent focus:outline focus:outline-black active:outline active:outline-black',
       'dark:focus:outline-white dark:active:outline-white',
       className,
-    )
+    );
 
-    return <textarea className={textAreaClassName} ref={ref} {...rest} />
+    return <textarea className={textAreaClassName} ref={ref} {...rest} />;
   },
-)
+);
 
-Textarea.displayName = 'Textarea'
+Textarea.displayName = 'Textarea';

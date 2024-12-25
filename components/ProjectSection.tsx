@@ -1,24 +1,25 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Loader } from "@/components/ui/loader";
-import { useProjects } from "@/contexts/ProjectContext";
-import { useOrganization, useUser } from "@clerk/nextjs";
+import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useOrganization, useUser } from '@clerk/nextjs';
 import {
   DocumentTextIcon,
   FolderIcon,
   PlusCircleIcon,
-} from "@heroicons/react/24/outline";
-import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+} from '@heroicons/react/24/outline';
+import { Button } from '@/components/ui/button';
+import { Loader } from '@/components/ui/loader';
+import { useProjects } from '@/contexts/ProjectContext';
 // import { createClient } from '@supabase/supabase-js';
-import { getLastUpdatedText } from "@/lib/date";
-import { supabase } from "@/lib/supabaseClient";
+import { getLastUpdatedText } from '@/lib/date';
+import { supabase } from '@/lib/supabaseClient';
+
 
 export default function ProjectSection() {
-  const [newProjectName, setNewProjectName] = useState<string>("");
+  const [newProjectName, setNewProjectName] = useState<string>('');
   const [newProjectDescription, setNewProjectDescription] =
-    useState<string>("");
+    useState<string>('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
   const { projects, loading, fetchProjects } = useProjects();
   const { user } = useUser();
@@ -46,7 +47,7 @@ export default function ProjectSection() {
 
       try {
         const { data, error } = await supabase
-          .from("Project")
+          .from('Project')
           .insert([
             {
               name: newProjectName,
@@ -55,21 +56,21 @@ export default function ProjectSection() {
               org_id: organization.id,
             },
           ])
-          .order("updated_at", { ascending: false })
+          .order('updated_at', { ascending: false })
           .select();
 
         if (error) throw error;
 
         await fetchProjects(); // Refresh the projects list
         setIsCreateDialogOpen(false);
-        setNewProjectName("");
-        setNewProjectDescription("");
+        setNewProjectName('');
+        setNewProjectDescription('');
 
         if (data?.[0]) {
           navigateToBackground(data[0].id.toString());
         }
       } catch (error) {
-        console.error("Error creating project:", error);
+        console.error('Error creating project:', error);
       }
     },
     [
@@ -169,7 +170,7 @@ export default function ProjectSection() {
                     {project.name}
                   </h3>
                   <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-                    {project.description || "No description provided"}
+                    {project.description || 'No description provided'}
                   </p>
                   <div className="mt-4 flex items-center justify-between">
                     <p className="text-xs text-gray-400">
@@ -177,7 +178,7 @@ export default function ProjectSection() {
                     </p>
                     <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">
                       {project.content_count} content
-                      {project.content_count !== 1 ? "s" : ""}
+                      {project.content_count !== 1 ? 's' : ''}
                     </span>
                   </div>
                 </div>
@@ -236,7 +237,7 @@ export default function ProjectSection() {
                     htmlFor="projectDescription"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Description{" "}
+                    Description{' '}
                     <span className="text-gray-400">(optional)</span>
                   </label>
                   <textarea

@@ -1,9 +1,10 @@
-import { DropdownButton, DropdownCategoryTitle } from '@/components/ui/Dropdown'
-import { Icon } from '@/components/ui/Icon'
-import { Surface } from '@/components/ui/Surface'
-import { Toolbar } from '@/components/ui/Toolbar'
-import * as Dropdown from '@radix-ui/react-dropdown-menu'
-import { useCallback } from 'react'
+import { useCallback } from 'react';
+import * as Dropdown from '@radix-ui/react-dropdown-menu';
+import { DropdownButton, DropdownCategoryTitle } from '@/components/ui/Dropdown';
+import { Icon } from '@/components/ui/Icon';
+import { Surface } from '@/components/ui/Surface';
+import { Toolbar } from '@/components/ui/Toolbar';
+
 
 const FONT_SIZES = [
   { label: 'Smaller', value: '12px' },
@@ -11,7 +12,7 @@ const FONT_SIZES = [
   { label: 'Medium', value: '' },
   { label: 'Large', value: '18px' },
   { label: 'Extra Large', value: '24px' },
-]
+];
 
 export type FontSizePickerProps = {
   onChange: (value: string) => void // eslint-disable-line no-unused-vars
@@ -19,10 +20,10 @@ export type FontSizePickerProps = {
 }
 
 export const FontSizePicker = ({ onChange, value }: FontSizePickerProps) => {
-  const currentValue = FONT_SIZES.find(size => size.value === value)
-  const currentSizeLabel = currentValue?.label.split(' ')[0] || 'Medium'
+  const currentValue = FONT_SIZES.find(size => size.value === value);
+  const currentSizeLabel = currentValue?.label.split(' ')[0] || 'Medium';
 
-  const selectSize = useCallback((size: string) => () => onChange(size), [onChange])
+  const selectSize = useCallback((size: string) => () => onChange(size), [onChange]);
 
   return (
     <Dropdown.Root>
@@ -46,5 +47,5 @@ export const FontSizePicker = ({ onChange, value }: FontSizePickerProps) => {
         </Surface>
       </Dropdown.Content>
     </Dropdown.Root>
-  )
-}
+  );
+};

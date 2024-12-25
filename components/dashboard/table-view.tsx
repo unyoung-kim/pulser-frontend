@@ -1,21 +1,7 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import Case from "case";
-import { format } from "date-fns";
+import { useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Case from 'case';
+import { format } from 'date-fns';
 import {
   ActivitySquare,
   BookOpen,
@@ -28,10 +14,25 @@ import {
   Tag,
   Trash2,
   Type,
-} from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
-import useInfiniteScroll from "react-infinite-scroll-hook";
+} from 'lucide-react';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
 
 interface TableViewProps {
   items: Array<{
@@ -53,19 +54,19 @@ interface TableViewProps {
   onDelete: (id: number) => void;
 }
 
-const DEFAULT_IMAGE = "https://picsum.photos/seed/default/100/100";
+const DEFAULT_IMAGE = 'https://picsum.photos/seed/default/100/100';
 
 const getValidImageUrl = (url?: string) => {
-  if (!url || url === "/timeline-image-url" || url === "timeline-image-url") {
+  if (!url || url === '/timeline-image-url' || url === 'timeline-image-url') {
     return DEFAULT_IMAGE;
   }
 
   try {
-    if (url.startsWith("http")) {
+    if (url.startsWith('http')) {
       return url;
     }
 
-    const urlToTest = url.startsWith("/") ? url : `/${url}`;
+    const urlToTest = url.startsWith('/') ? url : `/${url}`;
     new URL(urlToTest, window.location.origin);
     return urlToTest;
   } catch {
@@ -82,14 +83,14 @@ export function TableView({
 }: TableViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const projectId = searchParams.get("projectId");
+  const projectId = searchParams.get('projectId');
 
   const [sentryRef] = useInfiniteScroll({
     loading,
     hasNextPage,
     onLoadMore,
     disabled: false,
-    rootMargin: "0px 0px 400px 0px",
+    rootMargin: '0px 0px 400px 0px',
   });
 
   const handleRowClick = useCallback(
@@ -100,11 +101,11 @@ export function TableView({
   );
 
   const formatDate = useCallback((dateString: string) => {
-    return format(new Date(dateString), "MM/dd/yyyy");
+    return format(new Date(dateString), 'MM/dd/yyyy');
   }, []);
 
   const getStatusBadge = (status: string) => {
-    if (status.toLowerCase() === "draft") {
+    if (status.toLowerCase() === 'draft') {
       return (
         <Badge
           variant="secondary"
@@ -180,7 +181,7 @@ export function TableView({
                       variant="outline"
                       className="w-24 justify-center inline-flex items-center gap-1"
                     >
-                      {item.type.toLowerCase() === "normal" ? (
+                      {item.type.toLowerCase() === 'normal' ? (
                         <>
                           <Search className="h-3 w-3" />
                           SEO

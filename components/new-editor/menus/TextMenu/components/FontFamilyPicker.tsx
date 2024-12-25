@@ -1,9 +1,10 @@
-import { DropdownButton, DropdownCategoryTitle } from '@/components/ui/Dropdown'
-import { Icon } from '@/components/ui/Icon'
-import { Surface } from '@/components/ui/Surface'
-import { Toolbar } from '@/components/ui/Toolbar'
-import * as Dropdown from '@radix-ui/react-dropdown-menu'
-import { useCallback } from 'react'
+import { useCallback } from 'react';
+import * as Dropdown from '@radix-ui/react-dropdown-menu';
+import { DropdownButton, DropdownCategoryTitle } from '@/components/ui/Dropdown';
+import { Icon } from '@/components/ui/Icon';
+import { Surface } from '@/components/ui/Surface';
+import { Toolbar } from '@/components/ui/Toolbar';
+
 
 const FONT_FAMILY_GROUPS = [
   {
@@ -29,9 +30,9 @@ const FONT_FAMILY_GROUPS = [
       { label: 'Courier New', value: 'Courier New' },
     ],
   },
-]
+];
 
-const FONT_FAMILIES = FONT_FAMILY_GROUPS.flatMap(group => [group.options]).flat()
+const FONT_FAMILIES = FONT_FAMILY_GROUPS.flatMap(group => [group.options]).flat();
 
 export type FontFamilyPickerProps = {
   onChange: (value: string) => void // eslint-disable-line no-unused-vars
@@ -39,10 +40,10 @@ export type FontFamilyPickerProps = {
 }
 
 export const FontFamilyPicker = ({ onChange, value }: FontFamilyPickerProps) => {
-  const currentValue = FONT_FAMILIES.find(size => size.value === value)
-  const currentFontLabel = currentValue?.label.split(' ')[0] || 'Inter'
+  const currentValue = FONT_FAMILIES.find(size => size.value === value);
+  const currentFontLabel = currentValue?.label.split(' ')[0] || 'Inter';
 
-  const selectFont = useCallback((font: string) => () => onChange(font), [onChange])
+  const selectFont = useCallback((font: string) => () => onChange(font), [onChange]);
 
   return (
     <Dropdown.Root>
@@ -71,5 +72,5 @@ export const FontFamilyPicker = ({ onChange, value }: FontFamilyPickerProps) => 
         </Surface>
       </Dropdown.Content>
     </Dropdown.Root>
-  )
-}
+  );
+};

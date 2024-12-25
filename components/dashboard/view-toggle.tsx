@@ -1,18 +1,19 @@
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Case from "case";
-import { Plus } from "lucide-react";
+import Case from 'case';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 
 export enum Status {
-  All = "All",
-  Draft = "draft",
-  Published = "published",
+  All = 'All',
+  Draft = 'draft',
+  Published = 'published',
   // Archived = "archived",
   // Scheduled = "scheduled",
 }
 
 interface ViewToggleProps {
-  view: "cards" | "table";
+  view: 'cards' | 'table';
   // setView: (view: "cards" | "table") => void;
   status: Status;
   setStatus: (status: string) => void;

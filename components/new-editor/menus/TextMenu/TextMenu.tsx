@@ -1,18 +1,18 @@
-import { Icon } from "@/components/ui/Icon";
-import { Surface } from "@/components/ui/Surface";
-import { Toolbar } from "@/components/ui/Toolbar";
-import * as Popover from "@radix-ui/react-popover";
-import { BubbleMenu, Editor } from "@tiptap/react";
-import { memo } from "react";
-import { ColorPicker } from "../../panels";
-import { AIDropdown } from "./components/AIDropdown";
-import { ContentTypePicker } from "./components/ContentTypePicker";
-import { EditLinkPopover } from "./components/EditLinkPopover";
-import { FontFamilyPicker } from "./components/FontFamilyPicker";
-import { FontSizePicker } from "./components/FontSizePicker";
-import { useTextmenuCommands } from "./hooks/useTextmenuCommands";
-import { useTextmenuContentTypes } from "./hooks/useTextmenuContentTypes";
-import { useTextmenuStates } from "./hooks/useTextmenuStates";
+import { memo } from 'react';
+import * as Popover from '@radix-ui/react-popover';
+import { BubbleMenu, Editor } from '@tiptap/react';
+import { Icon } from '@/components/ui/Icon';
+import { Surface } from '@/components/ui/Surface';
+import { Toolbar } from '@/components/ui/Toolbar';
+import { ColorPicker } from '../../panels';
+import { AIDropdown } from './components/AIDropdown';
+import { ContentTypePicker } from './components/ContentTypePicker';
+import { EditLinkPopover } from './components/EditLinkPopover';
+import { FontFamilyPicker } from './components/FontFamilyPicker';
+import { FontSizePicker } from './components/FontSizePicker';
+import { useTextmenuCommands } from './hooks/useTextmenuCommands';
+import { useTextmenuContentTypes } from './hooks/useTextmenuContentTypes';
+import { useTextmenuStates } from './hooks/useTextmenuStates';
 
 // We memorize the button so each button is not rerendered
 // on every editor state change
@@ -35,24 +35,24 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
     <BubbleMenu
       tippyOptions={{
         popperOptions: {
-          placement: "top-start",
+          placement: 'top-start',
           modifiers: [
             {
-              name: "preventOverflow",
+              name: 'preventOverflow',
               options: {
-                boundary: "viewport",
+                boundary: 'viewport',
                 padding: 8,
               },
             },
             {
-              name: "flip",
+              name: 'flip',
               options: {
-                fallbackPlacements: ["bottom-start", "top-end", "bottom-end"],
+                fallbackPlacements: ['bottom-start', 'top-end', 'bottom-end'],
               },
             },
           ],
         },
-        maxWidth: "calc(100vw - 16px)",
+        maxWidth: 'calc(100vw - 16px)',
       }}
       editor={editor}
       pluginKey="textMenu"
@@ -75,16 +75,16 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
         <MemoContentTypePicker options={blockOptions} />
         <MemoFontFamilyPicker
           onChange={commands.onSetFont}
-          value={states.currentFont || ""}
+          value={states.currentFont || ''}
         />
         <MemoFontSizePicker
           onChange={commands.onSetFontSize}
-          value={states.currentSize || ""}
+          value={states.currentSize || ''}
         />
         <Toolbar.Divider />
         <MemoButton
           tooltip="Bold"
-          tooltipShortcut={["Mod", "B"]}
+          tooltipShortcut={['Mod', 'B']}
           onClick={commands.onBold}
           active={states.isBold}
         >
@@ -92,7 +92,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
         </MemoButton>
         <MemoButton
           tooltip="Italic"
-          tooltipShortcut={["Mod", "I"]}
+          tooltipShortcut={['Mod', 'I']}
           onClick={commands.onItalic}
           active={states.isItalic}
         >
@@ -100,7 +100,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
         </MemoButton>
         <MemoButton
           tooltip="Underline"
-          tooltipShortcut={["Mod", "U"]}
+          tooltipShortcut={['Mod', 'U']}
           onClick={commands.onUnderline}
           active={states.isUnderline}
         >
@@ -108,7 +108,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
         </MemoButton>
         <MemoButton
           tooltip="Strikehrough"
-          tooltipShortcut={["Mod", "Shift", "S"]}
+          tooltipShortcut={['Mod', 'Shift', 'S']}
           onClick={commands.onStrike}
           active={states.isStrike}
         >
@@ -116,7 +116,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
         </MemoButton>
         <MemoButton
           tooltip="Code"
-          tooltipShortcut={["Mod", "E"]}
+          tooltipShortcut={['Mod', 'E']}
           onClick={commands.onCode}
           active={states.isCode}
         >
@@ -171,7 +171,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
             <Toolbar.Wrapper>
               <MemoButton
                 tooltip="Subscript"
-                tooltipShortcut={["Mod", "."]}
+                tooltipShortcut={['Mod', '.']}
                 onClick={commands.onSubscript}
                 active={states.isSubscript}
               >
@@ -179,7 +179,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
               </MemoButton>
               <MemoButton
                 tooltip="Superscript"
-                tooltipShortcut={["Mod", ","]}
+                tooltipShortcut={['Mod', ',']}
                 onClick={commands.onSuperscript}
                 active={states.isSuperscript}
               >
@@ -188,7 +188,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
               <Toolbar.Divider />
               <MemoButton
                 tooltip="Align left"
-                tooltipShortcut={["Shift", "Mod", "L"]}
+                tooltipShortcut={['Shift', 'Mod', 'L']}
                 onClick={commands.onAlignLeft}
                 active={states.isAlignLeft}
               >
@@ -196,7 +196,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
               </MemoButton>
               <MemoButton
                 tooltip="Align center"
-                tooltipShortcut={["Shift", "Mod", "E"]}
+                tooltipShortcut={['Shift', 'Mod', 'E']}
                 onClick={commands.onAlignCenter}
                 active={states.isAlignCenter}
               >
@@ -204,7 +204,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
               </MemoButton>
               <MemoButton
                 tooltip="Align right"
-                tooltipShortcut={["Shift", "Mod", "R"]}
+                tooltipShortcut={['Shift', 'Mod', 'R']}
                 onClick={commands.onAlignRight}
                 active={states.isAlignRight}
               >
@@ -212,7 +212,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
               </MemoButton>
               <MemoButton
                 tooltip="Justify"
-                tooltipShortcut={["Shift", "Mod", "J"]}
+                tooltipShortcut={['Shift', 'Mod', 'J']}
                 onClick={commands.onAlignJustify}
                 active={states.isAlignJustify}
               >

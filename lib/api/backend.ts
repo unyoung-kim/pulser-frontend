@@ -1,1 +1,1 @@
-export const BACKEND_URL = "https://pulser-backend.onrender.com";
+export const BACKEND_URL = 'https://pulser-backend.onrender.com';

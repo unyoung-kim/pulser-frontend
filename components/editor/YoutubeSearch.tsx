@@ -1,13 +1,14 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Search, X } from "lucide-react";
-import Image from "next/image";
-import { useState } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { BACKEND_URL } from "@/lib/url";
+import { useState } from 'react';
+import Image from 'next/image';
+import { Search, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { BACKEND_URL } from '@/lib/url';
+
 
 interface VideoResult {
   id: string;
@@ -27,7 +28,7 @@ export default function YoutubeSearch({
   onClose,
   editor
 }: YoutubeSearchProps) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [results, setResults] = useState<VideoResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +51,7 @@ export default function YoutubeSearch({
       });
       
       const data = await response.json();
-      console.log("DATA ===", data)
+      console.log('DATA ===', data);
       if (!data.success) {
         throw new Error('Failed to fetch videos');
       }
@@ -128,7 +129,7 @@ export default function YoutubeSearch({
             className="flex-grow"
           />
           <Button type="submit" disabled={!query || isSearching}>
-            {isSearching ? "Searching..." : "Search"}
+            {isSearching ? 'Searching...' : 'Search'}
           </Button>
         </form>
 

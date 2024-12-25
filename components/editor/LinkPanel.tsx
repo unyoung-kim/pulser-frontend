@@ -1,39 +1,40 @@
-"use client";
+'use client';
 
+import * as React from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { Check, Link as LinkIcon } from 'lucide-react';
 import {
   Command,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import { supabase } from "@/lib/supabaseClient";
-import { getPathFromURL } from "@/lib/url";
-import { useQuery } from "@tanstack/react-query";
-import { Check, Link as LinkIcon } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import * as React from "react";
+} from '@/components/ui/command';
+import { supabase } from '@/lib/supabaseClient';
+import { getPathFromURL } from '@/lib/url';
+
 
 interface LinkPanelProps {
   onSelect: (url: string) => void;
 }
 
 export default function LinkPanel({ onSelect }: LinkPanelProps) {
-  const [inputValue, setInputValue] = React.useState("");
+  const [inputValue, setInputValue] = React.useState('');
   const [isExternalLink, setIsExternalLink] = React.useState(false);
 
   const searchParams = useSearchParams();
-  const projectId = searchParams.get("projectId");
+  const projectId = searchParams.get('projectId');
 
   const { data: internalLinks } = useQuery({
-    queryKey: ["internalLinks", projectId],
+    queryKey: ['internalLinks', projectId],
     queryFn: async () => {
       if (!projectId) return [];
 
       const { data, error } = await supabase
-        .from("InternalLink")
-        .select("*")
-        .eq("project_id", projectId);
+        .from('InternalLink')
+        .select('*')
+        .eq('project_id', projectId);
 
       if (error) throw error;
       return data ?? [];
@@ -44,7 +45,7 @@ export default function LinkPanel({ onSelect }: LinkPanelProps) {
   const handleInputChange = (value: string) => {
     setInputValue(value);
     setIsExternalLink(
-      value.startsWith("http://") || value.startsWith("https://")
+      value.startsWith('http://') || value.startsWith('https://')
     );
   };
 

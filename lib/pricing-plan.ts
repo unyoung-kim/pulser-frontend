@@ -1,4 +1,5 @@
-import { Briefcase, Building2, User } from "lucide-react";
+import { Briefcase, Building2, User } from 'lucide-react';
+
 
 export interface PricingPlan {
   name: string;
@@ -11,14 +12,14 @@ export interface PricingPlan {
 
 export const plans: PricingPlan[] = [
   {
-    name: "Basic",
+    name: 'Basic',
     icon: User,
     monthlyPrice: 49,
     yearlyPrice: 39,
     credits: 100,
   },
   {
-    name: "Pro",
+    name: 'Pro',
     icon: Briefcase,
     monthlyPrice: 109,
     yearlyPrice: 99,
@@ -26,7 +27,7 @@ export const plans: PricingPlan[] = [
     popular: true,
   },
   {
-    name: "Agency",
+    name: 'Agency',
     icon: Building2,
     monthlyPrice: 419,
     yearlyPrice: 379,

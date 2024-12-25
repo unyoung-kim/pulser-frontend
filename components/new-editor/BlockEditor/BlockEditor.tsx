@@ -1,21 +1,20 @@
-import { Editor, EditorContent } from "@tiptap/react";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { Editor, EditorContent } from '@tiptap/react';
+import { ImageSearchModal } from '@/components/editor/ImageSearchModal';
+import '@/styles/index.css';
+import { YoutubeSearchModal } from '@/components/editor/YoutubeSearchModal';
+import ImageBlockMenu from '@/extensions/ImageBlock/components/ImageBlockMenu';
+import { ImageSearchEventProps } from '@/extensions/ImageSearch/ImageSearch';
+import { ColumnsMenu } from '@/extensions/MultiColumn/menus';
+import { TableColumnMenu, TableRowMenu } from '@/extensions/Table/menus';
+import { YoutubeSearchEventProps } from '@/extensions/YoutubeSearch/YoutubeSearch';
+import { useSidebar } from '@/hooks/useSidebar';
+import { LinkMenu } from '../menus';
+import { ContentItemMenu } from '../menus/ContentItemMenu';
+import { TextMenu } from '../menus/TextMenu';
+import { Sidebar } from '../Sidebar';
+import { EditorHeader } from './components/EditorHeader';
 
-import "@/styles/index.css";
-
-import ImageBlockMenu from "@/extensions/ImageBlock/components/ImageBlockMenu";
-import { ColumnsMenu } from "@/extensions/MultiColumn/menus";
-import { TableColumnMenu, TableRowMenu } from "@/extensions/Table/menus";
-import { useSidebar } from "@/hooks/useSidebar";
-import { LinkMenu } from "../menus";
-import { ContentItemMenu } from "../menus/ContentItemMenu";
-import { TextMenu } from "../menus/TextMenu";
-import { Sidebar } from "../Sidebar";
-import { EditorHeader } from "./components/EditorHeader";
-import { ImageSearchModal } from "@/components/editor/ImageSearchModal";
-import { YoutubeSearchModal } from "@/components/editor/YoutubeSearchModal";
-import { ImageSearchEventProps } from '@/extensions/ImageSearch/ImageSearch'
-import { YoutubeSearchEventProps } from '@/extensions/YoutubeSearch/YoutubeSearch'
 
 export const BlockEditor = ({
   aiToken,
@@ -45,9 +44,9 @@ export const BlockEditor = ({
       setShowSaved(false);
     };
 
-    editor.on("update", checkChanges);
+    editor.on('update', checkChanges);
     return () => {
-      editor.off("update", checkChanges);
+      editor.off('update', checkChanges);
     };
   }, [editor, lastSavedContent]);
 

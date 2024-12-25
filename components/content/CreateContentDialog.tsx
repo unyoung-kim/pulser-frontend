@@ -1,11 +1,12 @@
-"use client"
+'use client';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { X } from "lucide-react"
-import { useState, useCallback } from "react"
+import { useState, useCallback } from 'react';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
 
 interface CreateContentDialogProps {
   open: boolean;
@@ -28,12 +29,12 @@ export function CreateContentDialog({
   onSubmit,
   isCreating
 }: CreateContentDialogProps) {
-  const [newKeyword, setNewKeyword] = useState("");
+  const [newKeyword, setNewKeyword] = useState('');
 
   const handleAddKeyword = useCallback(() => {
     if (newKeyword.trim() && !keywords.includes(newKeyword.trim())) {
       onKeywordsChange([...keywords, newKeyword.trim()]);
-      setNewKeyword("");
+      setNewKeyword('');
     }
   }, [newKeyword, keywords, onKeywordsChange]);
 
