@@ -1,5 +1,16 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -7,9 +18,9 @@ import { BACKEND_URL } from "@/lib/api/backend";
 import { plans } from "@/lib/pricing-plan";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@clerk/nextjs";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Case from "case";
-import { ExternalLink, Settings } from "lucide-react";
+import { AlertCircle, ExternalLink, Settings } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Badge } from "../ui/badge";
 
@@ -23,7 +34,7 @@ interface Usage {
 
 export default function PricingPage() {
   const { orgId } = useAuth();
-  const [activeTab, setActiveTab] = useState<"plan" | "subscription">("subscription");
+  const [activeTab, setActiveTab] = useState<"plan" | "subscription" | "danger">("subscription");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
   const { toast } = useToast();
 
@@ -183,6 +194,45 @@ export default function PricingPage() {
     [orgId, billingCycle, toast],
   );
 
+  const cancelSubscriptionMutation = useMutation({
+    mutationFn: async (orgId: string) => {
+      const response = await fetch(`${BACKEND_URL}/api/delete-subscription`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orgId }),
+      });
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error);
+      }
+      return data;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Your subscription has been cancelled successfully",
+      });
+      window.location.reload();
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to cancel subscription",
+      });
+    },
+  });
+
+  const handleCancelSubscription = async () => {
+    if (!orgId) {
+      console.log("No orgId found");
+      return;
+    }
+    cancelSubscriptionMutation.mutate(orgId);
+  };
+
   return (
     <div className="container mx-auto max-w-6xl">
       <div className="space-y-6">
@@ -214,6 +264,17 @@ export default function PricingPage() {
             Subscription
             {activeTab === "subscription" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("danger")}
+            className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
+              activeTab === "danger" ? "text-destructive" : "text-muted-foreground"
+            }`}
+          >
+            Danger
+            {activeTab === "danger" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-destructive" />
             )}
           </button>
         </div>
@@ -285,7 +346,7 @@ export default function PricingPage() {
               </CardContent>
             </Card>
           </div>
-        ) : (
+        ) : activeTab === "subscription" ? (
           <>
             <div className="flex justify-center mb-12">
               <div className="inline-flex items-center bg-secondary rounded-lg p-1">
@@ -393,24 +454,80 @@ export default function PricingPage() {
               ))}
             </div>
           </>
+        ) : (
+          activeTab === "danger" && (
+            <Card className="border-destructive">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-start gap-4">
+                    <AlertCircle className="w-8 h-8 text-destructive mt-1" />
+                    <div>
+                      <h3 className="text-lg font-semibold">Cancel Subscription</h3>
+                      {usage?.plan === "FREE_CREDIT" ? (
+                        <p className="text-muted-foreground">
+                          You don&apos;t have any active subscription to cancel.
+                        </p>
+                      ) : (
+                        <p className="text-muted-foreground">
+                          This action cannot be undone. Your subscription will be cancelled
+                          immediately.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" disabled={usage?.plan === "FREE_CREDIT"}>
+                        Cancel Subscription
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you sure you want to cancel your subscription?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. You will lose access to your current plan
+                          benefits.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleCancelSubscription}
+                          disabled={cancelSubscriptionMutation.isLoading}
+                        >
+                          {cancelSubscriptionMutation.isLoading
+                            ? "Cancelling..."
+                            : "Yes, Cancel Subscription"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </CardContent>
+            </Card>
+          )
         )}
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-start gap-4">
-                <Settings className="w-8 h-8 text-indigo-600 mt-1" />
-                <div>
-                  <h3 className="text-lg font-semibold mb-1">Need a Custom Plan?</h3>
-                  <p className="text-muted-foreground">
-                    Have specific needs or special requests? Contact us for a tailored solution.
-                  </p>
+        {activeTab !== "danger" && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-start gap-4">
+                  <Settings className="w-8 h-8 text-indigo-600 mt-1" />
+                  <div>
+                    <h3 className="text-lg font-semibold mb-1">Need a Custom Plan?</h3>
+                    <p className="text-muted-foreground">
+                      Have specific needs or special requests? Contact us for a tailored solution.
+                    </p>
+                  </div>
                 </div>
+                <Button variant="outline">Get a Quote</Button>
               </div>
-              <Button variant="outline">Get a Quote</Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
