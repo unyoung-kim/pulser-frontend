@@ -1,6 +1,10 @@
 'use client';
 
 import '@/app/content/editor.css';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { CharacterCount } from '@tiptap/extension-character-count';
+import { AnyExtension, useEditor } from '@tiptap/react';
 import { AiImage, AiWriter } from '@/extensions';
 import { Ai } from '@/extensions/Ai';
 import ExtensionKit from '@/extensions/extension-kit';
@@ -11,12 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useDebounceCallback } from '@/hooks/useDebounceCallback';
 import { supabase } from '@/lib/supabaseClient';
 import { getJwtToken } from '@/lib/token';
-import { useQuery } from '@tanstack/react-query';
-import { CharacterCount } from '@tiptap/extension-character-count';
-import { AnyExtension, useEditor } from '@tiptap/react';
-import React, { useCallback, useState } from 'react';
-import { BlockEditor } from '../new-editor/BlockEditor';
 import { EditorSidebar } from './EditorSidebar';
+import { BlockEditor } from '../new-editor/BlockEditor';
 import { ShowVisual } from '@/extensions/ShowVisual/ShowVisual';
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -27,7 +27,7 @@ interface ContentEditorProps {
   contentId: string;
   projectId: string;
   title: string;
-  status: 'drafted' | 'scheduled' | 'published' | 'archived';
+  status: "drafted" | "scheduled" | "published" | "archived";
   keyword?: string;
   type: string;
 }
@@ -313,6 +313,11 @@ export function ContentEditor({
     }
   }, [internalLinkCountQuery.isError, internalLinkCountQuery.error, toast]);
 
+  useEffect(() => {
+    return () => {
+      editor2?.destroy();
+    };
+  }, [editor2]);
 
   const handleStatusChange = (newStatus: string) => {
     setCurrentStatus(

@@ -1,13 +1,14 @@
 'use client';
 
+import { useAuth } from '@clerk/nextjs';
+import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@clerk/nextjs';
-import { useQuery } from '@tanstack/react-query';
 import { Separator } from '../ui/separator';
+
 
 export default function SettingsMain() {
   const { orgId } = useAuth();

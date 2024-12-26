@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import { Loader } from "@/components/ui/loader";
-import { CreateOrganization, useOrganization, useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import ProjectSection from "./ProjectSection";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { CreateOrganization, useOrganization, useUser } from '@clerk/nextjs';
+import { Loader } from '@/components/ui/loader';
+import ProjectSection from './ProjectSection';
+
 
 export default function AuthWrapper() {
   const { isSignedIn } = useUser();
@@ -16,7 +17,7 @@ export default function AuthWrapper() {
     setIsClient(true); // Set client state to true
     if (isLoaded && !isSignedIn) {
       // Check if user data is loaded and user is not signed in
-      router.push("/sign-in"); // Redirect to sign-in page
+      router.push('/sign-in'); // Redirect to sign-in page
     }
   }, [isLoaded, isSignedIn, router]);
 

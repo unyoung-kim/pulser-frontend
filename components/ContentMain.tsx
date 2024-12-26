@@ -1,5 +1,10 @@
 'use client';
 
+import { useCallback, useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { useQuery } from '@tanstack/react-query';
+import { Plus } from 'lucide-react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { TableView } from '@/components/dashboard/table-view';
 import { Status, ViewToggle } from '@/components/dashboard/view-toggle';
@@ -8,11 +13,6 @@ import { Separator } from '@/components/ui/separator';
 import { useSidebarState } from '@/contexts/SidebarContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
-import { SupabaseClient } from '@supabase/supabase-js';
-import { useQuery } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
 import MainLayout from './layout/MainLayout';
 
 // Initialize Supabase client

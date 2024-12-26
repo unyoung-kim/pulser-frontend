@@ -1,3 +1,4 @@
+import React, { forwardRef } from 'react';
 import { Editor } from '@tiptap/react';
 import {
   Heading1,
@@ -9,11 +10,11 @@ import {
   Type,
   Youtube,
 } from 'lucide-react';
-import React, { forwardRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ImageSearchModal } from '../editor/ImageSearchModal';
 import { VisualModal } from '../editor/VisualModal';
 import { YoutubeSearchModal } from '../editor/YoutubeSearchModal';
+
 
 interface CommandItem {
   title: string;

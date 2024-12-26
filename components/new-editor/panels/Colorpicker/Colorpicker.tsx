@@ -1,9 +1,10 @@
-import { Icon } from "@/components/ui/Icon";
-import { Toolbar } from "@/components/ui/Toolbar";
-import { themeColors } from "@/lib/editor/constants";
-import { useCallback, useState } from "react";
-import { HexColorPicker } from "react-colorful";
-import { ColorButton } from "./ColorButton";
+import { useCallback, useState } from 'react';
+import { HexColorPicker } from 'react-colorful';
+import { Icon } from '@/components/ui/Icon';
+import { Toolbar } from '@/components/ui/Toolbar';
+import { themeColors } from '@/lib/editor/constants';
+import { ColorButton } from './ColorButton';
+
 
 export type ColorPickerProps = {
   color?: string;
@@ -12,7 +13,7 @@ export type ColorPickerProps = {
 };
 
 export const ColorPicker = ({ color, onChange, onClear }: ColorPickerProps) => {
-  const [colorInputValue, setColorInputValue] = useState(color || "");
+  const [colorInputValue, setColorInputValue] = useState(color || '');
 
   const handleColorUpdate = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,7 +27,7 @@ export const ColorPicker = ({ color, onChange, onClear }: ColorPickerProps) => {
 
     if (!isCorrectColor) {
       if (onChange) {
-        onChange("");
+        onChange('');
       }
 
       return;
@@ -41,7 +42,7 @@ export const ColorPicker = ({ color, onChange, onClear }: ColorPickerProps) => {
     <div className="flex flex-col gap-2">
       <HexColorPicker
         className="w-full"
-        color={color || ""}
+        color={color || ''}
         onChange={onChange}
       />
       <input

@@ -38,13 +38,11 @@ interface Usage {
   credits_charged: number;
   additional_credits_charged: number;
   credits_used: number;
+  plan: string;
+  term: "MONTHLY" | "YEARLY";
 }
 
-export function Sidebar({
-  projectId,
-  children,
-  defaultCollapsed = false,
-}: SidebarProps) {
+export function Sidebar({ projectId, children, defaultCollapsed = false }: SidebarProps) {
   const { orgId } = useAuth();
   const { isCollapsed, toggleSidebar, setIsCollapsed } = useSidebarState();
   const pathname = usePathname();
@@ -60,7 +58,7 @@ export function Sidebar({
   // Memoize the selected project
   const selectedProject = useMemo(
     () => projects.find((p) => p.id.toString() === projectId) || null,
-    [projects, projectId]
+    [projects, projectId],
   );
 
   const links = [
@@ -77,7 +75,7 @@ export function Sidebar({
     (project: Project) => {
       router.push(`/content?projectId=${project.id}`);
     },
-    [router]
+    [router],
   );
 
   const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
@@ -85,16 +83,14 @@ export function Sidebar({
     queryFn: async () => {
       if (!orgId) throw new Error("No organization ID found");
 
-      // First try to get existing data
       const { data, error } = await supabase
         .from("Usage")
-        .select("credits_charged, additional_credits_charged, credits_used")
+        .select("plan, credits_charged, additional_credits_charged, credits_used, term")
         .eq("org_id", orgId)
         .is("end_date", null)
         .single();
 
       if (error) {
-        // If no rows found, create a new row
         if (error.code === "PGRST116") {
           const { data: newData, error: insertError } = await supabase
             .from("Usage")
@@ -118,13 +114,13 @@ export function Sidebar({
 
           return {
             credits_charged: newData?.credits_charged || 0,
-            additional_credits_charged:
-              newData?.additional_credits_charged || 0,
+            additional_credits_charged: newData?.additional_credits_charged || 0,
             credits_used: newData?.credits_used || 0,
+            plan: newData?.plan ?? "FREE_CREDIT",
+            term: "MONTHLY",
           };
         }
 
-        // For other errors, log and throw
         console.error("Supabase error:", error);
         throw error;
       }
@@ -133,6 +129,8 @@ export function Sidebar({
         credits_charged: data.credits_charged || 0,
         additional_credits_charged: data.additional_credits_charged || 0,
         credits_used: data.credits_used || 0,
+        plan: data.plan ?? "FREE_CREDIT",
+        term: data.term ?? "MONTHLY",
       };
     },
     enabled: !!orgId,
@@ -140,9 +138,8 @@ export function Sidebar({
 
   // Memoize credits calculations
   const totalCredits = useMemo(
-    () =>
-      usage ? usage.credits_charged + usage.additional_credits_charged : 0,
-    [usage]
+    () => (usage ? usage.credits_charged + usage.additional_credits_charged : 0),
+    [usage],
   );
 
   const usedCredits = useMemo(() => usage?.credits_used || 0, [usage]);
@@ -150,7 +147,7 @@ export function Sidebar({
   // Memoize the width calculation for the progress bar
   const progressBarWidth = useMemo(
     () => `${totalCredits > 0 ? (usedCredits / totalCredits) * 100 : 0}%`,
-    [totalCredits, usedCredits]
+    [totalCredits, usedCredits],
   );
 
   // Add useCallback for the UserButton click handler
@@ -161,7 +158,7 @@ export function Sidebar({
   // Memoize if credits are available
   const hasCreditsAvailable = useMemo(
     () => totalCredits > usedCredits,
-    [totalCredits, usedCredits]
+    [totalCredits, usedCredits],
   );
 
   return (
@@ -200,16 +197,12 @@ export function Sidebar({
                     {!isCollapsed && (
                       <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-[550]">
-                          {selectedProject
-                            ? selectedProject.name
-                            : "Select a project"}
+                          {selectedProject ? selectedProject.name : "Select a project"}
                         </span>
                       </div>
                     )}
                   </div>
-                  {!isCollapsed && (
-                    <ChevronsUpDown className="ml-auto h-4 w-4" />
-                  )}
+                  {!isCollapsed && <ChevronsUpDown className="ml-auto h-4 w-4" />}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-60 rounded-lg p-1">
@@ -221,9 +214,7 @@ export function Sidebar({
                   >
                     <div
                       className={`flex size-6 items-center justify-center rounded-sm ${
-                        project.id.toString() === projectId
-                          ? "bg-indigo-600 text-white"
-                          : "border"
+                        project.id.toString() === projectId ? "bg-indigo-600 text-white" : "border"
                       }`}
                     >
                       <GalleryVerticalEnd className="size-4" />
@@ -263,9 +254,7 @@ export function Sidebar({
               const linkContent = (
                 <Link
                   key={link.name}
-                  href={`${link.href}${
-                    projectId ? `?projectId=${projectId}` : ""
-                  }`}
+                  href={`${link.href}${projectId ? `?projectId=${projectId}` : ""}`}
                   className={`flex items-center rounded-md px-2 py-2.5 mb-1 ${
                     isActive
                       ? "bg-gray-100 text-gray-900"
@@ -296,9 +285,7 @@ export function Sidebar({
               return (
                 <Link
                   key={link.name}
-                  href={`${link.href}${
-                    selectedProject ? `?projectId=${selectedProject.id}` : ""
-                  }`}
+                  href={`${link.href}${selectedProject ? `?projectId=${selectedProject.id}` : ""}`}
                   className={`flex items-center rounded-md px-2 py-2.5 mt-2 ${
                     isActive
                       ? "bg-gray-100 text-gray-900"
@@ -317,9 +304,7 @@ export function Sidebar({
             </div>
             <div className="px-3 py-1">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">
-                  {isLoadingUsage ? "-" : usedCredits}
-                </span>
+                <span className="text-sm font-medium">{isLoadingUsage ? "-" : usedCredits}</span>
                 <span className="text-xs text-muted-foreground">
                   of {isLoadingUsage ? "-" : totalCredits}
                 </span>
@@ -343,18 +328,10 @@ export function Sidebar({
                 }}
               />
               {!isCollapsed && (
-                <div
-                  onClick={handleUserButtonClick}
-                  className="cursor-pointer flex-1"
-                >
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between h-12 text-sm pl-2"
-                  >
+                <div onClick={handleUserButtonClick} className="cursor-pointer flex-1">
+                  <Button variant="ghost" className="w-full justify-between h-12 text-sm pl-2">
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">
-                        {user?.fullName}
-                      </span>
+                      <span className="truncate font-semibold">{user?.fullName}</span>
                       <span className="truncate text-xs">
                         {user?.primaryEmailAddress?.emailAddress}
                       </span>

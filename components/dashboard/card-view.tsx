@@ -1,17 +1,18 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { useRouter, useSearchParams } from 'next/navigation';
+import Case from 'case';
+import { CheckCircle, FileText, MoreVertical } from 'lucide-react';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-} from "@/components/ui/card";
-import Case from "case";
-import { CheckCircle, FileText, MoreVertical } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import useInfiniteScroll from "react-infinite-scroll-hook";
+} from '@/components/ui/card';
+
 
 interface CardViewProps {
   items: Array<{
@@ -38,27 +39,27 @@ export function CardView({
 }: CardViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const projectId = searchParams.get("projectId");
+  const projectId = searchParams.get('projectId');
 
   const [sentryRef] = useInfiniteScroll({
     loading,
     hasNextPage,
     onLoadMore,
     disabled: false,
-    rootMargin: "0px 0px 400px 0px",
+    rootMargin: '0px 0px 400px 0px',
   });
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
+    return date.toLocaleDateString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
     });
   };
 
   const getStatusBadge = (status: string) => {
-    const isPublished = status.toLowerCase() === "published";
+    const isPublished = status.toLowerCase() === 'published';
 
     if (!isPublished) {
       return (

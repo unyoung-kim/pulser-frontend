@@ -1,7 +1,8 @@
-import { Icon } from "@/components/ui/Icon";
-import { Surface } from "@/components/ui/Surface";
-import { Toolbar } from "@/components/ui/Toolbar";
-import Tooltip from "@/components/ui/Tooltip-editor";
+import { Icon } from '@/components/ui/Icon';
+import { Surface } from '@/components/ui/Surface';
+import { Toolbar } from '@/components/ui/Toolbar';
+import Tooltip from '@/components/ui/Tooltip-editor';
+
 
 export type LinkPreviewPanelProps = {
   url: string;

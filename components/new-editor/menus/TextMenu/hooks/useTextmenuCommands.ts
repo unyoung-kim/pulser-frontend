@@ -1,6 +1,7 @@
-import type { Language } from '@/extensions/Ai';
-import { Editor } from '@tiptap/react';
 import { useCallback } from 'react';
+import { Editor } from '@tiptap/react';
+import type { Language } from '@/extensions/Ai';
+
 
 export const useTextmenuCommands = (editor: Editor) => {
   const onBold = useCallback(() => editor.chain().focus().toggleBold().run(), [editor]);

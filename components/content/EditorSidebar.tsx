@@ -1,10 +1,6 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import Tooltip from "@/components/ui/tooltip";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabaseClient";
-import { Editor, useEditorState } from "@tiptap/react";
-import * as Case from "case";
+import { useEffect, useState } from 'react';
+import { Editor, useEditorState } from '@tiptap/react';
+import * as Case from 'case';
 import {
   ArrowRight,
   CircleDot,
@@ -16,8 +12,13 @@ import {
   Link as LinkIcon,
   ListTree,
   Loader,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import Tooltip from '@/components/ui/tooltip';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabaseClient';
+
 
 interface HeadingNode {
   level: number;
@@ -32,7 +33,7 @@ interface LinkCount {
 
 interface EditorSidebarProps {
   editor: Editor;
-  status: "drafted" | "scheduled" | "published" | "archived";
+  status: 'drafted' | 'scheduled' | 'published' | 'archived';
   type: string;
   keyword?: string;
   contentId: string;
@@ -84,7 +85,7 @@ export function EditorSidebar({
       let externalLinks = 0;
 
       editor.state.doc.descendants((node, pos) => {
-        if (node.type.name === "heading") {
+        if (node.type.name === 'heading') {
           newHeadings.push({
             level: node.attrs.level,
             text: node.textContent,
@@ -92,8 +93,8 @@ export function EditorSidebar({
           });
         }
         // Only count external links from editor content
-        if (node.type.name === "link" || node.marks?.some(mark => mark.type.name === "link")) {
-          const href = node.attrs?.href || node.marks?.find(mark => mark.type.name === "link")?.attrs.href;
+        if (node.type.name === 'link' || node.marks?.some(mark => mark.type.name === 'link')) {
+          const href = node.attrs?.href || node.marks?.find(mark => mark.type.name === 'link')?.attrs.href;
 
           if (href) {
             try {
@@ -123,12 +124,12 @@ export function EditorSidebar({
       updateHeadingsAndLinks();
     };
 
-    editor.on("update", updateListener);
-    editor.on("selectionUpdate", updateListener);
+    editor.on('update', updateListener);
+    editor.on('selectionUpdate', updateListener);
 
     return () => {
-      editor.off("update", updateListener);
-      editor.off("selectionUpdate", updateListener);
+      editor.off('update', updateListener);
+      editor.off('selectionUpdate', updateListener);
     };
   }, [editor, internalLinkCount]); // Add internalLinkCount to dependencies
 
@@ -140,7 +141,7 @@ export function EditorSidebar({
       if (!editorElement) return;
 
       // Find all heading elements within the editor
-      const headingElements = editorElement.querySelectorAll("h1, h2, h3");
+      const headingElements = editorElement.querySelectorAll('h1, h2, h3');
 
       // Convert NodeList to Array for easier manipulation
       const headingsArray = Array.from(headingElements);
@@ -161,24 +162,24 @@ export function EditorSidebar({
         // Scroll the heading into view
         window.scrollTo({
           top: absoluteHeadingTop - headerOffset,
-          behavior: "smooth",
+          behavior: 'smooth',
         });
 
         // Add highlight effect
-        headingElement.classList.add("highlight-heading");
+        headingElement.classList.add('highlight-heading');
         setTimeout(() => {
-          headingElement.classList.remove("highlight-heading");
+          headingElement.classList.remove('highlight-heading');
         }, 2000);
       }
     } catch (error) {
-      console.error("Error scrolling to heading:", error);
+      console.error('Error scrolling to heading:', error);
     }
   };
 
   const getHeadingCount = () => {
     let count = 0;
     editor.state.doc.descendants((node) => {
-      if (node.type.name === "heading") {
+      if (node.type.name === 'heading') {
         count++;
       }
     });
@@ -188,7 +189,7 @@ export function EditorSidebar({
   const getImageCount = () => {
     let count = 0;
     editor.state.doc.descendants((node) => {
-      if (node.type.name === "image") {
+      if (node.type.name === 'image') {
         count++;
       }
     });
@@ -197,16 +198,16 @@ export function EditorSidebar({
 
   const getStatusColor = () => {
     switch (status) {
-      case "published":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "scheduled":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "drafted":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      case "archived":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+    case 'published':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'scheduled':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'drafted':
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+    case 'archived':
+      return 'bg-red-100 text-red-800 border-red-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -217,7 +218,7 @@ export function EditorSidebar({
       editor
         .chain()
         .export({
-          format: "docx",
+          format: 'docx',
           onExport(context) {
             if (context.error) {
               throw context.error;
@@ -227,24 +228,24 @@ export function EditorSidebar({
         })
         .run();
     } catch (error) {
-      console.error("Error downloading document:", error);
+      console.error('Error downloading document:', error);
       toast({
-        title: "Error",
-        description: "Failed to download document. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to download document. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsDownloading(false);
     }
   };
 
-  const handleStatusChange = async (newStatus: "published" | "draft") => {
+  const handleStatusChange = async (newStatus: 'published' | 'draft') => {
     if (!contentId) return;
 
     setIsUpdating(true);
     try {
       const updateData: {
-        status: "published" | "draft";
+        status: 'published' | 'draft';
         updated_at: string;
         published_at?: string;
       } = {
@@ -253,14 +254,14 @@ export function EditorSidebar({
       };
 
       // Add published_at only when publishing
-      if (newStatus === "published") {
+      if (newStatus === 'published') {
         updateData.published_at = new Date().toISOString();
       }
 
       const { error } = await supabase
-        .from("Content")
+        .from('Content')
         .update(updateData)
-        .eq("id", contentId);
+        .eq('id', contentId);
 
       if (error) throw error;
 
@@ -269,20 +270,20 @@ export function EditorSidebar({
 
       toast({
         title:
-          newStatus === "published" ? "Content Published" : "Marked as Draft",
+          newStatus === 'published' ? 'Content Published' : 'Marked as Draft',
         description:
-          newStatus === "published"
-            ? "Your content has been marked as published."
-            : "Your content has been moved to drafts.",
+          newStatus === 'published'
+            ? 'Your content has been marked as published.'
+            : 'Your content has been moved to drafts.',
       });
     } catch (error) {
-      console.error("Error updating status:", error);
+      console.error('Error updating status:', error);
       toast({
-        title: "Error",
+        title: 'Error',
         description: `Failed to ${
-          newStatus === "published" ? "publish" : "move to drafts"
+          newStatus === 'published' ? 'publish' : 'move to drafts'
         }. Please try again.`,
-        variant: "destructive",
+        variant: 'destructive',
       });
     } finally {
       setIsUpdating(false);
@@ -290,33 +291,33 @@ export function EditorSidebar({
   };
 
   const StatusButton = () => {
-    if (status === "published") {
+    if (status === 'published') {
       return (
-        <Tooltip side='right' content='Move this content back to drafts'>
-            <Button
-              className="w-full bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
-              size="sm"
-              onClick={() => handleStatusChange("draft")}
-              disabled={isUpdating}
-            >
-              <FileCheck className="w-4 h-4 mr-2" />
-              {isUpdating ? "Updating..." : "Mark as Draft"}
-            </Button>
+        <Tooltip side="right" content="Move this content back to drafts">
+          <Button
+            className="w-full bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
+            size="sm"
+            onClick={() => handleStatusChange('draft')}
+            disabled={isUpdating}
+          >
+            <FileCheck className="w-4 h-4 mr-2" />
+            {isUpdating ? 'Updating...' : 'Mark as Draft'}
+          </Button>
         </Tooltip>
       );
     }
 
     return (
-      <Tooltip side='right' content='Mark this content as published manually'>
-          <Button
-            className="w-full bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
-            size="sm"
-            onClick={() => handleStatusChange("published")}
-            disabled={isUpdating}
-          >
-            <FileCheck className="w-4 h-4 mr-2" />
-            {isUpdating ? "Publishing..." : "Mark as Published"}
-          </Button>
+      <Tooltip side="right" content="Mark this content as published manually">
+        <Button
+          className="w-full bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
+          size="sm"
+          onClick={() => handleStatusChange('published')}
+          disabled={isUpdating}
+        >
+          <FileCheck className="w-4 h-4 mr-2" />
+          {isUpdating ? 'Publishing...' : 'Mark as Published'}
+        </Button>
       </Tooltip>
     );
   };
@@ -420,12 +421,12 @@ export function EditorSidebar({
                   rounded-md transition-colors duration-200
                   w-full text-left py-1.5 px-2
                   ${
-                    heading.level === 1
-                      ? "font-medium text-gray-900"
-                      : "text-gray-600"
-                  }
-                  ${heading.level === 2 ? "pl-4" : ""}
-                  ${heading.level === 3 ? "pl-8" : ""}
+              heading.level === 1
+                ? 'font-medium text-gray-900'
+                : 'text-gray-600'
+              }
+                  ${heading.level === 2 ? 'pl-4' : ''}
+                  ${heading.level === 3 ? 'pl-8' : ''}
                 `}
               >
                 {heading.level === 1 && (
@@ -468,38 +469,38 @@ export function EditorSidebar({
 
       {/* Action Buttons - Updated spacing */}
       <div className="pt-6 border-t mt-6 space-y-3">
-          <div className="flex gap-2">
-            <Tooltip content='Download as Word document'>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={handleDownload}
-                  disabled={isDownloading}
-                >
-                  {isDownloading ? (
-                    <>
-                      <Loader className="w-4 h-4 mr-2 animate-spin" />
+        <div className="flex gap-2">
+          <Tooltip content="Download as Word document">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <>
+                  <Loader className="w-4 h-4 mr-2 animate-spin" />
                       Downloading...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4 mr-2" />
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 mr-2" />
                       Download
-                    </>
-                  )}
-                </Button>
-            </Tooltip>
-            <StatusButton />
-          </div>
-
-          <Tooltip content='Go to integration section to publish this article to your
-                website'>
-              <Button variant="default" size="sm" className="w-full" disabled>
-                <Globe className="w-4 h-4 mr-2" />
-                Publish to Website
-              </Button>
+                </>
+              )}
+            </Button>
           </Tooltip>
+          <StatusButton />
+        </div>
+
+        <Tooltip content="Go to integration section to publish this article to your
+                website">
+          <Button variant="default" size="sm" className="w-full" disabled>
+            <Globe className="w-4 h-4 mr-2" />
+                Publish to Website
+          </Button>
+        </Tooltip>
       </div>
     </div>
   );

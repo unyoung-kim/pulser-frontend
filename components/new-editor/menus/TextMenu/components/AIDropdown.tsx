@@ -1,11 +1,12 @@
-import { DropdownButton } from "@/components/ui/Dropdown";
-import { Icon } from "@/components/ui/Icon";
-import { Surface } from "@/components/ui/Surface";
-import { Toolbar } from "@/components/ui/Toolbar";
-import type { Language } from "@/extensions/Ai";
-import { languages, tones } from "@/lib/editor/constants";
-import * as Dropdown from "@radix-ui/react-dropdown-menu";
-import { useCallback } from "react";
+import { useCallback } from 'react';
+import * as Dropdown from '@radix-ui/react-dropdown-menu';
+import { DropdownButton } from '@/components/ui/Dropdown';
+import { Icon } from '@/components/ui/Icon';
+import { Surface } from '@/components/ui/Surface';
+import { Toolbar } from '@/components/ui/Toolbar';
+import { languages, tones } from '@/lib/editor/constants';
+import type { Language } from '@/extensions/Ai';
+
 
 export type AIDropdownProps = {
   onSimplify: () => void;

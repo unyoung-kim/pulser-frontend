@@ -37,7 +37,6 @@ export const BlockEditor = ({
   const [lastSavedContent, setLastSavedContent] = useState(editor.getHTML());
   const [hasChanges, setHasChanges] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
-  const [showVisualModal, setShowVisualModal] = useState(false);
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [showYoutubeSearch, setShowYoutubeSearch] = useState(false);
 
@@ -48,9 +47,9 @@ export const BlockEditor = ({
       setShowSaved(false);
     };
 
-    editor.on('update', checkChanges);
+    editor.on("update", checkChanges);
     return () => {
-      editor.off('update', checkChanges);
+      editor.off("update", checkChanges);
     };
   }, [editor, lastSavedContent]);
 
@@ -66,14 +65,6 @@ export const BlockEditor = ({
     }, 3000);
   };
 
-  const handleVisualSelect = useCallback(
-    (imageUrl: string) => {
-      editor.chain().focus().setImage({ src: imageUrl }).run();
-      setShowVisualModal(false);
-    },
-    [editor]
-  );
-
   const handleImageSelect = useCallback((imageUrl: string) => {
     editor.chain().focus().setImage({ src: imageUrl }).run();
     setShowImageSearch(false);
@@ -87,10 +78,6 @@ export const BlockEditor = ({
   useEffect(() => {
     if (!editor) return;
 
-    const handleVisualSelect = () => {
-      setShowVisualModal(true);
-    };
-
     const handleImageSearch = () => {
       setShowImageSearch(true);
     };
@@ -99,12 +86,10 @@ export const BlockEditor = ({
       setShowYoutubeSearch(true);
     };
 
-    editor.on('showVisual', (_: ShowVisualEventProps) => handleVisualSelect());
     editor.on('imageSearch', (_: ImageSearchEventProps) => handleImageSearch());
     editor.on('youtubeSearch', (_: YoutubeSearchEventProps) => handleYoutubeSearch());
 
     return () => {
-      editor.off('showVisual', handleVisualSelect);
       editor.off('imageSearch', handleImageSearch);
       editor.off('youtubeSearch', handleYoutubeSearch);
     };
@@ -142,13 +127,6 @@ export const BlockEditor = ({
         <TableRowMenu editor={editor} appendTo={menuContainerRef} />
         <TableColumnMenu editor={editor} appendTo={menuContainerRef} />
         <ImageBlockMenu editor={editor} appendTo={menuContainerRef} />
-        {showVisualModal && (
-          <VisualModal
-            editor={editor}
-            onSelect={handleVisualSelect}
-            onClose={() => setShowVisualModal(false)}
-          />
-        )}
         {showImageSearch && (
           <ImageSearchModal
             onSelect={handleImageSelect}
