@@ -1,4 +1,4 @@
-import { Editor } from "@tiptap/react";
+import { Editor } from '@tiptap/react';
 import {
   Heading1,
   Heading2,
@@ -8,12 +8,12 @@ import {
   Table,
   Type,
   Youtube,
-} from "lucide-react";
-import React, { forwardRef } from "react";
-import { createRoot } from "react-dom/client";
-import { ImageSearchModal } from "../editor/ImageSearchModal";
-import { VisualModal } from "../editor/VisualModal";
-import { YoutubeSearchModal } from "../editor/YoutubeSearchModal";
+} from 'lucide-react';
+import React, { forwardRef } from 'react';
+import { createRoot } from 'react-dom/client';
+import { ImageSearchModal } from '../editor/ImageSearchModal';
+import { VisualModal } from '../editor/VisualModal';
+import { YoutubeSearchModal } from '../editor/YoutubeSearchModal';
 
 interface CommandItem {
   title: string;
@@ -35,11 +35,11 @@ interface CommandProps {
 
 const commands: CommandSection[] = [
   {
-    title: "Basic Blocks",
+    title: 'Basic Blocks',
     items: [
       {
-        title: "Text",
-        description: "Just start writing with plain text.",
+        title: 'Text',
+        description: 'Just start writing with plain text.',
         icon: (
           <Type className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
         ),
@@ -47,8 +47,8 @@ const commands: CommandSection[] = [
           editor.chain().focus().setParagraph().run(),
       },
       {
-        title: "Heading 1",
-        description: "Large section heading.",
+        title: 'Heading 1',
+        description: 'Large section heading.',
         icon: (
           <Heading1 className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
         ),
@@ -56,8 +56,8 @@ const commands: CommandSection[] = [
           editor.chain().focus().toggleHeading({ level: 1 }).run(),
       },
       {
-        title: "Heading 2",
-        description: "Medium section heading.",
+        title: 'Heading 2',
+        description: 'Medium section heading.',
         icon: (
           <Heading2 className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
         ),
@@ -65,8 +65,8 @@ const commands: CommandSection[] = [
           editor.chain().focus().toggleHeading({ level: 2 }).run(),
       },
       {
-        title: "Heading 3",
-        description: "Small section heading.",
+        title: 'Heading 3',
+        description: 'Small section heading.',
         icon: (
           <Heading3 className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
         ),
@@ -74,8 +74,8 @@ const commands: CommandSection[] = [
           editor.chain().focus().toggleHeading({ level: 3 }).run(),
       },
       {
-        title: "Bullet List",
-        description: "Create a simple bullet list.",
+        title: 'Bullet List',
+        description: 'Create a simple bullet list.',
         icon: (
           <List className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
         ),
@@ -83,8 +83,8 @@ const commands: CommandSection[] = [
           editor.chain().focus().toggleBulletList().run(),
       },
       {
-        title: "Numbered List",
-        description: "Create a numbered list.",
+        title: 'Numbered List',
+        description: 'Create a numbered list.',
         icon: (
           <ListOrdered className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
         ),
@@ -92,8 +92,8 @@ const commands: CommandSection[] = [
           editor.chain().focus().toggleOrderedList().run(),
       },
       {
-        title: "Table",
-        description: "Add a table to display data.",
+        title: 'Table',
+        description: 'Add a table to display data.',
         icon: (
           <Table className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />
         ),
@@ -107,11 +107,11 @@ const commands: CommandSection[] = [
     ],
   },
   {
-    title: "Media",
+    title: 'Media',
     items: [
       {
-        title: "Image Search",
-        description: "Search and embed an image.",
+        title: 'Image Search',
+        description: 'Search and embed an image.',
         icon: (
           <svg
             className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm"
@@ -125,9 +125,9 @@ const commands: CommandSection[] = [
           </svg>
         ),
         command: (editor: Editor) => {
-          const modal = document.createElement("div");
-          modal.setAttribute("id", "image-search-modal");
-          modal.style.display = "block";
+          const modal = document.createElement('div');
+          modal.setAttribute('id', 'image-search-modal');
+          modal.style.display = 'block';
           document.body.appendChild(modal);
 
           const root = createRoot(modal);
@@ -147,15 +147,15 @@ const commands: CommandSection[] = [
         },
       },
       {
-        title: "Video Search",
-        description: "Embed a Youtube video by searching for it.",
+        title: 'Video Search',
+        description: 'Embed a Youtube video by searching for it.',
         icon: (
           <Youtube className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm text-[#FF0000]" />
         ),
         command: (editor: Editor) => {
-          const modal = document.createElement("div");
-          modal.setAttribute("id", "youtube-search-modal");
-          modal.style.display = "block";
+          const modal = document.createElement('div');
+          modal.setAttribute('id', 'youtube-search-modal');
+          modal.style.display = 'block';
           document.body.appendChild(modal);
 
           console.log('Editor instance in command:', editor);
@@ -186,8 +186,8 @@ const commands: CommandSection[] = [
         },
       },
       {
-        title: "Show Visuals",
-        description: "Show the visual modal.",
+        title: 'Show Visuals',
+        description: 'Show the visual modal.',
         icon: (
           <svg
             className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm"
@@ -201,9 +201,9 @@ const commands: CommandSection[] = [
           </svg>
         ),
         command: (editor: Editor) => {
-          const modal = document.createElement("div");
-          modal.setAttribute("id", "visual-modal");
-          modal.style.display = "block";
+          const modal = document.createElement('div');
+          modal.setAttribute('id', 'visual-modal');
+          modal.style.display = 'block';
           document.body.appendChild(modal);
 
           const root = createRoot(modal);
@@ -275,5 +275,5 @@ export const CommandList: CommandListComponent = forwardRef<
   );
 });
 
-CommandList.displayName = "CommandList";
+CommandList.displayName = 'CommandList';
 CommandList.sections = commands;
