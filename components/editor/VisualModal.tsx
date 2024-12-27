@@ -1,77 +1,67 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Editor } from "@tiptap/core";
-import Image from "next/image";
-import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Check } from "lucide-react";
-import axios from "@/lib/axiosInstance";
-import { visualList } from "@/constants/urlConstant";
+} from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Editor } from '@tiptap/core';
+import Image from 'next/image';
+import { useQuery } from '@tanstack/react-query';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Check } from 'lucide-react';
+import axios from '@/lib/axiosInstance';
+import { visualList } from '@/constants/urlConstant';
 
 interface VisualModalProps {
   editor: Editor;
-  onSelect: (imageUrl: string) => void;
   onClose: () => void;
 }
 
-interface ImageResult {
-  id: string;
-  author: string;
-  width: number;
-  height: number;
-  url: string;
-  download_url: string;
-}
+export function VisualModal({ editor, onClose }: VisualModalProps) {
+  const [selectedIMG, setSelectedIMG] = useState<string | null>(null);
 
-export function VisualModal({ editor, onSelect, onClose }: VisualModalProps) {
-  const [selectedIMG, setSelectedIMG] = React.useState<string | null>(null);
-
-  const savedText = editor.storage.showVisualEvent.text;
+  const text = editor.storage.showVisualEvent.text;
   const savedSelection = editor.storage.showVisualEvent.savedSelection;
 
   const {
     data: visualData = [],
     isLoading,
     error,
-  } = useQuery<ImageResult[], Error>({
-    queryKey: ["fetchImages"],
+  } = useQuery<string[], Error>({
+    queryKey: ['fetchImages', text],
     queryFn: async () => {
-      const response = await axios.get<ImageResult[]>(visualList);
-      return response.data;
+      const response = await axios.post<{
+        result: { data: { success: boolean; data: string[] } }
+      }>(visualList, { text });
+      return response.data.result.data.data;
     },
   });
+
+  useEffect(() => {
+    if (visualData.length > 0) {
+      setSelectedIMG(visualData[0]);
+    }
+  }, [visualData]);
 
   const handleImageClick = (imgURL: string) => {
     setSelectedIMG(imgURL);
   };
 
-  React.useEffect(() => {
-    if (visualData.length > 0) {
-      setSelectedIMG(visualData[0]?.download_url || null);
-    }
-  }, [visualData]);
-
   const handleInsert = () => {
     if (selectedIMG && savedSelection) {
       editor.commands.insertContentAt(savedSelection.to, {
-        type: "image",
+        type: 'image',
         attrs: {
           src: selectedIMG,
         },
       });
       editor.chain().focus().setSavedSelection({ from: 0, to: 0 }).run();
       onClose();
-    } else if (selectedIMG) {
-      onSelect(selectedIMG);
     }
   };
 
@@ -88,9 +78,10 @@ export function VisualModal({ editor, onSelect, onClose }: VisualModalProps) {
             {isLoading ? (
               <Skeleton className="w-full h-full" />
             ) : error ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-red-50 text-red-500">
+              <div
+                className="absolute inset-0 flex items-center justify-center bg-red-50 text-red-500">
                 <p className="text-center">
-                  {error.message ?? "An error occurred"}
+                  {error.message ?? 'An error occurred'}
                 </p>
               </div>
             ) : selectedIMG ? (
@@ -115,23 +106,24 @@ export function VisualModal({ editor, onSelect, onClose }: VisualModalProps) {
                 ? Array(5).fill(0).map((_, index) => (
                   <Skeleton key={index} className="w-24 h-24 rounded-md" />
                 ))
-                : visualData.map((img, index) => (
+                : visualData?.map((source, index) => (
                   <button
                     key={index}
-                    onClick={() => handleImageClick(img.download_url)}
+                    onClick={() => handleImageClick(source)}
                     className={`relative flex-shrink-0 rounded-md overflow-hidden hover:ring-2 hover:ring-blue-400 transition-all duration-200 ${
-                      selectedIMG === img.download_url ? "ring-2 ring-blue-500" : ""
+                      selectedIMG === source ? 'ring-2 ring-blue-500' : ''
                     }`}
                   >
                     <Image
                       width={96}
                       height={96}
-                      src={img.download_url}
+                      src={source}
                       className="w-24 h-24 object-cover"
                       alt={`Visual option ${index + 1}`}
                     />
-                    {selectedIMG === img.download_url && (
-                      <div className="absolute inset-0 bg-blue-500 bg-opacity-30 flex items-center justify-center">
+                    {selectedIMG === source && (
+                      <div
+                        className="absolute inset-0 bg-blue-500 bg-opacity-30 flex items-center justify-center">
                         <Check className="text-white" size={24} />
                       </div>
                     )}

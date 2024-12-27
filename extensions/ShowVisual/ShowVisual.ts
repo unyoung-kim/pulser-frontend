@@ -1,12 +1,12 @@
-import { Extension } from "@tiptap/core";
+import { Extension } from '@tiptap/core';
 
 export type ShowVisualEventProps = {
-  type: "showVisual";
+  type: 'showVisual';
   text?: string;
   savedSelection?: { from: number; to: number };
 };
 
-declare module "@tiptap/core" {
+declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     showvisual: {
       setVisualModal: (text: string) => ReturnType;
@@ -20,33 +20,33 @@ declare module "@tiptap/core" {
 }
 
 export const ShowVisual = Extension.create({
-  name: "showVisual",
-  addStorage() {
+  name: 'showVisual',
+  addStorage(): { showVisualEvent: ShowVisualEventProps | null } {
     return {
-      showVisualEvent: null as ShowVisualEventProps | null,
+      showVisualEvent: null,
     };
   },
   addCommands() {
     return {
       setVisualModal:
         (text: string) =>
-        ({ editor }) => {
-          const event: ShowVisualEventProps = {
-            type: "showVisual",
-            text,
-          };
-          editor.storage.showVisualEvent = event;
-          editor.emit("showVisual", event);
-          return true;
-        },
+          ({ editor }): boolean => {
+            const event: ShowVisualEventProps = {
+              type: 'showVisual',
+              text,
+            };
+            editor.storage.showVisualEvent = event;
+            editor.emit('showVisual', event);
+            return true;
+          },
       setSavedSelection:
         (obj: { from: number; to: number }) =>
-        ({ editor }) => {
-          if (editor.storage.showVisualEvent) {
-            editor.storage.showVisualEvent.savedSelection = obj;
-          }
-          return true;
-        },
+          ({ editor }): boolean => {
+            if (editor.storage.showVisualEvent) {
+              editor.storage.showVisualEvent.savedSelection = obj;
+            }
+            return true;
+          },
     };
-  },
+  }
 });

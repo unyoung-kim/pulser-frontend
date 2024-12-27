@@ -39,6 +39,7 @@ export const BlockEditor = ({
   const [showSaved, setShowSaved] = useState(false);
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [showYoutubeSearch, setShowYoutubeSearch] = useState(false);
+  const [showVisualModal, setShowVisualModal] = useState(false);
 
   useEffect(() => {
     const checkChanges = () => {
@@ -86,12 +87,18 @@ export const BlockEditor = ({
       setShowYoutubeSearch(true);
     };
 
+    const handleVisualSelect = () => {
+      setShowVisualModal(true);
+    };
+
     editor.on('imageSearch', (_: ImageSearchEventProps) => handleImageSearch());
     editor.on('youtubeSearch', (_: YoutubeSearchEventProps) => handleYoutubeSearch());
+    editor.on('showVisual', (_: ShowVisualEventProps) => handleVisualSelect());
 
     return () => {
       editor.off('imageSearch', handleImageSearch);
       editor.off('youtubeSearch', handleYoutubeSearch);
+      editor.off('showVisual', handleVisualSelect);
     };
   }, [editor]);
 
@@ -138,6 +145,18 @@ export const BlockEditor = ({
             editor={editor}
             onSelect={handleYoutubeSelect}
             onClose={() => setShowYoutubeSearch(false)}
+          />
+        )}
+        {showVisualModal && (
+          <VisualModal
+            editor={editor}
+            onClose={() => {
+              setShowVisualModal(false);
+              setTimeout(() => {
+                if(document.body.style.pointerEvents==="none"){
+                  document.body.style.pointerEvents = "";
+                }}, 50);
+            }}
           />
         )}
       </div>

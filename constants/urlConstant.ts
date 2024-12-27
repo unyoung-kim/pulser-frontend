@@ -1,3 +1,2 @@
-
 // VisualModal api urls
-export const visualList = 'https://picsum.photos/v2/list?page=2&limit=5';
+export const visualList = 'https://pulser-backend.onrender.com/text-to-visual';
