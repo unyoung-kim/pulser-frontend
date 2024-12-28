@@ -28,6 +28,20 @@ export const useTextmenuCommands = (editor: Editor) => {
     () => editor.chain().focus().aiSimplify({ stream: true, format: 'rich-text' }).run(),
     [editor],
   );
+
+  const onVisualSelection = useCallback(() => {
+    const selectedText = editor.state.doc.textBetween(
+      editor.state.selection.from,
+      editor.state.selection.to,
+      ' '
+    );
+    editor.chain().focus().setVisualModal(selectedText).run();
+    const { from, to } = editor.state.selection;
+    editor.chain().focus().setSavedSelection({ from, to }).run();
+    editor.commands.setTextSelection(0);
+    editor.commands.blur();
+  }, [editor]);
+
   const onEmojify = useCallback(
     () => editor.chain().focus().aiEmojify({ stream: true, format: 'rich-text' }).run(),
     [editor],
@@ -116,5 +130,6 @@ export const useTextmenuCommands = (editor: Editor) => {
     onTone,
     onTranslate,
     onLink,
+    onVisualSelection,
   };
 };

@@ -238,6 +238,15 @@ export default function ContentSettings() {
       return;
     }
 
+    if (!topic.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a topic",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsCreating(true);
     setShowLoadingModal(true);
 
@@ -287,9 +296,13 @@ export default function ContentSettings() {
         },
         body: JSON.stringify({
           projectId: projectId,
-          inputTopic: topic,
+          inputTopic: topic.trim(),
           keywordId: selectedKeywordId,
           type: contentType,
+          secondaryKeywords: secondaryKeywords
+            .split(",")
+            .map((kw) => kw.trim()),
+          outline: outline.trim(),
           wordCount: wordCount,
           length: postLength.toUpperCase(),
         }),

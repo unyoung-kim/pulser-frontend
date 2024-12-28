@@ -28,6 +28,15 @@ export const GROUPS: Group[] = [
     title: "Media",
     commands: [
       {
+        name: "generateVisuals",
+        label: "Generate Visuals",
+        iconName: "ChartPie",
+        description: "Add Visuals to your content",
+        action: (editor) => {
+          editor.chain().focus().setVisualModal('').run();
+        },
+      },
+      {
         name: "imageSearch",
         label: "Image Search",
         iconName: "Image",

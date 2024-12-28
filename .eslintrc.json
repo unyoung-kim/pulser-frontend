@@ -1,5 +1,6 @@
 {
   "extends": [
+    "plugin:@tanstack/query/recommended",
     "next/typescript",
     "next/core-web-vitals", // Ensure core-web-vitals is extended last
     "next" // Ensure eslint-config-next is extended last

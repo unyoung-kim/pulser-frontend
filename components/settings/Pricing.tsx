@@ -43,7 +43,7 @@ export default function PricingPage() {
     // Add more purchase history as needed
   ];
 
-  const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
+  const { data: usage, isPending: isLoadingUsage } = useQuery<Usage>({
     queryKey: ["usage", orgId],
     queryFn: async () => {
       if (!orgId) throw new Error("No organization ID found");
@@ -495,9 +495,9 @@ export default function PricingPage() {
                         <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={handleCancelSubscription}
-                          disabled={cancelSubscriptionMutation.isLoading}
+                          disabled={cancelSubscriptionMutation.isPending}
                         >
-                          {cancelSubscriptionMutation.isLoading
+                          {cancelSubscriptionMutation.isPending
                             ? "Cancelling..."
                             : "Yes, Cancel Subscription"}
                         </AlertDialogAction>
