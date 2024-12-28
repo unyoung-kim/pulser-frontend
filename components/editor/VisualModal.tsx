@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -48,11 +48,11 @@ export function VisualModal({ editor, onClose }: VisualModalProps) {
     }
   }, [visualData]);
 
-  const handleImageClick = (imgURL: string) => {
+  const handleImageClick = useCallback((imgURL: string) => {
     setSelectedIMG(imgURL);
-  };
+  }, []);
 
-  const handleInsert = () => {
+  const handleInsert = useCallback(() => {
     if (selectedIMG && savedSelection) {
       editor.commands.insertContentAt(savedSelection.to, {
         type: 'image',
@@ -63,7 +63,7 @@ export function VisualModal({ editor, onClose }: VisualModalProps) {
       editor.chain().focus().setSavedSelection({ from: 0, to: 0 }).run();
       onClose();
     }
-  };
+  }, [editor, onClose, savedSelection, selectedIMG]);
 
   return (
     <Dialog defaultOpen onOpenChange={(open) => !open && onClose()}>

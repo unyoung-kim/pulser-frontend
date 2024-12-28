@@ -1,5 +1,6 @@
 import { Extension } from '@tiptap/core';
 
+// Define the event properties for the 'showVisual' event
 export type ShowVisualEventProps = {
   type: 'showVisual';
   text?: string;
@@ -8,8 +9,10 @@ export type ShowVisualEventProps = {
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
-    showvisual: {
+    showVisual: {
+      // Command to set the visual modal with provided text
       setVisualModal: (text: string) => ReturnType;
+      // Command to save the current selection
       setSavedSelection: (obj: { from: number; to: number }) => ReturnType;
     };
   }
@@ -21,13 +24,15 @@ declare module '@tiptap/core' {
 
 export const ShowVisual = Extension.create({
   name: 'showVisual',
-  addStorage(): { showVisualEvent: ShowVisualEventProps | null } {
+  // Add storage for the extension
+  addStorage() {
     return {
-      showVisualEvent: null,
+      showVisualEvent: null as ShowVisualEventProps | null,
     };
   },
   addCommands() {
     return {
+      // Command to open the visual modal with the provided text
       setVisualModal:
         (text: string) =>
           ({ editor }): boolean => {
@@ -35,18 +40,21 @@ export const ShowVisual = Extension.create({
               type: 'showVisual',
               text,
             };
+            // Update storage and emit the event
             editor.storage.showVisualEvent = event;
             editor.emit('showVisual', event);
             return true;
           },
+      // Command to save the current selection in the editor
       setSavedSelection:
         (obj: { from: number; to: number }) =>
           ({ editor }): boolean => {
+            // Update the saved selection if storage has the event
             if (editor.storage.showVisualEvent) {
               editor.storage.showVisualEvent.savedSelection = obj;
             }
             return true;
           },
     };
-  }
+  },
 });
