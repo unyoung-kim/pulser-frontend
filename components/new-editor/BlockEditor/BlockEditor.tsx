@@ -1,23 +1,22 @@
-import { Editor, EditorContent } from '@tiptap/react';
 import { useEffect, useRef, useState, useCallback } from 'react';
-
-import '@/styles/index.css';
-
+import { Editor, EditorContent } from '@tiptap/react';
+import { ImageSearchModal } from '@/components/editor/ImageSearchModal';
+import { VisualModal } from '@/components/editor/VisualModal';
+import { YoutubeSearchModal } from '@/components/editor/YoutubeSearchModal';
 import ImageBlockMenu from '@/extensions/ImageBlock/components/ImageBlockMenu';
+import { ImageSearchEventProps } from '@/extensions/ImageSearch/ImageSearch';
 import { ColumnsMenu } from '@/extensions/MultiColumn/menus';
+import { ShowVisualEventProps } from '@/extensions/ShowVisual/ShowVisual';
 import { TableColumnMenu, TableRowMenu } from '@/extensions/Table/menus';
+import { YoutubeSearchEventProps } from '@/extensions/YoutubeSearch/YoutubeSearch';
 import { useSidebar } from '@/hooks/useSidebar';
 import { LinkMenu } from '../menus';
 import { ContentItemMenu } from '../menus/ContentItemMenu';
 import { TextMenu } from '../menus/TextMenu';
 import { Sidebar } from '../Sidebar';
+import { AiPromptInput } from './components/AiPromptInput';
 import { EditorHeader } from './components/EditorHeader';
-import { ImageSearchModal } from '@/components/editor/ImageSearchModal';
-import { YoutubeSearchModal } from '@/components/editor/YoutubeSearchModal';
-import { ImageSearchEventProps } from '@/extensions/ImageSearch/ImageSearch';
-import { YoutubeSearchEventProps } from '@/extensions/YoutubeSearch/YoutubeSearch';
-import { ShowVisualEventProps } from '@/extensions/ShowVisual/ShowVisual';
-import { VisualModal } from '@/components/editor/VisualModal';
+import '@/styles/index.css';
 
 export const BlockEditor = ({
   aiToken,
@@ -40,6 +39,7 @@ export const BlockEditor = ({
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [showYoutubeSearch, setShowYoutubeSearch] = useState(false);
   const [showVisualModal, setShowVisualModal] = useState(false);
+  const [showAiPrompt, setShowAiPrompt] = useState(false);
 
   useEffect(() => {
     const checkChanges = () => {
@@ -48,9 +48,9 @@ export const BlockEditor = ({
       setShowSaved(false);
     };
 
-    editor.on("update", checkChanges);
+    editor.on('update', checkChanges);
     return () => {
-      editor.off("update", checkChanges);
+      editor.off('update', checkChanges);
     };
   }, [editor, lastSavedContent]);
 
@@ -91,14 +91,22 @@ export const BlockEditor = ({
       setShowVisualModal(true);
     };
 
+    const handleSelectionChange = () => {
+      const { from, to } = editor.state.selection;
+      const selectedText = editor.state.doc.textBetween(from, to);
+      setShowAiPrompt(!!selectedText);
+    };
+
     editor.on('imageSearch', (_: ImageSearchEventProps) => handleImageSearch());
     editor.on('youtubeSearch', (_: YoutubeSearchEventProps) => handleYoutubeSearch());
     editor.on('showVisual', (_: ShowVisualEventProps) => handleVisualSelect());
+    editor.on('selectionUpdate', handleSelectionChange);
 
     return () => {
       editor.off('imageSearch', handleImageSearch);
       editor.off('youtubeSearch', handleYoutubeSearch);
       editor.off('showVisual', handleVisualSelect);
+      editor.off('selectionUpdate', handleSelectionChange);
     };
   }, [editor]);
 
@@ -153,12 +161,13 @@ export const BlockEditor = ({
             onClose={() => {
               setShowVisualModal(false);
               setTimeout(() => {
-                if(document.body.style.pointerEvents==="none"){
-                  document.body.style.pointerEvents = "";
+                if(document.body.style.pointerEvents==='none'){
+                  document.body.style.pointerEvents = '';
                 }}, 50);
             }}
           />
         )}
+        {showAiPrompt && <AiPromptInput editor={editor} setShowVisualModal={setShowVisualModal} /> }
       </div>
     </div>
   );

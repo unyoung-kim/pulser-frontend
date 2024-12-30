@@ -9,6 +9,7 @@ import { AiImage, AiWriter } from '@/extensions';
 import { Ai } from '@/extensions/Ai';
 import ExtensionKit from '@/extensions/extension-kit';
 import { ImageSearch } from '@/extensions/ImageSearch/ImageSearch';
+import { ShowVisual } from '@/extensions/ShowVisual/ShowVisual';
 import { YoutubeExtension } from '@/extensions/YoutubeExtension';
 import { YoutubeSearch } from '@/extensions/YoutubeSearch/YoutubeSearch';
 import { useToast } from '@/hooks/use-toast';
@@ -17,7 +18,6 @@ import { supabase } from '@/lib/supabaseClient';
 import { getJwtToken } from '@/lib/token';
 import { EditorSidebar } from './EditorSidebar';
 import { BlockEditor } from '../new-editor/BlockEditor';
-import { ShowVisual } from '@/extensions/ShowVisual/ShowVisual';
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 // const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -27,7 +27,7 @@ interface ContentEditorProps {
   contentId: string;
   projectId: string;
   title: string;
-  status: "drafted" | "scheduled" | "published" | "archived";
+  status: 'drafted' | 'scheduled' | 'published' | 'archived';
   keyword?: string;
   type: string;
 }
