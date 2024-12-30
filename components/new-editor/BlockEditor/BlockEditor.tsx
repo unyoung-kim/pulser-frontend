@@ -18,7 +18,6 @@ import { AiPromptInput } from './components/AiPromptInput';
 import { EditorHeader } from './components/EditorHeader';
 import '@/styles/index.css';
 
-
 export const BlockEditor = ({
   aiToken,
   initialContent,
@@ -101,9 +100,6 @@ export const BlockEditor = ({
     editor.on('imageSearch', (_: ImageSearchEventProps) => handleImageSearch());
     editor.on('youtubeSearch', (_: YoutubeSearchEventProps) => handleYoutubeSearch());
     editor.on('showVisual', (_: ShowVisualEventProps) => handleVisualSelect());
-
-    editor.on('imageSearch', (_: ImageSearchEventProps) => handleImageSearch());
-    editor.on('youtubeSearch', (_: YoutubeSearchEventProps) => handleYoutubeSearch());
     editor.on('selectionUpdate', handleSelectionChange);
 
     return () => {
