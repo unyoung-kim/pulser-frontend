@@ -17,6 +17,7 @@ import { Sidebar } from '../Sidebar';
 import { AiPromptInput } from './components/AiPromptInput';
 import { EditorHeader } from './components/EditorHeader';
 import '@/styles/index.css';
+import { cn } from '@/lib/utils';
 
 export const BlockEditor = ({
   aiToken,
@@ -112,7 +113,7 @@ export const BlockEditor = ({
         onClose={leftSidebar.close}
         editor={editor}
       />
-      <div className="relative flex flex-col flex-1 h-full overflow-hidden">
+      <div className="relative flex flex-col flex-1 h-full">
         <EditorHeader
           editor={editor}
           isSidebarOpen={leftSidebar.isOpen}
@@ -124,7 +125,7 @@ export const BlockEditor = ({
         />
         <EditorContent
           editor={editor}
-          className="flex-1 overflow-y-auto h-full min-h-[calc(100vh-64px)]"
+          className={cn("flex-1 h-full min-h-[calc(100vh-64px)]", leftSidebar.isOpen && 'lg:ml-20')}
         />
         <ContentItemMenu editor={editor} />
         <LinkMenu editor={editor} appendTo={menuContainerRef} />
