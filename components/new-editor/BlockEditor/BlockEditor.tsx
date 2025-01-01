@@ -39,7 +39,6 @@ export const BlockEditor = ({
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [showYoutubeSearch, setShowYoutubeSearch] = useState(false);
   const [showVisualModal, setShowVisualModal] = useState(false);
-  const [showAiPrompt, setShowAiPrompt] = useState(false);
 
   useEffect(() => {
     const checkChanges = () => {
@@ -91,22 +90,14 @@ export const BlockEditor = ({
       setShowVisualModal(true);
     };
 
-    const handleSelectionChange = () => {
-      const { from, to } = editor.state.selection;
-      const selectedText = editor.state.doc.textBetween(from, to);
-      setShowAiPrompt(!!selectedText);
-    };
-
     editor.on('imageSearch', (_: ImageSearchEventProps) => handleImageSearch());
     editor.on('youtubeSearch', (_: YoutubeSearchEventProps) => handleYoutubeSearch());
     editor.on('showVisual', (_: ShowVisualEventProps) => handleVisualSelect());
-    editor.on('selectionUpdate', handleSelectionChange);
 
     return () => {
       editor.off('imageSearch', handleImageSearch);
       editor.off('youtubeSearch', handleYoutubeSearch);
       editor.off('showVisual', handleVisualSelect);
-      editor.off('selectionUpdate', handleSelectionChange);
     };
   }, [editor]);
 
@@ -161,13 +152,14 @@ export const BlockEditor = ({
             onClose={() => {
               setShowVisualModal(false);
               setTimeout(() => {
-                if(document.body.style.pointerEvents==='none'){
+                if (document.body.style.pointerEvents === 'none') {
                   document.body.style.pointerEvents = '';
-                }}, 50);
+                }
+              }, 50);
             }}
           />
         )}
-        {showAiPrompt && <AiPromptInput editor={editor} setShowVisualModal={setShowVisualModal} /> }
+        <AiPromptInput editor={editor} />
       </div>
     </div>
   );

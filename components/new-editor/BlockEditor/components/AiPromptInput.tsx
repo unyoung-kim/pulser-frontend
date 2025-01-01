@@ -41,7 +41,6 @@ const formSchema = z.object({
 
 interface AiPromptInputProps {
   editor: Editor;
-  setShowVisualModal: (visible: boolean) => void;
 }
 
 const HUMANIZE_PROMPT = 'You will be given a user query. Please generate text that avoids using formal ' +
@@ -58,7 +57,7 @@ const isHeading = (text: string | string[]): boolean => {
   return text.length <= 60 && !text.includes('.');
 };
 
-export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps) {
+export function AiPromptInput({ editor }: AiPromptInputProps) {
   const [isVisible, setIsVisible] = useState(false);
   const { onVisualSelection } = useTextmenuCommands(editor);
 
@@ -84,9 +83,10 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
 
   // Handle form submission
   const onSubmit = useCallback((values: z.infer<typeof formSchema>) => {
-    const selectedText = editor.state.doc.textBetween(
-      editor.state.selection.from, editor.state.selection.to
-    );
+    const { from, to } = editor.state.selection;
+    const selectedText = editor.state.doc.textBetween(from, to);
+
+    const textToInsert = selectedText ? `${values.prompt}: ${selectedText}` : values.prompt;
 
     editor
       .chain()
@@ -94,7 +94,7 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
       .aiTextPrompt({
         stream: true,
         format: 'rich-text',
-        text: `${values.prompt}: ${selectedText}`,
+        text: textToInsert,
         insert: false,
       })
       .run();
@@ -227,10 +227,7 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
                                 <UserRound className="mr-2 h-4 w-4" />
                                 Humanize
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => {
-                                onVisualSelection();
-                                setShowVisualModal(true);
-                              }}>
+                              <DropdownMenuItem onClick={onVisualSelection}>
                                 <PieChart className="mr-2 h-4 w-4" />
                                 Create visuals
                               </DropdownMenuItem>
