@@ -194,9 +194,9 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
 
             <div
               className={cn(
-                'w-full transition-all duration-200 ease-in-out',
-                !isVisible && !generatedText ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none',
-                'mb-4'
+                'w-full pl-1 transition-all duration-200 ease-in-out',
+                (isVisible && generatedText && 'hidden'),
+                'mb-2'
               )}
             >
               <div className="flex gap-2 justify-start">
@@ -204,6 +204,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                   variant="outline"
                   className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
                   onClick={handleHumanize}
+                  size="sm"
                 >
                   <UserRound className="h-4 w-4 text-blue-500" />
                   Humanize
@@ -212,6 +213,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                   variant="outline"
                   className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
                   onClick={onVisualSelection}
+                  size="sm"
                 >
                   <PieChart className="h-4 w-4 text-green-500" />
                   Create visual
@@ -220,6 +222,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                   variant="outline"
                   className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
                   onClick={()=> editor.chain().focus().setAiImage().run()}
+                  size="sm"
                 >
                   <WandSparkles className="h-4 w-4 text-orange-500" />
                   Ai Image
@@ -238,7 +241,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                         <div className="relative flex items-center">
                           <Input
                             placeholder="Ask AI to enhance your writing..."
-                            className="h-12 rounded-full px-12 drop-shadow-lg focus-visible:ring-0 focus-visible:ring-offset-0"
+                            className="h-12 rounded-full pr-12 drop-shadow-lg focus-visible:ring-0 focus-visible:ring-offset-0"
                             {...field}
                           />
                           <Button
