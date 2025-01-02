@@ -6,30 +6,24 @@ import { Editor } from '@tiptap/core';
 import { useEditorState } from '@tiptap/react';
 import { AiStorage } from '@tiptap-pro/extension-ai';
 import {
-  Plus,
   ArrowRight,
   Trash2,
   Check,
   RefreshCw,
   Loader2,
   UserRound,
-  PieChart
+  PieChart,
+  WandSparkles
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
 import * as z from 'zod';
 import {
   useTextmenuCommands
 } from '@/components/new-editor/menus/TextMenu/hooks/useTextmenuCommands';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 
@@ -84,8 +78,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   // Handle form submission
   const onSubmit = useCallback((values: z.infer<typeof formSchema>) => {
     const { from, to } = editor.state.selection;
-    const selectedText = editor.state.doc.textBetween(from, to);
-
+    const selectedText= editor.state.doc.textBetween(from, to);
     const textToInsert = selectedText ? `${values.prompt}: ${selectedText}` : values.prompt;
 
     editor
@@ -103,11 +96,16 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
     setIsVisible(true);
   }, [editor, form]);
 
+
   // Handle humanize button click
   const handleHumanize = useCallback(() => {
-    const selectedText = editor.state.doc.textBetween(
-      editor.state.selection.from, editor.state.selection.to
-    );
+    const { from, to } = editor.state.selection;
+    const selectedText= editor.state.doc.textBetween(from, to);
+
+    if(selectedText.length === 0){
+      toast({ description: 'Select Text first', variant: 'destructive' });
+      return;
+    }
 
     const instruction = isHeading(selectedText)
       ? 'Humanize this heading to make it clear and conversational: '
@@ -143,7 +141,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   // Show error toast if there's an error
   useEffect(() => {
     if (error) {
-      toast.error(error.message);
+      toast({ description: error.message, variant: 'destructive' });
     }
   }, [error]);
 
@@ -193,6 +191,42 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                 </Button>
               </div>
             </div>
+
+            <div
+              className={cn(
+                'w-full transition-all duration-200 ease-in-out',
+                !isVisible && !generatedText ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none',
+                'mb-4'
+              )}
+            >
+              <div className="flex gap-2 justify-start">
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
+                  onClick={handleHumanize}
+                >
+                  <UserRound className="h-4 w-4 text-blue-500" />
+                  Humanize
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
+                  onClick={onVisualSelection}
+                >
+                  <PieChart className="h-4 w-4 text-green-500" />
+                  Create visual
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
+                  onClick={()=> editor.chain().focus().setAiImage().run()}
+                >
+                  <WandSparkles className="h-4 w-4 text-orange-500" />
+                  Ai Image
+                </Button>
+              </div>
+            </div>
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} autoComplete="off" className="relative">
                 <FormField
@@ -202,38 +236,6 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                     <FormItem>
                       <FormControl>
                         <div className="relative flex items-center">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className={cn(
-                                  'absolute z-10 left-2 h-8 w-8 rounded-full opacity-50 ' +
-                                  'hover:bg-transparent ' +
-                                  'hover:opacity-100 ' +
-                                  'transition-opacity' +
-                                  ' duration-200',
-                                  isLoading && 'cursor-not-allowed opacity-50'
-                                )}
-                                aria-label="Add context"
-                                disabled={form.formState.isSubmitting}
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start">
-                              <DropdownMenuItem onClick={handleHumanize}>
-                                <UserRound className="mr-2 h-4 w-4" />
-                                Humanize
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={onVisualSelection}>
-                                <PieChart className="mr-2 h-4 w-4" />
-                                Create visuals
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-
                           <Input
                             placeholder="Ask AI to enhance your writing..."
                             className="h-12 rounded-full px-12 drop-shadow-lg focus-visible:ring-0 focus-visible:ring-offset-0"
