@@ -13,7 +13,7 @@ import { Editor } from '@tiptap/core';
 import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Check } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import axios from '@/lib/axiosInstance';
 import { visualList } from '@/constants/urlConstant';
 
@@ -71,7 +71,9 @@ export function VisualModal({ editor, onClose }: VisualModalProps) {
         <div className="flex flex-col h-[500px] space-y-4">
           <div className="flex-grow relative border rounded-lg overflow-hidden bg-gray-100">
             {isLoading ? (
-              <Skeleton className="w-full h-full" />
+              <div className="w-full h-full flex justify-center items-center">
+                <Loader2 className="h-8 w-8 animate-spin accent-primary" />
+              </div>
             ) : error ? (
               <div
                 className="absolute inset-0 flex items-center justify-center bg-red-50 text-red-500">
