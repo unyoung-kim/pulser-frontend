@@ -31,7 +31,7 @@ export const AIDropdown = ({
   onTldr,
   onTone,
   onTranslate,
-  onVisualSelection,
+  // onVisualSelection,
 }: AIDropdownProps) => {
   const handleTone = useCallback(
     (tone: string) => () => onTone(tone),
@@ -56,12 +56,12 @@ export const AIDropdown = ({
       </Dropdown.Trigger>
       <Dropdown.Content asChild>
         <Surface className="p-2 min-w-[10rem]">
-          <Dropdown.Item onClick={onVisualSelection}>
+          {/* <Dropdown.Item onClick={onVisualSelection}>
             <DropdownButton>
               <Icon name="ChartPie" />
               Generate Visuals
             </DropdownButton>
-          </Dropdown.Item>
+          </Dropdown.Item> */}
           <Dropdown.Item onClick={onSimplify}>
             <DropdownButton>
               <Icon name="CircleSlash" />

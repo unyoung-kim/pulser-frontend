@@ -27,6 +27,13 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { NewContentButton } from './new-content-button';
+import ProgressRing from './ProgressRing';
+import { cn } from '@/lib/utils';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 
 interface SidebarProps {
   projectId: string;
@@ -276,8 +283,50 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
             })}
           </nav>
         </div>
-
-        <div className="mt-auto ">
+        {/* Remaining Credit */}
+        <div className="mt-auto">
+          <div className="flex p-3 gap-3 items-center">
+            {
+              isCollapsed ?
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <div className="cursor-default">
+                      <ProgressRing
+                        value={usedCredits}
+                        className="text-blue-500"
+                        size={isCollapsed ? 34 : 48}
+                        labelClassName={isCollapsed ? 'text-xs' : 'text-sm'}
+                      />
+                    </div>
+                  </HoverCardTrigger>
+                  <HoverCardContent
+                    side="right"
+                    className="bg-white shadow-lg rounded-lg p-4 w-64"
+                    sideOffset={8} // Adjust spacing between trigger and content
+                  >
+                    <div className={cn('flex flex-1 flex-col')}>
+                      <h6 className="text-md font-semibold">Remaining Credit</h6>
+                      <p className="text-xs text-gray-400">
+                        You’ve used {usedCredits} of your {totalCredits} credits.
+                      </p>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+                :
+                <ProgressRing
+                  value={usedCredits}
+                  className="text-blue-500"
+                  size={isCollapsed ? 34 : 48}
+                  labelClassName={isCollapsed ? 'text-xs' : 'text-sm'}
+                />
+            }
+            <div className={cn('flex flex-1 flex-col', isCollapsed && 'hidden')}>
+              <h6 className="text-md font-semibold">Remaining Credit</h6>
+              <p className="text-xs text-gray-400">
+                You’ve used {usedCredits} of your {totalCredits} credits.
+              </p>
+            </div>
+          </div>
           <nav className="grid items-start px-3 text-sm font-medium">
             {bottomLinks.map((link) => {
               const Icon = link.icon;
@@ -286,7 +335,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                 <Link
                   key={link.name}
                   href={`${link.href}${selectedProject ? `?projectId=${selectedProject.id}` : ''}`}
-                  className={`flex items-center rounded-md px-2 py-2.5 mt-2 ${
+                  className={`flex items-center rounded-md px-2 py-2.5 ${
                     isActive
                       ? 'bg-gray-100 text-gray-900'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -298,25 +347,6 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
               );
             })}
           </nav>
-          <div className="mt-auto px-3">
-            <div className="px-2 py-1">
-              <span className="text-xs font-medium">Credits Remaining</span>
-            </div>
-            <div className="px-3 py-1">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{isLoadingUsage ? '-' : usedCredits}</span>
-                <span className="text-xs text-muted-foreground">
-                  of {isLoadingUsage ? '-' : totalCredits}
-                </span>
-              </div>
-              <div className="mt-2 h-2 rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-indigo-600 transition-all duration-300"
-                  style={{ width: progressBarWidth }}
-                />
-              </div>
-            </div>
-          </div>
           <div className="mt-4 px-3 pb-4">
             <div className="flex items-center w-full">
               <UserButton

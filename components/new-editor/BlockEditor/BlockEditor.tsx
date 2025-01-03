@@ -17,6 +17,7 @@ import { Sidebar } from '../Sidebar';
 import { AiPromptInput } from './components/AiPromptInput';
 import { EditorHeader } from './components/EditorHeader';
 import '@/styles/index.css';
+import { cn } from '@/lib/utils';
 
 export const BlockEditor = ({
   aiToken,
@@ -39,7 +40,6 @@ export const BlockEditor = ({
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [showYoutubeSearch, setShowYoutubeSearch] = useState(false);
   const [showVisualModal, setShowVisualModal] = useState(false);
-  const [showAiPrompt, setShowAiPrompt] = useState(false);
 
   useEffect(() => {
     const checkChanges = () => {
@@ -67,7 +67,7 @@ export const BlockEditor = ({
   };
 
   const handleImageSelect = useCallback((imageUrl: string) => {
-    editor.chain().focus().setImage({ src: imageUrl }).run();
+    editor.commands.setImageBlock({ src: imageUrl });
     setShowImageSearch(false);
   }, [editor]);
 
@@ -91,22 +91,14 @@ export const BlockEditor = ({
       setShowVisualModal(true);
     };
 
-    const handleSelectionChange = () => {
-      const { from, to } = editor.state.selection;
-      const selectedText = editor.state.doc.textBetween(from, to);
-      setShowAiPrompt(!!selectedText);
-    };
-
     editor.on('imageSearch', (_: ImageSearchEventProps) => handleImageSearch());
     editor.on('youtubeSearch', (_: YoutubeSearchEventProps) => handleYoutubeSearch());
     editor.on('showVisual', (_: ShowVisualEventProps) => handleVisualSelect());
-    editor.on('selectionUpdate', handleSelectionChange);
 
     return () => {
       editor.off('imageSearch', handleImageSearch);
       editor.off('youtubeSearch', handleYoutubeSearch);
       editor.off('showVisual', handleVisualSelect);
-      editor.off('selectionUpdate', handleSelectionChange);
     };
   }, [editor]);
 
@@ -121,7 +113,7 @@ export const BlockEditor = ({
         onClose={leftSidebar.close}
         editor={editor}
       />
-      <div className="relative flex flex-col flex-1 h-full overflow-hidden">
+      <div className="relative flex flex-col flex-1 h-full">
         <EditorHeader
           editor={editor}
           isSidebarOpen={leftSidebar.isOpen}
@@ -133,7 +125,7 @@ export const BlockEditor = ({
         />
         <EditorContent
           editor={editor}
-          className="flex-1 overflow-y-auto h-full min-h-[calc(100vh-64px)]"
+          className={cn("flex-1 h-full min-h-[calc(100vh-64px)]", leftSidebar.isOpen && 'lg:ml-20')}
         />
         <ContentItemMenu editor={editor} />
         <LinkMenu editor={editor} appendTo={menuContainerRef} />
@@ -160,14 +152,15 @@ export const BlockEditor = ({
             editor={editor}
             onClose={() => {
               setShowVisualModal(false);
-              setTimeout(() => {
-                if(document.body.style.pointerEvents==='none'){
-                  document.body.style.pointerEvents = '';
-                }}, 50);
+              // setTimeout(() => {
+              //   if (document.body.style.pointerEvents === 'none') {
+              //     document.body.style.pointerEvents = '';
+              //   }
+              // }, 50);
             }}
           />
         )}
-        {showAiPrompt && <AiPromptInput editor={editor} setShowVisualModal={setShowVisualModal} /> }
+        <AiPromptInput editor={editor} />
       </div>
     </div>
   );

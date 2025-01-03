@@ -1,34 +1,31 @@
 'use client';
 
-import { useTextmenuCommands } from '@/components/new-editor/menus/TextMenu/hooks/useTextmenuCommands';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { useCallback, useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AiStorage } from '@tiptap-pro/extension-ai';
 import { Editor } from '@tiptap/core';
 import { useEditorState } from '@tiptap/react';
+import { AiStorage } from '@tiptap-pro/extension-ai';
 import {
   ArrowRight,
-  Check,
-  Loader2,
-  PieChart,
-  Plus,
-  RefreshCw,
   Trash2,
+  Check,
+  RefreshCw,
+  Loader2,
   UserRound,
+  PieChart,
+  WandSparkles
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
 import * as z from 'zod';
+import {
+  useTextmenuCommands
+} from '@/components/new-editor/menus/TextMenu/hooks/useTextmenuCommands';
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+
 
 const formSchema = z.object({
   prompt: z.string().min(1, {
@@ -38,11 +35,15 @@ const formSchema = z.object({
 
 interface AiPromptInputProps {
   editor: Editor;
-  setShowVisualModal: (visible: boolean) => void;
 }
-
-const HUMANIZE_PROMPT = `You will be given a user query. Please generate text that avoids using formal or overly academic phrases such as 'it is worth noting,' 'furthermore,' 'consequently,' 'in terms of,' 'one may argue,' 'it is imperative,' 'this suggests that,' 'thus,' 'it is evident that,' 'notwithstanding,' 'pertaining to,' 'therein lies,' 'utilize,' 'be advised,' 'hence,' 'indicate,' 'facilitate,' 'subsequently,' 'moreover,' and 'it can be seen that.' Aim for a natural, conversational style that sounds like two friends talking at the coffee shop. Use direct, simple language and choose phrases that are commonly used in everyday speech. If a formal phrase is absolutely necessary for clarity or accuracy, you may include it, but otherwise, please prioritize making the text engaging, clear, and relatable.
-
+const HUMANIZE_PROMPT = `You will be given a user query. Please generate text that avoids using formal
+or overly academic phrases such as 'it is worth noting,' 'furthermore,' 'consequently,' 'in terms of,' 'one may argue,'
+'it is imperative,' 'this suggests that,' 'thus,' 'it is evident that,' 'notwithstanding,' 'pertaining to,'
+'therein lies,' 'utilize,' 'be advised,' 'hence,' 'indicate,' 'facilitate,' 'subsequently,' 'moreover,' and
+'it can be seen that.' Aim for a natural, conversational style that sounds like two friends talking at
+the coffee shop. Use direct, simple language and choose phrases that are commonly used in everyday speech.
+If a formal phrase is absolutely necessary for clarity or accuracy, you may include it, but otherwise,
+please prioritize making the text engaging, clear, and relatable.
 Instruction: `;
 
 // utility function to check if the text is a heading
@@ -50,7 +51,7 @@ const isHeading = (text: string | string[]): boolean => {
   return text.length <= 60 && !text.includes('.');
 };
 
-export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps) {
+export function AiPromptInput({ editor }: AiPromptInputProps) {
   const [isVisible, setIsVisible] = useState(false);
   const { onVisualSelection } = useTextmenuCommands(editor);
 
@@ -75,36 +76,37 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
   });
 
   // Handle form submission
-  const onSubmit = useCallback(
-    (values: z.infer<typeof formSchema>) => {
-      const selectedText = editor.state.doc.textBetween(
-        editor.state.selection.from,
-        editor.state.selection.to,
-      );
+  const onSubmit = useCallback((values: z.infer<typeof formSchema>) => {
+    const { from, to } = editor.state.selection;
+    const selectedText= editor.state.doc.textBetween(from, to);
+    const textToInsert = selectedText ? `${values.prompt}: ${selectedText}` : values.prompt;
 
-      editor
-        .chain()
-        .focus()
-        .aiTextPrompt({
-          stream: true,
-          format: 'rich-text',
-          text: `${values.prompt}: ${selectedText}`,
-          insert: false,
-        })
-        .run();
+    editor
+      .chain()
+      .focus()
+      .aiTextPrompt({
+        stream: true,
+        format: 'rich-text',
+        text: textToInsert,
+        insert: false,
+      })
+      .run();
 
-      form.reset();
-      setIsVisible(true);
-    },
-    [editor, form],
+    form.reset();
+    setIsVisible(true);
+  },
+  [editor, form],
   );
 
   // Handle humanize button click
   const handleHumanize = useCallback(() => {
-    const selectedText = editor.state.doc.textBetween(
-      editor.state.selection.from,
-      editor.state.selection.to,
-    );
+    const { from, to } = editor.state.selection;
+    const selectedText= editor.state.doc.textBetween(from, to);
+
+    if(selectedText.length === 0){
+      toast({ description: 'Select Text first', variant: 'destructive' });
+      return;
+    }
 
     const instruction = isHeading(selectedText)
       ? 'Humanize this heading to make it clear and conversational: '
@@ -144,7 +146,7 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
   // Show error toast if there's an error
   useEffect(() => {
     if (error) {
-      toast.error(error.message);
+      toast({ description: error.message, variant: 'destructive' });
     }
   }, [error]);
 
@@ -194,6 +196,45 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
                 </Button>
               </div>
             </div>
+
+            <div
+              className={cn(
+                'w-full pl-1 transition-all duration-200 ease-in-out',
+                (isVisible && generatedText && 'hidden'),
+                'mb-2'
+              )}
+            >
+              <div className="flex gap-2 justify-start">
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
+                  onClick={handleHumanize}
+                  size="sm"
+                >
+                  <UserRound className="h-4 w-4 text-blue-500" />
+                  Humanize
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
+                  onClick={onVisualSelection}
+                  size="sm"
+                >
+                  <PieChart className="h-4 w-4 text-green-500" />
+                  Create visual
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
+                  onClick={()=> editor.chain().focus().setAiImage().run()}
+                  size="sm"
+                >
+                  <WandSparkles className="h-4 w-4 text-orange-500" />
+                  Ai Image
+                </Button>
+              </div>
+            </div>
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} autoComplete="off" className="relative">
                 <FormField
@@ -203,46 +244,9 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
                     <FormItem>
                       <FormControl>
                         <div className="relative flex items-center">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className={cn(
-                                  'absolute z-10 left-2 h-8 w-8 rounded-full opacity-50 ' +
-                                    'hover:bg-transparent ' +
-                                    'hover:opacity-100 ' +
-                                    'transition-opacity' +
-                                    ' duration-200',
-                                  isLoading && 'cursor-not-allowed opacity-50',
-                                )}
-                                aria-label="Add context"
-                                disabled={form.formState.isSubmitting}
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start">
-                              <DropdownMenuItem onClick={handleHumanize}>
-                                <UserRound className="mr-2 h-4 w-4" />
-                                Humanize
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  onVisualSelection();
-                                  setShowVisualModal(true);
-                                }}
-                              >
-                                <PieChart className="mr-2 h-4 w-4" />
-                                Create visuals
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-
                           <Input
                             placeholder="Ask AI to enhance your writing..."
-                            className="h-12 rounded-full px-12 drop-shadow-lg focus-visible:ring-0 focus-visible:ring-offset-0"
+                            className="h-12 rounded-full pr-12 drop-shadow-lg focus-visible:ring-0 focus-visible:ring-offset-0"
                             {...field}
                           />
                           <Button

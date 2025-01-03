@@ -1,7 +1,7 @@
-import { cn } from '@/lib/utils'
-import { Node } from '@tiptap/pm/model'
-import { Editor, NodeViewWrapper } from '@tiptap/react'
-import { useCallback, useRef } from 'react'
+import { cn } from '@/lib/utils';
+import { Node } from '@tiptap/pm/model';
+import { Editor, NodeViewWrapper } from '@tiptap/react';
+import { useCallback, useRef } from 'react';
 
 interface ImageBlockViewProps {
   editor: Editor
@@ -17,29 +17,29 @@ export const ImageBlockView = (props: ImageBlockViewProps) => {
         src: string
       }
     }
-  }
-  const imageWrapperRef = useRef<HTMLDivElement>(null)
-  const { src } = node.attrs
+  };
+  const imageWrapperRef = useRef<HTMLDivElement>(null);
+  const { src } = node.attrs;
 
   const wrapperClassName = cn(
     node.attrs.align === 'left' ? 'ml-0' : 'ml-auto',
     node.attrs.align === 'right' ? 'mr-0' : 'mr-auto',
     node.attrs.align === 'center' && 'mx-auto',
-  )
+  );
 
   const onClick = useCallback(() => {
-    editor.commands.setNodeSelection(getPos())
-  }, [getPos, editor.commands])
+    editor.commands.setNodeSelection(getPos());
+  }, [getPos, editor.commands]);
 
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper data-drag-handle>
       <div className={wrapperClassName} style={{ width: node.attrs.width }}>
         <div contentEditable={false} ref={imageWrapperRef}>
           <img className="block" src={src} alt="" onClick={onClick} />
         </div>
       </div>
     </NodeViewWrapper>
-  )
-}
+  );
+};
 
-export default ImageBlockView
+export default ImageBlockView;
