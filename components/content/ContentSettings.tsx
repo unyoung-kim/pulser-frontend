@@ -240,9 +240,9 @@ export default function ContentSettings() {
 
     if (!topic.trim()) {
       toast({
-        title: "Validation Error",
-        description: "Please enter a topic",
-        variant: "destructive",
+        title: 'Validation Error',
+        description: 'Please enter a topic',
+        variant: 'destructive',
       });
       return;
     }
@@ -300,7 +300,7 @@ export default function ContentSettings() {
           keywordId: selectedKeywordId,
           type: contentType,
           secondaryKeywords: secondaryKeywords
-            .split(",")
+            .split(',')
             .map((kw) => kw.trim()),
           outline: outline.trim(),
           wordCount: wordCount,

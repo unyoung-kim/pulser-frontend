@@ -1,6 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea2';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabaseClient';
+import { getPathFromURL } from '@/lib/url';
+import { cn } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Building2,
@@ -19,25 +28,10 @@ import {
   Trophy,
   Users,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea2';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabaseClient';
-import { getPathFromURL } from '@/lib/url';
-import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
-
+import { AutofillDialog } from './AutofillDialog';
 
 export const BackgroundSchema2 = z.object({
   basic: z.object({
@@ -87,6 +81,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
   });
   const [domain, setDomain] = useState('');
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [isAutofillDialogOpen, setIsAutofillDialogOpen] = useState(false);
 
   const tabs = [
     {
@@ -148,8 +143,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
         product: {
           valueProposition: project.background.product?.valueProposition || '',
           products: project.background.product?.products || '',
-          competitiveAdvantage:
-            project.background.product?.competitiveAdvantage || '',
+          competitiveAdvantage: project.background.product?.competitiveAdvantage || '',
         },
         audience: {
           painPoints: project.background.audience?.painPoints || '',
@@ -174,11 +168,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     }
   }, [formData.basic.companyUrl]);
 
-  const handleInputChange = (
-    section: keyof typeof formData,
-    field: string,
-    value: string
-  ) => {
+  const handleInputChange = (section: keyof typeof formData, field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [section]: {
@@ -209,7 +199,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
       toast({
-        title: 'Success',
+        title: '🎉 Success',
         description: 'Background information saved successfully',
         icon: <Check className="h-6 w-6 text-green-500" />,
       });
@@ -248,7 +238,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internalLinks', projectId] });
       toast({
-        title: 'Success',
+        title: '🎉 Success',
         description: 'Internal links found successfully',
       });
     },
@@ -295,7 +285,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
       setLogoPreview(publicUrl);
 
       toast({
-        title: 'Success',
+        title: '🎉 Success',
         description: 'Logo uploaded successfully',
       });
     } catch (error) {
@@ -312,6 +302,13 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     handleInputChange('basic', 'brandColor', value);
   };
 
+  const handleAutofillClick = () => {
+    if (formData.basic.companyUrl) {
+      setDomain(formData.basic.companyUrl);
+    }
+    setIsAutofillDialogOpen(true);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
     case 'basic':
@@ -321,17 +318,26 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <CardTitle>Basic Information</CardTitle>
-                <CardDescription>
-                    Essential details about your company.
-                </CardDescription>
+                <CardDescription>Essential details about your company.</CardDescription>
               </div>
-              <Button
-                className="gap-2 bg-indigo-600 hover:bg-indigo-700"
-                onClick={handleSave}
-              >
-                  Save Info
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  className="gap-2 text-indigo-600 hover:text-indigo-700"
+                  variant="outline"
+                  onClick={handleAutofillClick}
+                  style={{
+                    borderColor: '#6366F1',
+                    borderWidth: '1px',
+                  }}
+                >
+                  <Sparkles className="h-4 w-4" />
+                    Autofill with AI
+                </Button>
+                <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700" onClick={handleSave}>
+                    Save Info
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-8">
@@ -347,13 +353,9 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 id="name"
                 placeholder="Your Company Name"
                 value={formData.basic.companyName || ''}
-                onChange={(e) =>
-                  handleInputChange('basic', 'companyName', e.target.value)
-                }
+                onChange={(e) => handleInputChange('basic', 'companyName', e.target.value)}
               />
-              <p className="text-sm text-muted-foreground">
-                  The official name of your company.
-              </p>
+              <p className="text-sm text-muted-foreground">The official name of your company.</p>
             </div>
 
             <div className="space-y-2">
@@ -368,13 +370,9 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 id="url"
                 placeholder="example.com"
                 value={formData.basic.companyUrl || ''}
-                onChange={(e) =>
-                  handleInputChange('basic', 'companyUrl', e.target.value)
-                }
+                onChange={(e) => handleInputChange('basic', 'companyUrl', e.target.value)}
               />
-              <p className="text-sm text-muted-foreground">
-                  Your company name and website URL.
-              </p>
+              <p className="text-sm text-muted-foreground">Your company name and website URL.</p>
             </div>
 
             <div className="space-y-2">
@@ -389,13 +387,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 id="keywords"
                 placeholder="e.g. UI/UX, Web Design, Digital Marketing"
                 value={formData.basic.industryKeywords || ''}
-                onChange={(e) =>
-                  handleInputChange(
-                    'basic',
-                    'industryKeywords',
-                    e.target.value
-                  )
-                }
+                onChange={(e) => handleInputChange('basic', 'industryKeywords', e.target.value)}
               />
               <p className="text-sm text-muted-foreground">
                   Keywords that best describe your industry and business focus.
@@ -414,13 +406,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 id="function"
                 placeholder="Describe what your company does"
                 value={formData.basic.companyFunction || ''}
-                onChange={(e) =>
-                  handleInputChange(
-                    'basic',
-                    'companyFunction',
-                    e.target.value
-                  )
-                }
+                onChange={(e) => handleInputChange('basic', 'companyFunction', e.target.value)}
               />
             </div>
 
@@ -509,10 +495,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                     Tell us about your products and what makes them unique.
                 </CardDescription>
               </div>
-              <Button
-                className="gap-2 bg-indigo-600 hover:bg-indigo-700"
-                onClick={handleSave}
-              >
+              <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700" onClick={handleSave}>
                   Save Info
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -528,13 +511,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 id="value"
                 placeholder="What makes your offering unique?"
                 value={formData.product.valueProposition || ''}
-                onChange={(e) =>
-                  handleInputChange(
-                    'product',
-                    'valueProposition',
-                    e.target.value
-                  )
-                }
+                onChange={(e) => handleInputChange('product', 'valueProposition', e.target.value)}
               />
             </div>
 
@@ -547,9 +524,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 id="products"
                 placeholder="Maximum 3 products. Format: Name - Description"
                 value={formData.product.products || ''}
-                onChange={(e) =>
-                  handleInputChange('product', 'products', e.target.value)
-                }
+                onChange={(e) => handleInputChange('product', 'products', e.target.value)}
               />
               <p className="text-sm text-muted-foreground">
                   Maximum 3 products. Format: Name - Description (one per line)
@@ -566,11 +541,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 placeholder="What sets you apart from competitors?"
                 value={formData.product.competitiveAdvantage || ''}
                 onChange={(e) =>
-                  handleInputChange(
-                    'product',
-                    'competitiveAdvantage',
-                    e.target.value
-                  )
+                  handleInputChange('product', 'competitiveAdvantage', e.target.value)
                 }
               />
               <p className="text-sm text-muted-foreground">
@@ -592,10 +563,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                     Help us understand who your customers are and their needs.
                 </CardDescription>
               </div>
-              <Button
-                className="gap-2 bg-indigo-600 hover:bg-indigo-700"
-                onClick={handleSave}
-              >
+              <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700" onClick={handleSave}>
                   Save Info
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -611,13 +579,10 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 id="painPoints"
                 placeholder="2-3 points that describe what problems your customers are trying to solve"
                 value={formData.audience.painPoints || ''}
-                onChange={(e) =>
-                  handleInputChange('audience', 'painPoints', e.target.value)
-                }
+                onChange={(e) => handleInputChange('audience', 'painPoints', e.target.value)}
               />
               <p className="text-sm text-muted-foreground">
-                  2-3 points that describe what problems your customers are
-                  trying to solve
+                  2-3 points that describe what problems your customers are trying to solve
               </p>
             </div>
 
@@ -630,13 +595,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 id="profile"
                 placeholder="Be specific about who makes the purchasing decisions"
                 value={formData.audience.customerProfile || ''}
-                onChange={(e) =>
-                  handleInputChange(
-                    'audience',
-                    'customerProfile',
-                    e.target.value
-                  )
-                }
+                onChange={(e) => handleInputChange('audience', 'customerProfile', e.target.value)}
               />
               <p className="text-sm text-muted-foreground">
                   Be specific about who makes the purchasing decisions
@@ -654,14 +613,10 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
               <div className="space-y-1">
                 <CardTitle>Social Proof</CardTitle>
                 <CardDescription>
-                    We will naturally embed these into your articles for
-                    credibility.
+                    We will naturally embed these into your articles for credibility.
                 </CardDescription>
               </div>
-              <Button
-                className="gap-2 bg-indigo-600 hover:bg-indigo-700"
-                onClick={handleSave}
-              >
+              <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700" onClick={handleSave}>
                   Save Info
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -669,10 +624,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
           </CardHeader>
           <CardContent className="space-y-8">
             <div className="space-y-2">
-              <Label
-                htmlFor="testimonials"
-                className="flex items-center gap-2"
-              >
+              <Label htmlFor="testimonials" className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4" />
                 <span className="font-semibold">Customer Testimonials</span>
               </Label>
@@ -680,21 +632,12 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 id="testimonials"
                 placeholder={`Enter one or more testimonials. Including the person/company's name and industry helps enhance the articles.`}
                 value={formData.socialProof?.testimonials || ''}
-                onChange={(e) =>
-                  handleInputChange(
-                    'socialProof',
-                    'testimonials',
-                    e.target.value
-                  )
-                }
+                onChange={(e) => handleInputChange('socialProof', 'testimonials', e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="caseStudies"
-                className="flex items-center gap-2"
-              >
+              <Label htmlFor="caseStudies" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
                 <span className="font-semibold">Case Studies</span>
               </Label>
@@ -702,21 +645,12 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 id="caseStudies"
                 placeholder="Summarize your best case studies"
                 value={formData.socialProof?.caseStudies || ''}
-                onChange={(e) =>
-                  handleInputChange(
-                    'socialProof',
-                    'caseStudies',
-                    e.target.value
-                  )
-                }
+                onChange={(e) => handleInputChange('socialProof', 'caseStudies', e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="achievements"
-                className="flex items-center gap-2"
-              >
+              <Label htmlFor="achievements" className="flex items-center gap-2">
                 <Trophy className="h-4 w-4" />
                 <span className="font-semibold">Key Achievements</span>
               </Label>
@@ -724,13 +658,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 id="achievements"
                 placeholder="List notable awards, statistics, or milestones"
                 value={formData.socialProof?.achievements || ''}
-                onChange={(e) =>
-                  handleInputChange(
-                    'socialProof',
-                    'achievements',
-                    e.target.value
-                  )
-                }
+                onChange={(e) => handleInputChange('socialProof', 'achievements', e.target.value)}
               />
             </div>
           </CardContent>
@@ -779,14 +707,12 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
               />
               {!domain && (
                 <p className="text-sm text-muted-foreground">
-                    Domain will be automatically loaded from Basic Information{' '}
-                  {'>'} Company URL.
+                    Domain will be automatically loaded from Basic Information {'>'} Company URL.
                 </p>
               )}
               {domain && (
                 <p className="text-sm text-muted-foreground">
-                    Enter your website&apos;s domain for internal linking
-                    purposes.
+                    Enter your website&apos;s domain for internal linking purposes.
                 </p>
               )}
             </div>
@@ -797,25 +723,21 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 <span className="font-semibold">Found Internal Links</span>
               </Label>
               <p className="text-sm text-muted-foreground">
-                  These links will be strategically incorporated into your
-                  generated articles to improve internal linking and SEO
-                  performance of your website.
+                  These links will be strategically incorporated into your generated articles to
+                  improve internal linking and SEO performance of your website.
               </p>
               <div className="border rounded-lg">
                 {isLoadingLinks ? (
                   <p className="p-4">Loading links...</p>
                 ) : !internalLinks?.length ? (
                   <p className="p-4 text-sm text-muted-foreground">
-                      No internal links found yet. Click &quot;Find Internal
-                      Links&quot; to scan your website.
+                      No internal links found yet. Click &quot;Find Internal Links&quot; to scan
+                      your website.
                   </p>
                 ) : (
                   <div className="divide-y">
                     {internalLinks.map((link) => (
-                      <div
-                        key={link.id}
-                        className="flex items-start gap-3 p-4"
-                      >
+                      <div key={link.id} className="flex items-start gap-3 p-4">
                         <LinkIcon className="h-4 w-4 flex-shrink-0 mt-1" />
                         <div className="flex flex-col flex-1 justify-center">
                           <a
@@ -852,11 +774,10 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     <div className="container mx-auto max-w-6xl">
       <div className="space-y-6">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Background</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Knowledge Base</h1>
           <p className="text-muted-foreground">
-            Help us get to know your business to generate relevant articles. The
-            more information you provide, the better content we can create for
-            you.
+            Help us get to know your business to generate relevant articles. The more information
+            you provide, the better content we can create for you.
           </p>
         </div>
 
@@ -871,17 +792,13 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
                   'flex items-center gap-3 w-full rounded-lg border p-3 text-left text-sm transition-colors bg-white hover:bg-accent',
-                  activeTab === tab.id && 'bg-accent'
+                  activeTab === tab.id && 'bg-accent',
                 )}
               >
                 <tab.icon className="h-5 w-5" />
                 <span>{tab.label}</span>
-                {tab.required && (
-                  <span className="text-red-600  text-lg">*</span>
-                )}
-                {activeTab === tab.id && (
-                  <ChevronRight className="h-5 w-5 ml-auto" />
-                )}
+                {tab.required && <span className="text-red-600  text-lg">*</span>}
+                {activeTab === tab.id && <ChevronRight className="h-5 w-5 ml-auto" />}
               </button>
             ))}
           </nav>
@@ -890,6 +807,23 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
           <div className="space-y-6">{renderContent()}</div>
         </div>
       </div>
+
+      <AutofillDialog
+        isOpen={isAutofillDialogOpen}
+        onClose={() => setIsAutofillDialogOpen(false)}
+        projectId={projectId}
+        initialUrl={formData.basic.companyUrl || ''}
+        onSuccess={(data) => {
+          setFormData((prev) => ({
+            ...prev,
+            [activeTab]: {
+              ...prev[activeTab as keyof typeof formData],
+              ...data[activeTab],
+            },
+          }));
+        }}
+        toast={toast}
+      />
     </div>
   );
 }

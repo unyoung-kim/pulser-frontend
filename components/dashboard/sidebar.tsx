@@ -85,7 +85,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
     [router],
   );
 
-  const { data: usage, isLoading: isLoadingUsage, isSuccess } = useQuery<Usage>({
+  const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
     queryKey: ['usage', orgId],
     queryFn: async () => {
       if (!orgId) throw new Error('No organization ID found');
@@ -198,8 +198,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <div
-                      className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
                       <Folder className="size-5" />
                     </div>
                     {!isCollapsed && (

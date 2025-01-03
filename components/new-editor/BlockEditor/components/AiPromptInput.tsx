@@ -94,8 +94,9 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
 
     form.reset();
     setIsVisible(true);
-  }, [editor, form]);
-
+  },
+  [editor, form],
+  );
 
   // Handle humanize button click
   const handleHumanize = useCallback(() => {
@@ -119,10 +120,14 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
 
   // Accept the generated text
   const accept = useCallback(() => {
-    editor.chain().focus().deleteRange({
-      from: editor.state.selection.from,
-      to: editor.state.selection.to
-    }).run();
+    editor
+      .chain()
+      .focus()
+      .deleteRange({
+        from: editor.state.selection.from,
+        to: editor.state.selection.to,
+      })
+      .run();
     editor.chain().focus().aiAccept().run();
     setIsVisible(false);
   }, [editor]);
@@ -153,7 +158,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
             <div
               className={cn(
                 'mb-4 overflow-hidden rounded-lg bg-g p-4 drop-shadow-lg ring-0 bg-white ring-primary/10 transition-all duration-300',
-                isVisible && generatedText ? 'opacity-100 max-h-[20rem]' : 'opacity-0 max-h-0'
+                isVisible && generatedText ? 'opacity-100 max-h-[20rem]' : 'opacity-0 max-h-0',
               )}
             >
               <div className="prose prose-sm max-h-[14rem] overflow-y-auto">
@@ -249,7 +254,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                             size="icon"
                             className={cn(
                               'absolute right-2 h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90',
-                              isLoading && 'cursor-not-allowed opacity-50'
+                              isLoading && 'cursor-not-allowed opacity-50',
                             )}
                             aria-label="Send prompt"
                             disabled={!form.formState.isValid || form.formState.isSubmitting}
@@ -275,4 +280,3 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
     </div>
   );
 }
-

@@ -1,25 +1,19 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useOrganization, useUser } from '@clerk/nextjs';
-import {
-  DocumentTextIcon,
-  FolderIcon,
-  PlusCircleIcon,
-} from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
 import { useProjects } from '@/contexts/ProjectContext';
+import { useOrganization, useUser } from '@clerk/nextjs';
+import { DocumentTextIcon, FolderIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
+import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
 // import { createClient } from '@supabase/supabase-js';
 import { getLastUpdatedText } from '@/lib/date';
 import { supabase } from '@/lib/supabaseClient';
 
-
 export default function ProjectSection() {
   const [newProjectName, setNewProjectName] = useState<string>('');
-  const [newProjectDescription, setNewProjectDescription] =
-    useState<string>('');
+  const [newProjectDescription, setNewProjectDescription] = useState<string>('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
   const { projects, loading, fetchProjects } = useProjects();
   const { user } = useUser();
@@ -30,14 +24,14 @@ export default function ProjectSection() {
     (projectId: string) => {
       router.push(`/content?projectId=${projectId}`);
     },
-    [router]
+    [router],
   );
 
   const navigateToBackground = useCallback(
     (projectId: string) => {
       router.push(`/background?projectId=${projectId}`);
     },
-    [router]
+    [router],
   );
 
   const createProject = useCallback(
@@ -80,7 +74,7 @@ export default function ProjectSection() {
       navigateToBackground,
       user,
       organization,
-    ]
+    ],
   );
 
   return (
@@ -91,9 +85,7 @@ export default function ProjectSection() {
           <div className="mb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="space-y-1">
-                <h1 className="text-3xl font-bold tracking-tight">
-                  Your Projects
-                </h1>
+                <h1 className="text-3xl font-bold tracking-tight">Your Projects</h1>
                 <p className="text-muted-foreground">
                   Manage and organize your content across different projects
                 </p>
@@ -107,9 +99,7 @@ export default function ProjectSection() {
                     <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Projects
                     </p>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {projects.length}
-                    </p>
+                    <p className="text-lg font-semibold text-gray-900">{projects.length}</p>
                   </div>
                 </div>
                 <div className="h-8 w-px bg-gray-200" />
@@ -122,10 +112,7 @@ export default function ProjectSection() {
                       Contents
                     </p>
                     <p className="text-lg font-semibold text-gray-900">
-                      {projects.reduce(
-                        (sum, project) => sum + (project.content_count || 0),
-                        0
-                      )}
+                      {projects.reduce((sum, project) => sum + (project.content_count || 0), 0)}
                     </p>
                   </div>
                 </div>
@@ -145,9 +132,7 @@ export default function ProjectSection() {
                 <h3 className="font-medium text-gray-900 group-hover:text-green-600 transition-colors">
                   New Project
                 </h3>
-                <p className="mt-2 text-sm text-gray-500">
-                  Create something amazing
-                </p>
+                <p className="mt-2 text-sm text-gray-500">Create something amazing</p>
               </div>
             </div>
 
@@ -155,7 +140,7 @@ export default function ProjectSection() {
               <div
                 key={project.id}
                 className="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer border border-gray-100 overflow-hidden hover:border-indigo-200"
-                onClick={() => navigateToContent(project.id.toString())}
+                onClick={() => navigateToBackground(project.id.toString())}
               >
                 <div className="p-6 flex flex-col h-full">
                   <div className="flex items-center justify-between mb-4">
@@ -198,9 +183,7 @@ export default function ProjectSection() {
                   <FolderIcon className="w-6 h-6 text-indigo-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    Create New Project
-                  </h2>
+                  <h2 className="text-xl font-semibold text-gray-900">Create New Project</h2>
                   <p className="text-sm text-gray-500 mt-1">
                     Add a new project to organize your content
                   </p>
@@ -237,8 +220,7 @@ export default function ProjectSection() {
                     htmlFor="projectDescription"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Description{' '}
-                    <span className="text-gray-400">(optional)</span>
+                    Description <span className="text-gray-400">(optional)</span>
                   </label>
                   <textarea
                     id="projectDescription"
