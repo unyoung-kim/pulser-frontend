@@ -1,41 +1,38 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Editor } from '@tiptap/core';
-import { useEditorState } from '@tiptap/react';
-import { AiStorage } from '@tiptap-pro/extension-ai';
-import {
-  Plus,
-  ArrowRight,
-  Trash2,
-  Check,
-  RefreshCw,
-  Loader2,
-  UserRound,
-  PieChart
-} from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import * as z from 'zod';
-import {
-  useTextmenuCommands
-} from '@/components/new-editor/menus/TextMenu/hooks/useTextmenuCommands';
-import { Button } from '@/components/ui/button';
+import { useTextmenuCommands } from "@/components/new-editor/menus/TextMenu/hooks/useTextmenuCommands";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AiStorage } from "@tiptap-pro/extension-ai";
+import { Editor } from "@tiptap/core";
+import { useEditorState } from "@tiptap/react";
+import {
+  ArrowRight,
+  Check,
+  Loader2,
+  PieChart,
+  Plus,
+  RefreshCw,
+  Trash2,
+  UserRound,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import * as z from "zod";
 
 const formSchema = z.object({
   prompt: z.string().min(1, {
-    message: 'Prompt must be at least 1 character.',
+    message: "Prompt must be at least 1 character.",
   }),
 });
 
@@ -44,18 +41,13 @@ interface AiPromptInputProps {
   setShowVisualModal: (visible: boolean) => void;
 }
 
-const HUMANIZE_PROMPT = 'You will be given a user query. Please generate text that avoids using formal ' +
-  'or overly academic phrases such as \'it is worth noting,\' \'furthermore,\' \'consequently,\' \'in terms of,\' \'one may argue,\' ' +
-  '\'it is imperative,\' \'this suggests that,\' \'thus,\' \'it is evident that,\' \'notwithstanding,\' \'pertaining to,\' ' +
-  '\'therein lies,\' \'utilize,\' \'be advised,\' \'hence,\' \'indicate,\' \'facilitate,\' \'subsequently,\' \'moreover,\' and ' +
-  '\'it can be seen that.\' Aim for a natural, conversational style that sounds like two friends talking at ' +
-  'the coffee shop. Use direct, simple language and choose phrases that are commonly used in everyday speech. ' +
-  'If a formal phrase is absolutely necessary for clarity or accuracy, you may include it, but otherwise, ' +
-  'please prioritize making the text engaging, clear, and relatable. Instruction: ';
+const HUMANIZE_PROMPT = `You will be given a user query. Please generate text that avoids using formal or overly academic phrases such as 'it is worth noting,' 'furthermore,' 'consequently,' 'in terms of,' 'one may argue,' 'it is imperative,' 'this suggests that,' 'thus,' 'it is evident that,' 'notwithstanding,' 'pertaining to,' 'therein lies,' 'utilize,' 'be advised,' 'hence,' 'indicate,' 'facilitate,' 'subsequently,' 'moreover,' and 'it can be seen that.' Aim for a natural, conversational style that sounds like two friends talking at the coffee shop. Use direct, simple language and choose phrases that are commonly used in everyday speech. If a formal phrase is absolutely necessary for clarity or accuracy, you may include it, but otherwise, please prioritize making the text engaging, clear, and relatable.
+
+Instruction: `;
 
 // utility function to check if the text is a heading
 const isHeading = (text: string | string[]): boolean => {
-  return text.length <= 60 && !text.includes('.');
+  return text.length <= 60 && !text.includes(".");
 };
 
 export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps) {
@@ -68,7 +60,7 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
     selector: (ctx) => {
       const aiStorage = ctx.editor.storage.ai as AiStorage;
       return {
-        isLoading: aiStorage.state === 'loading',
+        isLoading: aiStorage.state === "loading",
         generatedText: aiStorage.response,
         error: aiStorage.error,
       };
@@ -78,53 +70,62 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      prompt: '',
+      prompt: "",
     },
   });
 
   // Handle form submission
-  const onSubmit = useCallback((values: z.infer<typeof formSchema>) => {
-    const selectedText = editor.state.doc.textBetween(
-      editor.state.selection.from, editor.state.selection.to
-    );
+  const onSubmit = useCallback(
+    (values: z.infer<typeof formSchema>) => {
+      const selectedText = editor.state.doc.textBetween(
+        editor.state.selection.from,
+        editor.state.selection.to,
+      );
 
-    editor
-      .chain()
-      .focus()
-      .aiTextPrompt({
-        stream: true,
-        format: 'rich-text',
-        text: `${values.prompt}: ${selectedText}`,
-        insert: false,
-      })
-      .run();
+      editor
+        .chain()
+        .focus()
+        .aiTextPrompt({
+          stream: true,
+          format: "rich-text",
+          text: `${values.prompt}: ${selectedText}`,
+          insert: false,
+        })
+        .run();
 
-    form.reset();
-    setIsVisible(true);
-  }, [editor, form]);
+      form.reset();
+      setIsVisible(true);
+    },
+    [editor, form],
+  );
 
   // Handle humanize button click
   const handleHumanize = useCallback(() => {
     const selectedText = editor.state.doc.textBetween(
-      editor.state.selection.from, editor.state.selection.to
+      editor.state.selection.from,
+      editor.state.selection.to,
     );
 
     const instruction = isHeading(selectedText)
-      ? 'Humanize this heading to make it clear and conversational: '
-      : 'Humanize this paragraph to make it friendly and relatable: ';
+      ? "Humanize this heading to make it clear and conversational: "
+      : "Humanize this paragraph to make it friendly and relatable: ";
 
     const finalPrompt = HUMANIZE_PROMPT + instruction;
 
-    form.setValue('prompt', finalPrompt);
+    form.setValue("prompt", finalPrompt);
     form.handleSubmit(onSubmit)();
   }, [editor, form, onSubmit]);
 
   // Accept the generated text
   const accept = useCallback(() => {
-    editor.chain().focus().deleteRange({
-      from: editor.state.selection.from,
-      to: editor.state.selection.to
-    }).run();
+    editor
+      .chain()
+      .focus()
+      .deleteRange({
+        from: editor.state.selection.from,
+        to: editor.state.selection.to,
+      })
+      .run();
     editor.chain().focus().aiAccept().run();
     setIsVisible(false);
   }, [editor]);
@@ -154,12 +155,12 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
           <div className="w-full sm:w-11/12 md:w-2/3 lg:w-1/2 xl:w-2xl mx-auto">
             <div
               className={cn(
-                'mb-4 overflow-hidden rounded-lg bg-g p-4 drop-shadow-lg ring-0 bg-white ring-primary/10 transition-all duration-300',
-                isVisible && generatedText ? 'opacity-100 max-h-[20rem]' : 'opacity-0 max-h-0'
+                "mb-4 overflow-hidden rounded-lg bg-g p-4 drop-shadow-lg ring-0 bg-white ring-primary/10 transition-all duration-300",
+                isVisible && generatedText ? "opacity-100 max-h-[20rem]" : "opacity-0 max-h-0",
               )}
             >
               <div className="prose prose-sm max-h-[14rem] overflow-y-auto">
-                <div dangerouslySetInnerHTML={{ __html: generatedText || '' }} />
+                <div dangerouslySetInnerHTML={{ __html: generatedText || "" }} />
               </div>
               <div className="mt-4 flex justify-end space-x-2">
                 <Button
@@ -209,12 +210,12 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
                                 variant="ghost"
                                 size="icon"
                                 className={cn(
-                                  'absolute z-10 left-2 h-8 w-8 rounded-full opacity-50 ' +
-                                  'hover:bg-transparent ' +
-                                  'hover:opacity-100 ' +
-                                  'transition-opacity' +
-                                  ' duration-200',
-                                  isLoading && 'cursor-not-allowed opacity-50'
+                                  "absolute z-10 left-2 h-8 w-8 rounded-full opacity-50 " +
+                                    "hover:bg-transparent " +
+                                    "hover:opacity-100 " +
+                                    "transition-opacity" +
+                                    " duration-200",
+                                  isLoading && "cursor-not-allowed opacity-50",
                                 )}
                                 aria-label="Add context"
                                 disabled={form.formState.isSubmitting}
@@ -227,10 +228,12 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
                                 <UserRound className="mr-2 h-4 w-4" />
                                 Humanize
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => {
-                                onVisualSelection();
-                                setShowVisualModal(true);
-                              }}>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  onVisualSelection();
+                                  setShowVisualModal(true);
+                                }}
+                              >
                                 <PieChart className="mr-2 h-4 w-4" />
                                 Create visuals
                               </DropdownMenuItem>
@@ -246,8 +249,8 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
                             type="submit"
                             size="icon"
                             className={cn(
-                              'absolute right-2 h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90',
-                              isLoading && 'cursor-not-allowed opacity-50'
+                              "absolute right-2 h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90",
+                              isLoading && "cursor-not-allowed opacity-50",
                             )}
                             aria-label="Send prompt"
                             disabled={!form.formState.isValid || form.formState.isSubmitting}
@@ -273,4 +276,3 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
     </div>
   );
 }
-

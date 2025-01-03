@@ -1,16 +1,4 @@
-import { useEffect, useState } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Building2,
-  CheckCircle,
-  Loader2,
-  MessageSquareText,
-  Package2,
-  Users,
-} from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -19,35 +7,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea2';
-import { useToast } from '@/hooks/use-toast';
-
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea2";
+import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Building2, CheckCircle, Loader2, MessageSquareText, Package2, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const BackgroundSchema = z.object({
   basic: z.object({
-    nameAndCompanyUrl: z.string().nonempty('Name & Company URL is required'),
-    industryKeywords: z
-      .string()
-      .nonempty('At least one industry/keyword is required'),
+    nameAndCompanyUrl: z.string().nonempty("Name & Company URL is required"),
+    industryKeywords: z.string().nonempty("At least one industry/keyword is required"),
   }),
   product: z.object({
-    companyFunction: z.string().nonempty('Company function is required'),
-    valueProposition: z.string().nonempty('Key value proposition is required'),
-    productsToSell: z.string().nonempty('At least one product is required'),
+    companyFunction: z.string().nonempty("Company function is required"),
+    valueProposition: z.string().nonempty("Key value proposition is required"),
+    productsToSell: z.string().nonempty("At least one product is required"),
     competitiveAdvantage: z.string().optional(),
     companyMission: z.string().optional(),
   }),
   audience: z.object({
-    customerStruggles: z
-      .string()
-      .nonempty('At least 2 customer struggles are required'),
-    customerDescription: z
-      .string()
-      .nonempty('Customer description is required'),
+    customerStruggles: z.string().nonempty("At least 2 customer struggles are required"),
+    customerDescription: z.string().nonempty("Customer description is required"),
   }),
   voice: z.object({
     writingStyle: z.string().optional(),
@@ -72,16 +58,16 @@ export function BackgroundForm({
   const form = useForm<Background>({
     resolver: zodResolver(BackgroundSchema),
     defaultValues: {
-      basic: { nameAndCompanyUrl: '', industryKeywords: '' },
+      basic: { nameAndCompanyUrl: "", industryKeywords: "" },
       product: {
-        companyFunction: '',
-        valueProposition: '',
-        productsToSell: '',
-        competitiveAdvantage: '',
-        companyMission: '',
+        companyFunction: "",
+        valueProposition: "",
+        productsToSell: "",
+        competitiveAdvantage: "",
+        companyMission: "",
       },
-      audience: { customerStruggles: '', customerDescription: '' },
-      voice: { writingStyle: '' },
+      audience: { customerStruggles: "", customerDescription: "" },
+      voice: { writingStyle: "" },
     },
   });
 
@@ -92,7 +78,7 @@ export function BackgroundForm({
         let savedData: Background | null = null;
 
         // Try to load from localStorage first
-        const localData = localStorage.getItem('backgroundInfo');
+        const localData = localStorage.getItem("backgroundInfo");
         if (localData) {
           savedData = JSON.parse(localData);
         }
@@ -101,7 +87,7 @@ export function BackgroundForm({
         if (projectId && !savedData) {
           const response = await fetch(`/api/background/${projectId}`);
           if (!response.ok) {
-            throw new Error('Failed to fetch data from API');
+            throw new Error("Failed to fetch data from API");
           }
           savedData = await response.json();
         }
@@ -110,17 +96,17 @@ export function BackgroundForm({
         if (savedData) {
           form.reset(savedData);
           toast({
-            title: 'Data Loaded',
-            description: 'Your previously saved information has been restored.',
-            variant: 'default',
+            title: "Data Loaded",
+            description: "Your previously saved information has been restored.",
+            variant: "default",
           });
         }
       } catch (error: unknown) {
-        console.error('Error loading saved data:', error);
+        console.error("Error loading saved data:", error);
         toast({
-          title: 'Warning',
-          description: 'Could not load your previously saved information.',
-          variant: 'destructive',
+          title: "Warning",
+          description: "Could not load your previously saved information.",
+          variant: "destructive",
         });
       }
     };
@@ -136,20 +122,20 @@ export function BackgroundForm({
       } else {
         // Simulate API delay for localStorage
         await new Promise((resolve) => setTimeout(resolve, 500));
-        localStorage.setItem('backgroundInfo', JSON.stringify(data));
+        localStorage.setItem("backgroundInfo", JSON.stringify(data));
       }
 
       toast({
-        title: 'Success!',
-        description: 'Your background information has been saved successfully.',
-        variant: 'default',
+        title: "🎉 Success!",
+        description: "Your background information has been saved successfully.",
+        variant: "default",
       });
     } catch (error: unknown) {
-      console.error('Failed to save:', error);
+      console.error("Failed to save:", error);
       toast({
-        title: 'Something went wrong',
-        description: 'Failed to save background information. Please try again.',
-        variant: 'destructive',
+        title: "Something went wrong",
+        description: "Failed to save background information. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -162,37 +148,37 @@ export function BackgroundForm({
 
     // Helper function to check if a field has value
     const hasValue = (value: string | undefined): boolean => {
-      return Boolean(value && value.trim() !== '');
+      return Boolean(value && value.trim() !== "");
     };
 
     // Required fields
     const requiredFields = [
       {
-        path: 'basic.nameAndCompanyUrl',
+        path: "basic.nameAndCompanyUrl",
         value: formValues.basic.nameAndCompanyUrl,
       },
       {
-        path: 'basic.industryKeywords',
+        path: "basic.industryKeywords",
         value: formValues.basic.industryKeywords,
       },
       {
-        path: 'product.companyFunction',
+        path: "product.companyFunction",
         value: formValues.product.companyFunction,
       },
       {
-        path: 'product.valueProposition',
+        path: "product.valueProposition",
         value: formValues.product.valueProposition,
       },
       {
-        path: 'product.productsToSell',
+        path: "product.productsToSell",
         value: formValues.product.productsToSell,
       },
       {
-        path: 'audience.customerStruggles',
+        path: "audience.customerStruggles",
         value: formValues.audience.customerStruggles,
       },
       {
-        path: 'audience.customerDescription',
+        path: "audience.customerDescription",
         value: formValues.audience.customerDescription,
       },
     ];
@@ -201,22 +187,18 @@ export function BackgroundForm({
     const allFields = [
       ...requiredFields,
       {
-        path: 'product.competitiveAdvantage',
+        path: "product.competitiveAdvantage",
         value: formValues.product.competitiveAdvantage,
       },
       {
-        path: 'product.companyMission',
+        path: "product.companyMission",
         value: formValues.product.companyMission,
       },
-      { path: 'voice.writingStyle', value: formValues.voice.writingStyle },
+      { path: "voice.writingStyle", value: formValues.voice.writingStyle },
     ];
 
-    const filledRequired = requiredFields.filter((field) =>
-      hasValue(field.value)
-    ).length;
-    const filledTotal = allFields.filter((field) =>
-      hasValue(field.value)
-    ).length;
+    const filledRequired = requiredFields.filter((field) => hasValue(field.value)).length;
+    const filledTotal = allFields.filter((field) => hasValue(field.value)).length;
 
     return {
       required: Math.round((filledRequired / requiredFields.length) * 100),
@@ -255,9 +237,8 @@ export function BackgroundForm({
         <div className="space-y-0.5">
           <h2 className="text-2xl font-bold tracking-tight">Background</h2>
           <p className="text-sm text-muted-foreground max-w-[450px]">
-            Help us get to know your business to generate relevant articles. The
-            more information you provide, the better content we can create for
-            you.
+            Help us get to know your business to generate relevant articles. The more information
+            you provide, the better content we can create for you.
           </p>
         </div>
 
@@ -295,31 +276,19 @@ export function BackgroundForm({
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
           <aside className="-mx-4 lg:w-1/5">
             <TabsList className="flex flex-col h-auto space-y-1 bg-transparent p-0">
-              <TabsTrigger
-                value="basic"
-                className="w-full justify-start px-4 py-2 font-normal"
-              >
+              <TabsTrigger value="basic" className="w-full justify-start px-4 py-2 font-normal">
                 <Building2 className="w-4 h-4 mr-2" />
                 Basic Information
               </TabsTrigger>
-              <TabsTrigger
-                value="product"
-                className="w-full justify-start px-4 py-2 font-normal"
-              >
+              <TabsTrigger value="product" className="w-full justify-start px-4 py-2 font-normal">
                 <Package2 className="w-4 h-4 mr-2" />
                 Product Details
               </TabsTrigger>
-              <TabsTrigger
-                value="audience"
-                className="w-full justify-start px-4 py-2 font-normal"
-              >
+              <TabsTrigger value="audience" className="w-full justify-start px-4 py-2 font-normal">
                 <Users className="w-4 h-4 mr-2" />
                 Audience
               </TabsTrigger>
-              <TabsTrigger
-                value="voice"
-                className="w-full justify-start px-4 py-2 font-normal"
-              >
+              <TabsTrigger value="voice" className="w-full justify-start px-4 py-2 font-normal">
                 <MessageSquareText className="w-4 h-4 mr-2" />
                 Voice & Style
               </TabsTrigger>
@@ -328,17 +297,12 @@ export function BackgroundForm({
 
           <div className="flex-1 lg:max-w-2xl">
             <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleSubmit)}
-                className="space-y-8"
-              >
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
                 <TabsContent value="basic">
                   <div className="space-y-6">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-lg font-medium">
-                          Basic Information
-                        </h3>
+                        <h3 className="text-lg font-medium">Basic Information</h3>
                         <p className="text-sm text-muted-foreground">
                           Essential details about your company.
                         </p>
@@ -354,14 +318,9 @@ export function BackgroundForm({
                         <FormItem>
                           <FormLabel>Name & Company URL *</FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder="John Doe - www.example.com"
-                              {...field}
-                            />
+                            <Input placeholder="John Doe - www.example.com" {...field} />
                           </FormControl>
-                          <FormDescription>
-                            Your company name and website URL.
-                          </FormDescription>
+                          <FormDescription>Your company name and website URL.</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -374,14 +333,10 @@ export function BackgroundForm({
                         <FormItem>
                           <FormLabel>Industry Keywords *</FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder="E.g., Technology, SaaS, B2B"
-                              {...field}
-                            />
+                            <Input placeholder="E.g., Technology, SaaS, B2B" {...field} />
                           </FormControl>
                           <FormDescription>
-                            Keywords that best describe your industry and
-                            business focus.
+                            Keywords that best describe your industry and business focus.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -396,8 +351,7 @@ export function BackgroundForm({
                       <div>
                         <h3 className="text-lg font-medium">Product Details</h3>
                         <p className="text-sm text-muted-foreground">
-                          Tell us about your products and what makes them
-                          unique.
+                          Tell us about your products and what makes them unique.
                         </p>
                       </div>
                       <SaveButton />
@@ -454,8 +408,7 @@ export function BackgroundForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Maximum 3 products. Format: Name - Description (one
-                            per line)
+                            Maximum 3 products. Format: Name - Description (one per line)
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -476,8 +429,7 @@ export function BackgroundForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Optional, but helps us highlight your unique selling
-                            points
+                            Optional, but helps us highlight your unique selling points
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -492,8 +444,7 @@ export function BackgroundForm({
                       <div>
                         <h3 className="text-lg font-medium">Target Audience</h3>
                         <p className="text-sm text-muted-foreground">
-                          Help us understand who your customers are and their
-                          needs.
+                          Help us understand who your customers are and their needs.
                         </p>
                       </div>
                       <SaveButton />
@@ -514,8 +465,8 @@ export function BackgroundForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            2-3 points that describe what problems your
-                            customers are trying to solve
+                            2-3 points that describe what problems your customers are trying to
+                            solve
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -572,8 +523,8 @@ export function BackgroundForm({
                             />
                           </FormControl>
                           <FormDescription>
-                            Optional: Provide examples of your existing content
-                            to help us match your voice
+                            Optional: Provide examples of your existing content to help us match
+                            your voice
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
