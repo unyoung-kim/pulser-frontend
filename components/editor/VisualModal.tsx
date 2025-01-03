@@ -54,12 +54,7 @@ export function VisualModal({ editor, onClose }: VisualModalProps) {
 
   const handleInsert = useCallback(() => {
     if (selectedIMG && savedSelection) {
-      editor.commands.insertContentAt(savedSelection.to, {
-        type: 'image',
-        attrs: {
-          src: selectedIMG,
-        },
-      });
+      editor.commands.setImageBlockAt({ src: selectedIMG, pos: savedSelection.to });
       editor.chain().focus().setSavedSelection({ from: 0, to: 0 }).run();
       onClose();
     }

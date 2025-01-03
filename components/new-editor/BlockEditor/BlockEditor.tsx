@@ -67,7 +67,7 @@ export const BlockEditor = ({
   };
 
   const handleImageSelect = useCallback((imageUrl: string) => {
-    editor.chain().focus().setImage({ src: imageUrl }).run();
+    editor.commands.setImageBlock({ src: imageUrl });
     setShowImageSearch(false);
   }, [editor]);
 

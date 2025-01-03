@@ -1,8 +1,8 @@
-import { ReactNodeViewRenderer } from '@tiptap/react'
-import { mergeAttributes, Range } from '@tiptap/core'
+import { ReactNodeViewRenderer } from '@tiptap/react';
+import { mergeAttributes, Range } from '@tiptap/core';
 
-import { ImageBlockView } from './components/ImageBlockView'
-import { Image } from '../Image'
+import { ImageBlockView } from './components/ImageBlockView';
+import { Image } from '../Image';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -23,6 +23,8 @@ export const ImageBlock = Image.extend({
   defining: true,
 
   isolating: true,
+
+  draggable: true,
 
   addAttributes() {
     return {
@@ -54,7 +56,7 @@ export const ImageBlock = Image.extend({
           alt: attributes.alt,
         }),
       },
-    }
+    };
   },
 
   parseHTML() {
@@ -62,42 +64,42 @@ export const ImageBlock = Image.extend({
       {
         tag: 'img[src*="tiptap.dev"]:not([src^="data:"]), img[src*="windows.net"]:not([src^="data:"])',
       },
-    ]
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['img', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)]
+    return ['img', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)];
   },
 
   addCommands() {
     return {
       setImageBlock:
         attrs =>
-        ({ commands }) => {
-          return commands.insertContent({ type: 'imageBlock', attrs: { src: attrs.src } })
-        },
+          ({ commands }) => {
+            return commands.insertContent({ type: 'imageBlock', attrs: { src: attrs.src } });
+          },
 
       setImageBlockAt:
         attrs =>
-        ({ commands }) => {
-          return commands.insertContentAt(attrs.pos, { type: 'imageBlock', attrs: { src: attrs.src } })
-        },
+          ({ commands }) => {
+            return commands.insertContentAt(attrs.pos, { type: 'imageBlock', attrs: { src: attrs.src } });
+          },
 
       setImageBlockAlign:
         align =>
-        ({ commands }) =>
-          commands.updateAttributes('imageBlock', { align }),
+          ({ commands }) =>
+            commands.updateAttributes('imageBlock', { align }),
 
       setImageBlockWidth:
         width =>
-        ({ commands }) =>
-          commands.updateAttributes('imageBlock', { width: `${Math.max(0, Math.min(100, width))}%` }),
-    }
+          ({ commands }) =>
+            commands.updateAttributes('imageBlock', { width: `${Math.max(0, Math.min(100, width))}%` }),
+    };
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(ImageBlockView)
+    return ReactNodeViewRenderer(ImageBlockView);
   },
-})
+});
 
-export default ImageBlock
+export default ImageBlock;
