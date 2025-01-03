@@ -36,15 +36,15 @@ const formSchema = z.object({
 interface AiPromptInputProps {
   editor: Editor;
 }
-
-const HUMANIZE_PROMPT = 'You will be given a user query. Please generate text that avoids using formal ' +
-  'or overly academic phrases such as \'it is worth noting,\' \'furthermore,\' \'consequently,\' \'in terms of,\' \'one may argue,\' ' +
-  '\'it is imperative,\' \'this suggests that,\' \'thus,\' \'it is evident that,\' \'notwithstanding,\' \'pertaining to,\' ' +
-  '\'therein lies,\' \'utilize,\' \'be advised,\' \'hence,\' \'indicate,\' \'facilitate,\' \'subsequently,\' \'moreover,\' and ' +
-  '\'it can be seen that.\' Aim for a natural, conversational style that sounds like two friends talking at ' +
-  'the coffee shop. Use direct, simple language and choose phrases that are commonly used in everyday speech. ' +
-  'If a formal phrase is absolutely necessary for clarity or accuracy, you may include it, but otherwise, ' +
-  'please prioritize making the text engaging, clear, and relatable. Instruction: ';
+const HUMANIZE_PROMPT = `You will be given a user query. Please generate text that avoids using formal
+or overly academic phrases such as 'it is worth noting,' 'furthermore,' 'consequently,' 'in terms of,' 'one may argue,'
+'it is imperative,' 'this suggests that,' 'thus,' 'it is evident that,' 'notwithstanding,' 'pertaining to,'
+'therein lies,' 'utilize,' 'be advised,' 'hence,' 'indicate,' 'facilitate,' 'subsequently,' 'moreover,' and
+'it can be seen that.' Aim for a natural, conversational style that sounds like two friends talking at
+the coffee shop. Use direct, simple language and choose phrases that are commonly used in everyday speech.
+If a formal phrase is absolutely necessary for clarity or accuracy, you may include it, but otherwise,
+please prioritize making the text engaging, clear, and relatable.
+Instruction: `;
 
 // utility function to check if the text is a heading
 const isHeading = (text: string | string[]): boolean => {
