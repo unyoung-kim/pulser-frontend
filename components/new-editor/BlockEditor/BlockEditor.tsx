@@ -152,11 +152,11 @@ export const BlockEditor = ({
             editor={editor}
             onClose={() => {
               setShowVisualModal(false);
-              setTimeout(() => {
-                if (document.body.style.pointerEvents === 'none') {
-                  document.body.style.pointerEvents = '';
-                }
-              }, 50);
+              // setTimeout(() => {
+              //   if (document.body.style.pointerEvents === 'none') {
+              //     document.body.style.pointerEvents = '';
+              //   }
+              // }, 50);
             }}
           />
         )}
