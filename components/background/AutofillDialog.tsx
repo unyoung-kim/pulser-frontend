@@ -1,12 +1,12 @@
-import { ToastActionElement } from "@/components/ui/toast";
-import { BACKEND_URL } from "@/lib/api/backend";
-import { Loader2, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
-import { z } from "zod";
-import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
+import { ToastActionElement } from '@/components/ui/toast';
+import { BACKEND_URL } from '@/lib/api/backend';
+import { Loader2, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { z } from 'zod';
+import { Button } from '../ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 const isValidUrl = (string: string) => {
   try {
@@ -20,7 +20,7 @@ const isValidUrl = (string: string) => {
 type ToastProps = {
   title?: string;
   description?: string;
-  variant?: "default" | "destructive";
+  variant?: 'default' | 'destructive';
   action?: ToastActionElement;
 };
 
@@ -63,9 +63,9 @@ export const AutofillDialog = ({
   const handleAutofill = async () => {
     if (!isValidUrl(autofillUrl)) {
       toast({
-        title: "Invalid URL",
-        description: "Please enter a valid URL",
-        variant: "destructive",
+        title: 'Invalid URL',
+        description: 'Please enter a valid URL',
+        variant: 'destructive',
       });
       return;
     }
@@ -73,8 +73,8 @@ export const AutofillDialog = ({
     setIsLoading(true);
     try {
       const response = await fetch(`${BACKEND_URL}/autofill-background`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           projectId,
           companyUrl: autofillUrl,
@@ -82,30 +82,30 @@ export const AutofillDialog = ({
       });
 
       if (!response.ok) {
-        throw new Error("Failed to autofill");
+        throw new Error('Failed to autofill');
       }
 
       const rawData = await response.json();
-      console.log("Raw data", rawData);
+      console.log('Raw data', rawData);
       const result = AutofillResponse.parse(rawData);
-      console.log("Result", result);
+      console.log('Result', result);
 
       if (!result.result.data.success || !result.result.data.data) {
-        throw new Error(result.result.data.error || "Failed to autofill");
+        throw new Error(result.result.data.error || 'Failed to autofill');
       }
 
       onSuccess(result.result.data);
       toast({
-        title: "🎉 Success",
-        description: "Content was successfully autofilled with AI ✅",
+        title: '🎉 Success',
+        description: 'Content was successfully autofilled with AI ✅',
       });
       onClose();
     } catch (error) {
-      console.log("Error", error);
+      console.log('Error', error);
       toast({
-        title: "Error",
-        description: "Failed to autofill content",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to autofill content',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);

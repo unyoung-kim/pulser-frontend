@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { useTextmenuCommands } from "@/components/new-editor/menus/TextMenu/hooks/useTextmenuCommands";
-import { Button } from "@/components/ui/button";
+import { useTextmenuCommands } from '@/components/new-editor/menus/TextMenu/hooks/useTextmenuCommands';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AiStorage } from "@tiptap-pro/extension-ai";
-import { Editor } from "@tiptap/core";
-import { useEditorState } from "@tiptap/react";
+} from '@/components/ui/dropdown-menu';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AiStorage } from '@tiptap-pro/extension-ai';
+import { Editor } from '@tiptap/core';
+import { useEditorState } from '@tiptap/react';
 import {
   ArrowRight,
   Check,
@@ -24,15 +24,15 @@ import {
   RefreshCw,
   Trash2,
   UserRound,
-} from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import * as z from "zod";
+} from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import * as z from 'zod';
 
 const formSchema = z.object({
   prompt: z.string().min(1, {
-    message: "Prompt must be at least 1 character.",
+    message: 'Prompt must be at least 1 character.',
   }),
 });
 
@@ -47,7 +47,7 @@ Instruction: `;
 
 // utility function to check if the text is a heading
 const isHeading = (text: string | string[]): boolean => {
-  return text.length <= 60 && !text.includes(".");
+  return text.length <= 60 && !text.includes('.');
 };
 
 export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps) {
@@ -60,7 +60,7 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
     selector: (ctx) => {
       const aiStorage = ctx.editor.storage.ai as AiStorage;
       return {
-        isLoading: aiStorage.state === "loading",
+        isLoading: aiStorage.state === 'loading',
         generatedText: aiStorage.response,
         error: aiStorage.error,
       };
@@ -70,7 +70,7 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      prompt: "",
+      prompt: '',
     },
   });
 
@@ -87,7 +87,7 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
         .focus()
         .aiTextPrompt({
           stream: true,
-          format: "rich-text",
+          format: 'rich-text',
           text: `${values.prompt}: ${selectedText}`,
           insert: false,
         })
@@ -107,12 +107,12 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
     );
 
     const instruction = isHeading(selectedText)
-      ? "Humanize this heading to make it clear and conversational: "
-      : "Humanize this paragraph to make it friendly and relatable: ";
+      ? 'Humanize this heading to make it clear and conversational: '
+      : 'Humanize this paragraph to make it friendly and relatable: ';
 
     const finalPrompt = HUMANIZE_PROMPT + instruction;
 
-    form.setValue("prompt", finalPrompt);
+    form.setValue('prompt', finalPrompt);
     form.handleSubmit(onSubmit)();
   }, [editor, form, onSubmit]);
 
@@ -155,12 +155,12 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
           <div className="w-full sm:w-11/12 md:w-2/3 lg:w-1/2 xl:w-2xl mx-auto">
             <div
               className={cn(
-                "mb-4 overflow-hidden rounded-lg bg-g p-4 drop-shadow-lg ring-0 bg-white ring-primary/10 transition-all duration-300",
-                isVisible && generatedText ? "opacity-100 max-h-[20rem]" : "opacity-0 max-h-0",
+                'mb-4 overflow-hidden rounded-lg bg-g p-4 drop-shadow-lg ring-0 bg-white ring-primary/10 transition-all duration-300',
+                isVisible && generatedText ? 'opacity-100 max-h-[20rem]' : 'opacity-0 max-h-0',
               )}
             >
               <div className="prose prose-sm max-h-[14rem] overflow-y-auto">
-                <div dangerouslySetInnerHTML={{ __html: generatedText || "" }} />
+                <div dangerouslySetInnerHTML={{ __html: generatedText || '' }} />
               </div>
               <div className="mt-4 flex justify-end space-x-2">
                 <Button
@@ -210,12 +210,12 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
                                 variant="ghost"
                                 size="icon"
                                 className={cn(
-                                  "absolute z-10 left-2 h-8 w-8 rounded-full opacity-50 " +
-                                    "hover:bg-transparent " +
-                                    "hover:opacity-100 " +
-                                    "transition-opacity" +
-                                    " duration-200",
-                                  isLoading && "cursor-not-allowed opacity-50",
+                                  'absolute z-10 left-2 h-8 w-8 rounded-full opacity-50 ' +
+                                    'hover:bg-transparent ' +
+                                    'hover:opacity-100 ' +
+                                    'transition-opacity' +
+                                    ' duration-200',
+                                  isLoading && 'cursor-not-allowed opacity-50',
                                 )}
                                 aria-label="Add context"
                                 disabled={form.formState.isSubmitting}
@@ -249,8 +249,8 @@ export function AiPromptInput({ editor, setShowVisualModal }: AiPromptInputProps
                             type="submit"
                             size="icon"
                             className={cn(
-                              "absolute right-2 h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90",
-                              isLoading && "cursor-not-allowed opacity-50",
+                              'absolute right-2 h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90',
+                              isLoading && 'cursor-not-allowed opacity-50',
                             )}
                             aria-label="Send prompt"
                             disabled={!form.formState.isValid || form.formState.isSubmitting}

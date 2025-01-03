@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -7,33 +7,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea2";
-import { useToast } from "@/hooks/use-toast";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2, CheckCircle, Loader2, MessageSquareText, Package2, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea2';
+import { useToast } from '@/hooks/use-toast';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Building2, CheckCircle, Loader2, MessageSquareText, Package2, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 const BackgroundSchema = z.object({
   basic: z.object({
-    nameAndCompanyUrl: z.string().nonempty("Name & Company URL is required"),
-    industryKeywords: z.string().nonempty("At least one industry/keyword is required"),
+    nameAndCompanyUrl: z.string().nonempty('Name & Company URL is required'),
+    industryKeywords: z.string().nonempty('At least one industry/keyword is required'),
   }),
   product: z.object({
-    companyFunction: z.string().nonempty("Company function is required"),
-    valueProposition: z.string().nonempty("Key value proposition is required"),
-    productsToSell: z.string().nonempty("At least one product is required"),
+    companyFunction: z.string().nonempty('Company function is required'),
+    valueProposition: z.string().nonempty('Key value proposition is required'),
+    productsToSell: z.string().nonempty('At least one product is required'),
     competitiveAdvantage: z.string().optional(),
     companyMission: z.string().optional(),
   }),
   audience: z.object({
-    customerStruggles: z.string().nonempty("At least 2 customer struggles are required"),
-    customerDescription: z.string().nonempty("Customer description is required"),
+    customerStruggles: z.string().nonempty('At least 2 customer struggles are required'),
+    customerDescription: z.string().nonempty('Customer description is required'),
   }),
   voice: z.object({
     writingStyle: z.string().optional(),
@@ -58,16 +58,16 @@ export function BackgroundForm({
   const form = useForm<Background>({
     resolver: zodResolver(BackgroundSchema),
     defaultValues: {
-      basic: { nameAndCompanyUrl: "", industryKeywords: "" },
+      basic: { nameAndCompanyUrl: '', industryKeywords: '' },
       product: {
-        companyFunction: "",
-        valueProposition: "",
-        productsToSell: "",
-        competitiveAdvantage: "",
-        companyMission: "",
+        companyFunction: '',
+        valueProposition: '',
+        productsToSell: '',
+        competitiveAdvantage: '',
+        companyMission: '',
       },
-      audience: { customerStruggles: "", customerDescription: "" },
-      voice: { writingStyle: "" },
+      audience: { customerStruggles: '', customerDescription: '' },
+      voice: { writingStyle: '' },
     },
   });
 
@@ -78,7 +78,7 @@ export function BackgroundForm({
         let savedData: Background | null = null;
 
         // Try to load from localStorage first
-        const localData = localStorage.getItem("backgroundInfo");
+        const localData = localStorage.getItem('backgroundInfo');
         if (localData) {
           savedData = JSON.parse(localData);
         }
@@ -87,7 +87,7 @@ export function BackgroundForm({
         if (projectId && !savedData) {
           const response = await fetch(`/api/background/${projectId}`);
           if (!response.ok) {
-            throw new Error("Failed to fetch data from API");
+            throw new Error('Failed to fetch data from API');
           }
           savedData = await response.json();
         }
@@ -96,17 +96,17 @@ export function BackgroundForm({
         if (savedData) {
           form.reset(savedData);
           toast({
-            title: "Data Loaded",
-            description: "Your previously saved information has been restored.",
-            variant: "default",
+            title: 'Data Loaded',
+            description: 'Your previously saved information has been restored.',
+            variant: 'default',
           });
         }
       } catch (error: unknown) {
-        console.error("Error loading saved data:", error);
+        console.error('Error loading saved data:', error);
         toast({
-          title: "Warning",
-          description: "Could not load your previously saved information.",
-          variant: "destructive",
+          title: 'Warning',
+          description: 'Could not load your previously saved information.',
+          variant: 'destructive',
         });
       }
     };
@@ -122,20 +122,20 @@ export function BackgroundForm({
       } else {
         // Simulate API delay for localStorage
         await new Promise((resolve) => setTimeout(resolve, 500));
-        localStorage.setItem("backgroundInfo", JSON.stringify(data));
+        localStorage.setItem('backgroundInfo', JSON.stringify(data));
       }
 
       toast({
-        title: "🎉 Success!",
-        description: "Your background information has been saved successfully.",
-        variant: "default",
+        title: '🎉 Success!',
+        description: 'Your background information has been saved successfully.',
+        variant: 'default',
       });
     } catch (error: unknown) {
-      console.error("Failed to save:", error);
+      console.error('Failed to save:', error);
       toast({
-        title: "Something went wrong",
-        description: "Failed to save background information. Please try again.",
-        variant: "destructive",
+        title: 'Something went wrong',
+        description: 'Failed to save background information. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -148,37 +148,37 @@ export function BackgroundForm({
 
     // Helper function to check if a field has value
     const hasValue = (value: string | undefined): boolean => {
-      return Boolean(value && value.trim() !== "");
+      return Boolean(value && value.trim() !== '');
     };
 
     // Required fields
     const requiredFields = [
       {
-        path: "basic.nameAndCompanyUrl",
+        path: 'basic.nameAndCompanyUrl',
         value: formValues.basic.nameAndCompanyUrl,
       },
       {
-        path: "basic.industryKeywords",
+        path: 'basic.industryKeywords',
         value: formValues.basic.industryKeywords,
       },
       {
-        path: "product.companyFunction",
+        path: 'product.companyFunction',
         value: formValues.product.companyFunction,
       },
       {
-        path: "product.valueProposition",
+        path: 'product.valueProposition',
         value: formValues.product.valueProposition,
       },
       {
-        path: "product.productsToSell",
+        path: 'product.productsToSell',
         value: formValues.product.productsToSell,
       },
       {
-        path: "audience.customerStruggles",
+        path: 'audience.customerStruggles',
         value: formValues.audience.customerStruggles,
       },
       {
-        path: "audience.customerDescription",
+        path: 'audience.customerDescription',
         value: formValues.audience.customerDescription,
       },
     ];
@@ -187,14 +187,14 @@ export function BackgroundForm({
     const allFields = [
       ...requiredFields,
       {
-        path: "product.competitiveAdvantage",
+        path: 'product.competitiveAdvantage',
         value: formValues.product.competitiveAdvantage,
       },
       {
-        path: "product.companyMission",
+        path: 'product.companyMission',
         value: formValues.product.companyMission,
       },
-      { path: "voice.writingStyle", value: formValues.voice.writingStyle },
+      { path: 'voice.writingStyle', value: formValues.voice.writingStyle },
     ];
 
     const filledRequired = requiredFields.filter((field) => hasValue(field.value)).length;
