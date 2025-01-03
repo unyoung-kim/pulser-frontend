@@ -56,14 +56,19 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   const { onVisualSelection } = useTextmenuCommands(editor);
 
   // Get the generated text and loading state from the editor
-  const { isLoading, generatedText, error } = useEditorState({
+  const { isLoading, generatedText, error, isTextSelected } = useEditorState({
     editor,
     selector: (ctx) => {
       const aiStorage = ctx.editor.storage.ai as AiStorage;
+
+      const { from, to } = ctx.editor.state.selection;
+      const isTextSelected = from !== to;
+
       return {
         isLoading: aiStorage.state === 'loading',
         generatedText: aiStorage.response,
         error: aiStorage.error,
+        isTextSelected,
       };
     },
   });
@@ -78,7 +83,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   // Handle form submission
   const onSubmit = useCallback((values: z.infer<typeof formSchema>) => {
     const { from, to } = editor.state.selection;
-    const selectedText= editor.state.doc.textBetween(from, to);
+    const selectedText = editor.state.doc.textBetween(from, to);
     const textToInsert = selectedText ? `${values.prompt}: ${selectedText}` : values.prompt;
 
     editor
@@ -101,9 +106,9 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   // Handle humanize button click
   const handleHumanize = useCallback(() => {
     const { from, to } = editor.state.selection;
-    const selectedText= editor.state.doc.textBetween(from, to);
+    const selectedText = editor.state.doc.textBetween(from, to);
 
-    if(selectedText.length === 0){
+    if (selectedText.length === 0) {
       toast({ description: 'Select Text first', variant: 'destructive' });
       return;
     }
@@ -151,18 +156,24 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   }, [error]);
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 pb-4 pt-2">
-      <div className=" px-4 flex">
-        <div className="flex-1">
+    <div className="fixed left-24 right-96 bottom-0 z-50 pb-4 pt-2">
+      <div className="px-4">
+        <div>
           <div className="w-full sm:w-11/12 md:w-2/3 lg:w-1/2 xl:w-2xl mx-auto">
             <div
               className={cn(
-                'mb-4 overflow-hidden rounded-lg bg-g p-4 drop-shadow-lg ring-0 bg-white ring-primary/10 transition-all duration-300',
-                isVisible && generatedText ? 'opacity-100 max-h-[20rem]' : 'opacity-0 max-h-0',
+                'mb-4 overflow-hidden rounded-lg bg-g p-4 drop-shadow-lg ring-0 bg-white ring-primary/10',
+                isVisible ? 'block' : 'hidden',
               )}
             >
               <div className="prose prose-sm max-h-[14rem] overflow-y-auto">
-                <div dangerouslySetInnerHTML={{ __html: generatedText || '' }} />
+                {isLoading ? (
+                  <div className="overflow-hidden w-full">
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                  </div>
+                ) :
+                  <div dangerouslySetInnerHTML={{ __html: generatedText || '' }} />
+                }
               </div>
               <div className="mt-4 flex justify-end space-x-2">
                 <Button
@@ -210,8 +221,15 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                   className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
                   onClick={handleHumanize}
                   size="sm"
+                  disabled={!isTextSelected}
                 >
-                  <UserRound className="h-4 w-4 text-blue-500" />
+                  <UserRound
+                    className={
+                      cn('h-4 w-4',
+                        !isTextSelected ? 'text-gray-400' : 'text-blue-500'
+                      )
+                    }
+                  />
                   Humanize
                 </Button>
                 <Button
@@ -219,17 +237,31 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                   className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
                   onClick={onVisualSelection}
                   size="sm"
+                  disabled={!isTextSelected}
                 >
-                  <PieChart className="h-4 w-4 text-green-500" />
+                  <PieChart
+                    className={
+                      cn('h-4 w-4',
+                        !isTextSelected ? 'text-gray-400' : 'text-green-500'
+                      )
+                    }
+                  />
                   Create visual
                 </Button>
                 <Button
                   variant="outline"
                   className="flex items-center gap-2 rounded-full border shadow-sm hover:shadow-md transition-shadow"
-                  onClick={()=> editor.chain().focus().setAiImage().run()}
+                  onClick={() => editor.chain().focus().setAiImage().run()}
                   size="sm"
+                  disabled={!isTextSelected}
                 >
-                  <WandSparkles className="h-4 w-4 text-orange-500" />
+                  <WandSparkles
+                    className={
+                      cn('h-4 w-4',
+                        !isTextSelected ? 'text-gray-400' : 'text-orange-500'
+                      )
+                    }
+                  />
                   Ai Image
                 </Button>
               </div>
@@ -246,7 +278,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                         <div className="relative flex items-center">
                           <Input
                             placeholder="Ask AI to enhance your writing..."
-                            className="h-12 rounded-full pr-12 drop-shadow-lg focus-visible:ring-0 focus-visible:ring-offset-0"
+                            className="h-12 rounded-full pl-6 pr-12 drop-shadow-lg focus-visible:ring-0 focus-visible:ring-offset-0"
                             {...field}
                           />
                           <Button
@@ -274,8 +306,6 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
             </Form>
           </div>
         </div>
-        {/*This empty div is needed to center the AI prompt*/}
-        <div className="basis-80"></div>
       </div>
     </div>
   );
