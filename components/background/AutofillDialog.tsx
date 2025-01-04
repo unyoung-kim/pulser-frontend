@@ -1,12 +1,13 @@
-import { ToastActionElement } from '@/components/ui/toast';
-import { BACKEND_URL } from '@/lib/api/backend';
-import { Loader2, Sparkles } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { z } from 'zod';
-import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
+import { ToastActionElement } from "@/components/ui/toast";
+import { BACKEND_URL } from "@/lib/api/backend";
+import { Loader2, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { z } from "zod";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 const isValidUrl = (string: string) => {
   try {
@@ -20,7 +21,7 @@ const isValidUrl = (string: string) => {
 type ToastProps = {
   title?: string;
   description?: string;
-  variant?: 'default' | 'destructive';
+  variant?: "default" | "destructive";
   action?: ToastActionElement;
 };
 
@@ -36,6 +37,43 @@ const AutofillResponse = z.object({
 
 type AutofillResponseType = z.infer<typeof AutofillResponse>;
 
+const InternalLinksPrompt = ({
+  isOpen,
+  onClose,
+  onConfirm,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) => {
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            Find Internal Links
+            <Badge variant="secondary" className="bg-indigo-100 text-indigo-800">
+              Highly Recommended
+            </Badge>
+          </DialogTitle>
+          <DialogDescription>
+            Would you like to scan your website for internal links? This helps improve SEO by
+            naturally incorporating your existing pages into the generated content.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex justify-end gap-3">
+          <Button variant="outline" onClick={onClose}>
+            Skip for now
+          </Button>
+          <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700" onClick={onConfirm}>
+            Yes, find internal links
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 export const AutofillDialog = ({
   isOpen,
   onClose,
@@ -43,6 +81,8 @@ export const AutofillDialog = ({
   initialUrl,
   onSuccess,
   toast,
+  internalLinksCount = 0,
+  onInternalLinksPrompt,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -50,9 +90,12 @@ export const AutofillDialog = ({
   initialUrl: string;
   onSuccess: (data: any) => void;
   toast: (props: ToastProps) => void;
+  internalLinksCount?: number;
+  onInternalLinksPrompt?: () => void;
 }) => {
   const [autofillUrl, setAutofillUrl] = useState(initialUrl);
   const [isLoading, setIsLoading] = useState(false);
+  const [showInternalLinksPrompt, setShowInternalLinksPrompt] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -63,9 +106,9 @@ export const AutofillDialog = ({
   const handleAutofill = async () => {
     if (!isValidUrl(autofillUrl)) {
       toast({
-        title: 'Invalid URL',
-        description: 'Please enter a valid URL',
-        variant: 'destructive',
+        title: "Invalid URL",
+        description: "Please enter a valid URL",
+        variant: "destructive",
       });
       return;
     }
@@ -73,8 +116,8 @@ export const AutofillDialog = ({
     setIsLoading(true);
     try {
       const response = await fetch(`${BACKEND_URL}/autofill-background`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           projectId,
           companyUrl: autofillUrl,
@@ -82,79 +125,103 @@ export const AutofillDialog = ({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to autofill');
+        throw new Error("Failed to autofill");
       }
 
       const rawData = await response.json();
-      console.log('Raw data', rawData);
       const result = AutofillResponse.parse(rawData);
-      console.log('Result', result);
 
       if (!result.result.data.success || !result.result.data.data) {
-        throw new Error(result.result.data.error || 'Failed to autofill');
+        throw new Error(result.result.data.error || "Failed to autofill");
       }
 
       onSuccess(result.result.data);
       toast({
-        title: '🎉 Success',
-        description: 'Content was successfully autofilled with AI ✅',
+        title: "🎉 Success",
+        description: "Content was successfully autofilled with AI ✅",
       });
+      console.log("111111");
+      // Close the autofill dialog first
       onClose();
+      console.log("22222");
+
+      // Add a small delay before showing the internal links prompt
+      setTimeout(() => {
+        if (internalLinksCount === 0) {
+          console.log("3333");
+
+          console.log("Showing internal links prompt, count:", internalLinksCount);
+          setShowInternalLinksPrompt(true);
+        }
+      }, 500);
     } catch (error) {
-      console.log('Error', error);
+      console.error("Error:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to autofill content',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to autofill content",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleInternalLinksConfirm = () => {
+    setShowInternalLinksPrompt(false);
+    onInternalLinksPrompt?.();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Autofill with AI</DialogTitle>
-          <DialogDescription>
-            Enter your company URL to automatically fill in the information.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="url">Company URL</Label>
-            <Input
-              id="url"
-              placeholder="https://example.com"
-              value={autofillUrl}
-              onChange={(e) => setAutofillUrl(e.target.value)}
-            />
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Autofill with AI</DialogTitle>
+            <DialogDescription>
+              Enter your company URL to automatically fill in the information.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="url">Company URL</Label>
+              <Input
+                id="url"
+                placeholder="https://example.com"
+                value={autofillUrl}
+                onChange={(e) => setAutofillUrl(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
-        <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            className="gap-2 bg-indigo-600 hover:bg-indigo-700"
-            onClick={handleAutofill}
-            disabled={isLoading || !autofillUrl}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Autofilling...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4" />
-                Autofill
-              </>
-            )}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              className="gap-2 bg-indigo-600 hover:bg-indigo-700"
+              onClick={handleAutofill}
+              disabled={isLoading || !autofillUrl}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Autofilling...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Autofill
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <InternalLinksPrompt
+        isOpen={showInternalLinksPrompt}
+        onClose={() => setShowInternalLinksPrompt(false)}
+        onConfirm={handleInternalLinksConfirm}
+      />
+    </>
   );
 };
