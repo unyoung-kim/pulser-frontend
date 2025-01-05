@@ -1,10 +1,23 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@clerk/nextjs';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabaseClient";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@clerk/nextjs";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
   AlertTriangle,
@@ -20,27 +33,13 @@ import {
   Settings2,
   Sparkles,
   Tag,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabaseClient';
-import { cn } from '@/lib/utils';
-import KeywordSelector from './KeywordInput';
-import { Badge } from '../ui/badge';
-import { Textarea } from '../ui/textarea2';
-
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { Badge } from "../ui/badge";
+import { Textarea } from "../ui/textarea2";
+import KeywordSelector from "./KeywordInput";
 
 type LoadingStage = {
   label: string;
@@ -50,46 +49,43 @@ type LoadingStage = {
 
 // Create separate loading stage configurations
 const normalLoadingStages: LoadingStage[] = [
-  { label: 'Conducting web research', isLoading: true, isComplete: false },
-  { label: 'Generating an outline', isLoading: false, isComplete: false },
-  { label: 'Writing Content', isLoading: false, isComplete: false },
-  { label: 'Humanizing Content', isLoading: false, isComplete: false },
-  { label: 'Optimizing for SEO', isLoading: false, isComplete: false },
+  { label: "Conducting web research", isLoading: true, isComplete: false },
+  { label: "Generating an outline", isLoading: false, isComplete: false },
+  { label: "Writing Content", isLoading: false, isComplete: false },
+  { label: "Humanizing Content", isLoading: false, isComplete: false },
+  { label: "Optimizing for SEO", isLoading: false, isComplete: false },
 ];
 
 const glossaryLoadingStages: LoadingStage[] = [
-  { label: 'Generating an outline', isLoading: true, isComplete: false },
-  { label: 'Writing Content', isLoading: false, isComplete: false },
-  { label: 'Humanizing Content', isLoading: false, isComplete: false },
-  { label: 'Optimizing for SEO', isLoading: false, isComplete: false },
+  { label: "Generating an outline", isLoading: true, isComplete: false },
+  { label: "Writing Content", isLoading: false, isComplete: false },
+  { label: "Humanizing Content", isLoading: false, isComplete: false },
+  { label: "Optimizing for SEO", isLoading: false, isComplete: false },
 ];
 
 export default function ContentSettings() {
   const searchParams = useSearchParams();
-  const projectId = searchParams?.get('projectId') || '';
+  const projectId = searchParams?.get("projectId") || "";
   const queryClient = useQueryClient();
   const router = useRouter();
   const { toast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
-  const [topic, setTopic] = useState('');
-  const [contentType, setContentType] = useState<'NORMAL' | 'GLOSSARY'>(
-    'NORMAL'
-  );
-  const [selectedKeyword, setSelectedKeyword] = useState('');
+  const [topic, setTopic] = useState("");
+  const [contentType, setContentType] = useState<"NORMAL" | "GLOSSARY">("NORMAL");
+  const [selectedKeyword, setSelectedKeyword] = useState("");
   const [isLoadingTopics, setIsLoadingTopics] = useState(false);
   const [topicSuggestions, setTopicSuggestions] = useState<string[]>([]);
   const [showLoadingModal, setShowLoadingModal] = useState(false);
-  const [loadingStages, setLoadingStages] =
-    useState<LoadingStage[]>(normalLoadingStages);
+  const [loadingStages, setLoadingStages] = useState<LoadingStage[]>(normalLoadingStages);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [secondaryKeywords, setSecondaryKeywords] = useState('');
+  const [secondaryKeywords, setSecondaryKeywords] = useState("");
   const [wordCount, setWordCount] = useState<number>(2500);
-  const [outline, setOutline] = useState('');
-  const [postLength, setPostLength] = useState<'SHORT' | 'LONG'>('LONG');
+  const [outline, setOutline] = useState("");
+  const [postLength, setPostLength] = useState<"SHORT" | "LONG">("LONG");
   const { orgId } = useAuth();
 
   useEffect(() => {
-    setWordCount(contentType === 'NORMAL' ? 2500 : 1000);
+    setWordCount(contentType === "NORMAL" ? 2500 : 1000);
   }, [contentType]);
 
   const {
@@ -97,12 +93,12 @@ export default function ContentSettings() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['keyword', projectId],
+    queryKey: ["keyword", projectId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('Keyword')
+        .from("Keyword")
         .select(`id, keyword, content_count:Content!fk_content_keyword(count)`)
-        .eq('project_id', projectId);
+        .eq("project_id", projectId);
 
       if (error) throw error;
       return data;
@@ -118,7 +114,7 @@ export default function ContentSettings() {
   const { mutate: createKeyword } = useMutation({
     mutationFn: async (keyword: string) => {
       const { data, error } = await supabase
-        .from('Keyword')
+        .from("Keyword")
         .insert([
           {
             keyword,
@@ -133,46 +129,40 @@ export default function ContentSettings() {
     },
     onSuccess: () => {
       // Invalidate and refetch keywords
-      queryClient.invalidateQueries({ queryKey: ['keyword', projectId] });
+      queryClient.invalidateQueries({ queryKey: ["keyword", projectId] });
     },
   });
 
   const usedKeywords: string[] = useMemo(
-    () =>
-      keywords
-        .filter((k) => k.content_count.at(0)?.count > 0)
-        .map((k) => k.keyword) ?? [],
-    [keywords]
+    () => keywords.filter((k) => k.content_count.at(0)?.count > 0).map((k) => k.keyword) ?? [],
+    [keywords],
   );
 
   const unusedKeywords: string[] = useMemo(
-    () =>
-      keywords
-        .filter((k) => k.content_count.at(0)?.count == 0)
-        .map((k) => k.keyword) ?? [],
-    [keywords]
+    () => keywords.filter((k) => k.content_count.at(0)?.count == 0).map((k) => k.keyword) ?? [],
+    [keywords],
   );
 
   const { refetch: fetchTopicSuggestions } = useQuery({
-    queryKey: ['topic-suggestions', projectId, selectedKeyword],
+    queryKey: ["topic-suggestions", projectId, selectedKeyword],
     queryFn: async () => {
       if (!selectedKeyword) {
         toast({
-          title: 'Validation Error',
-          description: 'Please select a keyword first',
-          variant: 'destructive',
+          title: "Validation Error",
+          description: "Please select a keyword first",
+          variant: "destructive",
         });
         return;
       }
 
       setIsLoadingTopics(true);
       try {
-        const backendUrl = 'https://pulser-backend.onrender.com';
+        const backendUrl = "https://pulser-backend.onrender.com";
         // const backendUrl = "http://localhost:8000";
         const response = await fetch(`${backendUrl}/api/generate-topic`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             projectId,
@@ -181,7 +171,7 @@ export default function ContentSettings() {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch topic suggestions');
+          throw new Error("Failed to fetch topic suggestions");
         }
 
         const data = await response.json();
@@ -189,17 +179,14 @@ export default function ContentSettings() {
           const topics = JSON.parse(data.data);
           setTopicSuggestions(topics);
         } else {
-          throw new Error(data.error || 'Failed to generate topics');
+          throw new Error(data.error || "Failed to generate topics");
         }
         return data;
       } catch (error) {
         toast({
-          title: 'Error',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'Failed to generate topics',
-          variant: 'destructive',
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to generate topics",
+          variant: "destructive",
         });
       } finally {
         setIsLoadingTopics(false);
@@ -214,35 +201,34 @@ export default function ContentSettings() {
     const hasLoadingStage = stages.some((stage) => stage.isLoading);
 
     // If there's a loading stage, add 0.5 to represent partial completion
-    const progress =
-      (completedStages + (hasLoadingStage ? 0.5 : 0)) / totalStages;
+    const progress = (completedStages + (hasLoadingStage ? 0.5 : 0)) / totalStages;
     return `${progress * 100}%`;
   };
 
   const handleCreateContent = async () => {
     if (!selectedKeyword) {
       toast({
-        title: 'Validation Error',
-        description: 'Please select a keyword',
-        variant: 'destructive',
+        title: "Validation Error",
+        description: "Please select a keyword",
+        variant: "destructive",
       });
       return;
     }
 
     if (!projectId) {
       toast({
-        title: 'Error',
-        description: 'No project selected',
-        variant: 'destructive',
+        title: "Error",
+        description: "No project selected",
+        variant: "destructive",
       });
       return;
     }
 
     if (!topic.trim()) {
       toast({
-        title: 'Validation Error',
-        description: 'Please enter a topic',
-        variant: 'destructive',
+        title: "Validation Error",
+        description: "Please enter a topic",
+        variant: "destructive",
       });
       return;
     }
@@ -252,15 +238,10 @@ export default function ContentSettings() {
 
     try {
       // Reset loading stages based on content type
-      const stages =
-        contentType === 'GLOSSARY'
-          ? glossaryLoadingStages
-          : normalLoadingStages;
+      const stages = contentType === "GLOSSARY" ? glossaryLoadingStages : normalLoadingStages;
       setLoadingStages(stages);
 
-      const selectedKeywordId = keywords.find(
-        (k) => k.keyword === selectedKeyword
-      )?.id;
+      const selectedKeywordId = keywords.find((k) => k.keyword === selectedKeyword)?.id;
 
       const updateStage = (index: number) => {
         setLoadingStages((prev) => {
@@ -280,28 +261,26 @@ export default function ContentSettings() {
       updateStage(0);
 
       // Update subsequent stages with different timing based on content type
-      const transitionTime = contentType === 'GLOSSARY' ? 6000 : 15000;
+      const transitionTime = contentType === "GLOSSARY" ? 6000 : 15000;
       for (let i = 1; i < stages.length; i++) {
         setTimeout(() => updateStage(i), i * transitionTime);
       }
 
       // Start the content creation process
-      const backendUrl = 'https://pulser-backend.onrender.com';
+      const backendUrl = "https://pulser-backend.onrender.com";
       // const backendUrl = "http://localhost:8000";
 
       const response = await fetch(`${backendUrl}/api/web-retrieval`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           projectId: projectId,
           inputTopic: topic.trim(),
           keywordId: selectedKeywordId,
           type: contentType,
-          secondaryKeywords: secondaryKeywords
-            .split(',')
-            .map((kw) => kw.trim()),
+          secondaryKeywords: secondaryKeywords.split(",").map((kw) => kw.trim()),
           outline: outline.trim(),
           wordCount: wordCount,
           length: postLength.toUpperCase(),
@@ -309,12 +288,10 @@ export default function ContentSettings() {
       });
 
       const responseData = await response.json();
-      console.log('Response data:', responseData);
+      console.log("Response data:", responseData);
 
       if (!response.ok) {
-        throw new Error(
-          responseData.message || responseData.error || 'HTTP request failed'
-        );
+        throw new Error(responseData.message || responseData.error || "HTTP request failed");
       }
 
       // Complete all stages only after API is finished
@@ -323,16 +300,16 @@ export default function ContentSettings() {
           ...stage,
           isComplete: true,
           isLoading: false,
-        }))
+        })),
       );
 
       router.push(`/content?projectId=${projectId}`);
     } catch (error) {
-      console.error('Error creating content:', error);
+      console.error("Error creating content:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to create content. Please try again.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to create content. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsCreating(false);
@@ -353,12 +330,10 @@ export default function ContentSettings() {
           onClick={() => fetchTopicSuggestions()}
           className="text-indigo-600"
           disabled={isLoadingTopics || !selectedKeyword}
-          title={!selectedKeyword ? 'Please select a keyword first' : ''}
+          title={!selectedKeyword ? "Please select a keyword first" : ""}
         >
           <Lightbulb className="w-4 h-4 mr-2" />
-          {isLoadingTopics
-            ? 'Analyzing search trends...'
-            : 'Get AI suggestions'}
+          {isLoadingTopics ? "Analyzing search trends..." : "Get AI suggestions"}
         </Button>
       </div>
       <Input
@@ -377,9 +352,7 @@ export default function ContentSettings() {
 
       {!isLoadingTopics && topicSuggestions.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Suggested topics based on search trends:
-          </p>
+          <p className="text-sm text-muted-foreground">Suggested topics based on search trends:</p>
           <div className="flex flex-wrap gap-2">
             {topicSuggestions.map((suggestion, index) => (
               <Button
@@ -403,15 +376,24 @@ export default function ContentSettings() {
     additional_credits_charged: number;
     credits_used: number;
   }>({
-    queryKey: ['usage', orgId],
+    queryKey: ["usage", orgId],
     queryFn: async () => {
-      if (!orgId) throw new Error('No organization ID found');
+      if (!orgId) throw new Error("No organization ID found");
 
+      // First, get the organization and its current_usage_id
+      const { data: orgData, error: orgError } = await supabase
+        .from("Organization")
+        .select("current_usage_id")
+        .eq("org_id", orgId)
+        .single();
+
+      if (orgError) throw orgError;
+
+      // Then fetch the usage data using the current_usage_id
       const { data, error } = await supabase
-        .from('Usage')
-        .select('credits_charged, additional_credits_charged, credits_used')
-        .eq('org_id', orgId)
-        .is('end_date', null)
+        .from("Usage")
+        .select("credits_charged, additional_credits_charged, credits_used")
+        .eq("id", orgData.current_usage_id)
         .single();
 
       if (error) throw error;
@@ -425,11 +407,9 @@ export default function ContentSettings() {
     enabled: !!orgId,
   });
 
-  const totalCredits = usage
-    ? usage.credits_charged + usage.additional_credits_charged
-    : 0;
+  const totalCredits = usage ? usage.credits_charged + usage.additional_credits_charged : 0;
   const remainingCredits = totalCredits - (usage?.credits_used || 0);
-  const requiredCredits = contentType === 'NORMAL' ? 3 : 1;
+  const requiredCredits = contentType === "NORMAL" ? 3 : 1;
   const hasEnoughCredits = remainingCredits >= requiredCredits;
 
   return (
@@ -445,18 +425,14 @@ export default function ContentSettings() {
             </div>
             <Separator className="flex-1" />
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full border">
-                2
-              </div>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full border">2</div>
               <span>Edit Content</span>
             </div>
           </div>
         </div>
 
         <Card className="border-none shadow-lg">
-          <CardHeader className="text-lg font-semibold">
-            Blog Settings
-          </CardHeader>
+          <CardHeader className="text-lg font-semibold">Blog Settings</CardHeader>
 
           {!hasEnoughCredits && (
             <div className="px-6 -mt-2 mb-4">
@@ -464,11 +440,8 @@ export default function ContentSettings() {
                 <AlertTriangle className="h-4 w-4" />
                 <span>
                   You have {remainingCredits} credits remaining.
-                  <Link
-                    href="/settings"
-                    className="text-indigo-600 hover:underline"
-                  >
-                    {' '}
+                  <Link href="/settings" className="text-indigo-600 hover:underline">
+                    {" "}
                     Add more credits
                   </Link>
                 </span>
@@ -482,15 +455,12 @@ export default function ContentSettings() {
                 Content Type
               </Label>
               <p className="text-sm text-muted-foreground">
-                Both options will be SEO-optimized & customized to your
-                business.
+                Both options will be SEO-optimized & customized to your business.
               </p>
               <RadioGroup
                 defaultValue="normal"
                 value={contentType}
-                onValueChange={(value: 'NORMAL' | 'GLOSSARY') =>
-                  setContentType(value)
-                }
+                onValueChange={(value: "NORMAL" | "GLOSSARY") => setContentType(value)}
                 className="flex flex-col sm:flex-row gap-4"
               >
                 <Label
@@ -502,10 +472,7 @@ export default function ContentSettings() {
                     <div className="flex items-center space-x-2">
                       <BookText className="h-5 w-5" />
                       <span className="font-medium">Normal</span>
-                      <Badge
-                        variant="secondary"
-                        className="bg-gray-100 hover:bg-gray-100"
-                      >
+                      <Badge variant="secondary" className="bg-gray-100 hover:bg-gray-100">
                         3 Credits
                       </Badge>
                     </div>
@@ -518,25 +485,17 @@ export default function ContentSettings() {
                   htmlFor="glossary"
                   className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
                 >
-                  <RadioGroupItem
-                    value="GLOSSARY"
-                    id="glossary"
-                    className="mt-1"
-                  />
+                  <RadioGroupItem value="GLOSSARY" id="glossary" className="mt-1" />
                   <div>
                     <div className="flex items-center space-x-2">
                       <ListTree className="h-5 w-5" />
                       <span className="font-medium">Glossary</span>
-                      <Badge
-                        variant="secondary"
-                        className="bg-gray-100 hover:bg-gray-100"
-                      >
+                      <Badge variant="secondary" className="bg-gray-100 hover:bg-gray-100">
                         1 Credit
                       </Badge>
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
-                      SEO article defining and explaining industry-specific
-                      terms.
+                      SEO article defining and explaining industry-specific terms.
                     </div>
                   </div>
                 </Label>
@@ -568,10 +527,7 @@ export default function ContentSettings() {
             <div className="flex items-center gap-2">
               <Settings2 className="w-5 h-5 text-muted-foreground" />
               <span className="font-semibold">Advanced Settings</span>
-              <Badge
-                variant="secondary"
-                className="text-xs font-normal text-muted-foreground"
-              >
+              <Badge variant="secondary" className="text-xs font-normal text-muted-foreground">
                 Optional
               </Badge>
             </div>
@@ -583,29 +539,27 @@ export default function ContentSettings() {
             >
               <ChevronDown
                 className={`w-4 h-4 transition-transform duration-200 ${
-                  isAdvancedOpen ? 'rotate-180' : ''
+                  isAdvancedOpen ? "rotate-180" : ""
                 }`}
               />
             </Button>
           </CardHeader>
           {isAdvancedOpen && (
             <CardContent className="space-y-6">
-              {contentType === 'NORMAL' && (
+              {contentType === "NORMAL" && (
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <FileText className="w-4 h-4 text-indigo-600" />
                     Post Length
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Choose the length of your blog post. This will affect the
-                    overall structure and depth of the content.
+                    Choose the length of your blog post. This will affect the overall structure and
+                    depth of the content.
                   </p>
                   <RadioGroup
                     defaultValue="LONG"
                     value={postLength}
-                    onValueChange={(value: 'SHORT' | 'LONG') =>
-                      setPostLength(value)
-                    }
+                    onValueChange={(value: "SHORT" | "LONG") => setPostLength(value)}
                     className="flex flex-col sm:flex-row gap-4"
                   >
                     <Label
@@ -625,8 +579,7 @@ export default function ContentSettings() {
                           </Badge>
                         </div>
                         <div className="text-sm text-muted-foreground mt-1">
-                          Covers the main topic and other related topics (2500+
-                          words)
+                          Covers the main topic and other related topics (2500+ words)
                         </div>
                       </div>
                     </Label>
@@ -634,11 +587,7 @@ export default function ContentSettings() {
                       htmlFor="short"
                       className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
                     >
-                      <RadioGroupItem
-                        value="SHORT"
-                        id="short"
-                        className="mt-1"
-                      />
+                      <RadioGroupItem value="SHORT" id="short" className="mt-1" />
                       <div>
                         <div className="flex items-center space-x-2">
                           <FileText className="h-5 w-5" />
@@ -665,8 +614,7 @@ export default function ContentSettings() {
                   placeholder="Optional: Add specific instructions or outline for the content..."
                 />
                 <p className="text-sm text-muted-foreground">
-                  Add any specific requirements or outline for the content
-                  structure
+                  Add any specific requirements or outline for the content structure
                 </p>
               </div>
             </CardContent>
@@ -689,20 +637,15 @@ export default function ContentSettings() {
             <Button
               className="bg-indigo-600 hover:bg-indigo-700"
               onClick={handleCreateContent}
-              disabled={
-                isCreating ||
-                !selectedKeyword ||
-                !topic.trim() ||
-                !hasEnoughCredits
-              }
-              title={!hasEnoughCredits ? 'Not enough credits available' : ''}
+              disabled={isCreating || !selectedKeyword || !topic.trim() || !hasEnoughCredits}
+              title={!hasEnoughCredits ? "Not enough credits available" : ""}
             >
               {isCreating ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               ) : (
                 <Sparkles className="w-4 h-4 mr-2" />
               )}
-              {isCreating ? 'Generating...' : 'Generate Content'}
+              {isCreating ? "Generating..." : "Generate Content"}
             </Button>
           </div>
         </div>
@@ -711,9 +654,7 @@ export default function ContentSettings() {
           <DialogContent className="sm:max-w-xl">
             <DialogHeader>
               <div className="flex items-center justify-between">
-                <DialogTitle className="text-2xl font-bold">
-                  Generating Content
-                </DialogTitle>
+                <DialogTitle className="text-2xl font-bold">Generating Content</DialogTitle>
                 {/* <Button
                   variant="ghost"
                   size="icon"
@@ -724,9 +665,8 @@ export default function ContentSettings() {
                 </Button> */}
               </div>
               <DialogDescription className="text-base">
-                Please don&apos;t leave this page. You can switch browser tabs
-                while we work on your content. This process may take up to 5
-                minutes.
+                Please don&apos;t leave this page. You can switch browser tabs while we work on your
+                content. This process may take up to 5 minutes.
               </DialogDescription>
             </DialogHeader>
             <div className="mt-4 space-y-4">
@@ -737,18 +677,16 @@ export default function ContentSettings() {
                   <div
                     key={index}
                     className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 transition-colors',
-                      isActive && 'bg-indigo-50 animate-pulse'
+                      "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
+                      isActive && "bg-indigo-50 animate-pulse",
                     )}
                   >
                     <div
                       className={cn(
-                        'flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors',
-                        isActive &&
-                          'border-indigo-600 bg-indigo-600 text-white',
-                        isComplete &&
-                          'border-indigo-600/50 bg-indigo-100 text-indigo-600',
-                        !isActive && !isComplete && 'border-gray-200'
+                        "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors",
+                        isActive && "border-indigo-600 bg-indigo-600 text-white",
+                        isComplete && "border-indigo-600/50 bg-indigo-100 text-indigo-600",
+                        !isActive && !isComplete && "border-gray-200",
                       )}
                     >
                       {index === 0 && <Activity className="h-4 w-4" />}
@@ -760,9 +698,9 @@ export default function ContentSettings() {
                     <div className="flex-1">
                       <p
                         className={cn(
-                          'text-sm font-medium',
-                          isActive && 'text-indigo-600',
-                          isComplete && 'text-muted-foreground'
+                          "text-sm font-medium",
+                          isActive && "text-indigo-600",
+                          isComplete && "text-muted-foreground",
                         )}
                       >
                         {stage.label}
@@ -770,11 +708,10 @@ export default function ContentSettings() {
                     </div>
                     <div
                       className={cn(
-                        'h-2 w-2 rounded-full transition-colors',
-                        isActive &&
-                          'bg-indigo-600 animate-[pulse_2s_ease-in-out_infinite]',
-                        isComplete && 'bg-indigo-600/50',
-                        !isActive && !isComplete && 'bg-secondary-foreground/20'
+                        "h-2 w-2 rounded-full transition-colors",
+                        isActive && "bg-indigo-600 animate-[pulse_2s_ease-in-out_infinite]",
+                        isComplete && "bg-indigo-600/50",
+                        !isActive && !isComplete && "bg-secondary-foreground/20",
                       )}
                     />
                   </div>

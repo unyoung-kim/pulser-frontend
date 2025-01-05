@@ -121,45 +121,27 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
     queryFn: async () => {
       if (!orgId) throw new Error("No organization ID found");
 
+      // First, get the organization and its current_usage_id
+      const { data: orgData, error: orgError } = await supabase
+        .from("Organization")
+        .select("current_usage_id")
+        .eq("org_id", orgId)
+        .single();
+
+      if (orgError) {
+        console.error("Error fetching organization:", orgError);
+        throw orgError;
+      }
+
+      // Then fetch the usage data using the current_usage_id
       const { data, error } = await supabase
         .from("Usage")
         .select("plan, credits_charged, additional_credits_charged, credits_used, term")
-        .eq("org_id", orgId)
-        .is("end_date", null)
+        .eq("id", orgData.current_usage_id)
         .single();
 
       if (error) {
-        if (error.code === "PGRST116") {
-          const { data: newData, error: insertError } = await supabase
-            .from("Usage")
-            .insert([
-              {
-                org_id: orgId,
-                start_date: new Date().toISOString().split("T")[0],
-                credits_used: 0,
-                credits_charged: 0,
-                additional_credits_charged: 0,
-                end_date: null,
-              },
-            ])
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error("Error inserting usage data:", insertError);
-            throw insertError;
-          }
-
-          return {
-            credits_charged: newData?.credits_charged || 0,
-            additional_credits_charged: newData?.additional_credits_charged || 0,
-            credits_used: newData?.credits_used || 0,
-            plan: newData?.plan ?? "FREE_CREDIT",
-            term: "MONTHLY",
-          };
-        }
-
-        console.error("Supabase error:", error);
+        console.error("Error fetching usage:", error);
         throw error;
       }
 
