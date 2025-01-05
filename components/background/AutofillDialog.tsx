@@ -140,17 +140,12 @@ export const AutofillDialog = ({
         title: "🎉 Success",
         description: "Content was successfully autofilled with AI ✅",
       });
-      console.log("111111");
       // Close the autofill dialog first
       onClose();
-      console.log("22222");
 
       // Add a small delay before showing the internal links prompt
       setTimeout(() => {
         if (internalLinksCount === 0) {
-          console.log("3333");
-
-          console.log("Showing internal links prompt, count:", internalLinksCount);
           setShowInternalLinksPrompt(true);
         }
       }, 500);
