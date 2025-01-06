@@ -3,8 +3,11 @@ import { Node } from '@tiptap/pm/model';
 import { NodeSelection } from '@tiptap/pm/state';
 import { Editor } from '@tiptap/react';
 
-
-const useContentItemActions = (editor: Editor, currentNode: Node | null, currentNodePos: number) => {
+const useContentItemActions = (
+  editor: Editor,
+  currentNode: Node | null,
+  currentNodePos: number
+) => {
   const resetTextFormatting = useCallback(() => {
     const chain = editor.chain();
 
@@ -37,14 +40,20 @@ const useContentItemActions = (editor: Editor, currentNode: Node | null, current
   }, [editor, currentNodePos]);
 
   const deleteNode = useCallback(() => {
-    editor.chain().setMeta('hideDragHandle', true).setNodeSelection(currentNodePos).deleteSelection().run();
+    editor
+      .chain()
+      .setMeta('hideDragHandle', true)
+      .setNodeSelection(currentNodePos)
+      .deleteSelection()
+      .run();
   }, [editor, currentNodePos]);
 
   const handleAdd = useCallback(() => {
     if (currentNodePos !== -1) {
       const currentNodeSize = currentNode?.nodeSize || 0;
       const insertPos = currentNodePos + currentNodeSize;
-      const currentNodeIsEmptyParagraph = currentNode?.type.name === 'paragraph' && currentNode?.content?.size === 0;
+      const currentNodeIsEmptyParagraph =
+        currentNode?.type.name === 'paragraph' && currentNode?.content?.size === 0;
       const focusPos = currentNodeIsEmptyParagraph ? currentNodePos + 2 : insertPos + 2;
 
       editor
@@ -54,7 +63,10 @@ const useContentItemActions = (editor: Editor, currentNode: Node | null, current
             if (currentNodeIsEmptyParagraph) {
               tr.insertText('/', currentNodePos, currentNodePos + 1);
             } else {
-              tr.insert(insertPos, state.schema.nodes.paragraph.create(null, [state.schema.text('/')]));
+              tr.insert(
+                insertPos,
+                state.schema.nodes.paragraph.create(null, [state.schema.text('/')])
+              );
             }
 
             return dispatch(tr);

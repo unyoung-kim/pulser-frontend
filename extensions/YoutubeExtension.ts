@@ -1,4 +1,4 @@
-import Youtube from '@tiptap/extension-youtube'
+import Youtube from '@tiptap/extension-youtube';
 
 export const YoutubeExtension = Youtube.configure({
   inline: false,
@@ -7,5 +7,5 @@ export const YoutubeExtension = Youtube.configure({
   allowFullscreen: true,
   controls: true,
   nocookie: false,
-  modestBranding: true
-}) 
+  modestBranding: true,
+});

@@ -1,6 +1,5 @@
 import { memo } from 'react';
 
-
 export type EditorInfoProps = {
   characters: number;
   words: number;

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { HocuspocusProvider } from "@hocuspocus/provider";
+import { HocuspocusProvider } from '@hocuspocus/provider';
 
 import {
   BlockquoteFigure,
@@ -45,16 +45,16 @@ import {
   Typography,
   Underline,
   UniqueID,
-} from ".";
+} from '.';
 
-import API from "@/lib/editor/api";
-import { getJwtToken } from "@/lib/token";
-import Export from "@tiptap-pro/extension-export";
-import { isChangeOrigin } from "@tiptap/extension-collaboration";
-import { Image } from "@tiptap/extension-image";
-import Youtube from "@tiptap/extension-youtube";
-import { ImageUpload } from "./ImageUpload";
-import { TableOfContentsNode } from "./TableOfContentsNode";
+import API from '@/lib/editor/api';
+import { getJwtToken } from '@/lib/token';
+import Export from '@tiptap-pro/extension-export';
+import { isChangeOrigin } from '@tiptap/extension-collaboration';
+import { Image } from '@tiptap/extension-image';
+import Youtube from '@tiptap/extension-youtube';
+import { ImageUpload } from './ImageUpload';
+import { TableOfContentsNode } from './TableOfContentsNode';
 
 interface ExtensionKitProps {
   provider?: HocuspocusProvider | null;
@@ -74,7 +74,7 @@ export const ExtensionKit = ({ provider }: ExtensionKitProps) => [
   }),
   HorizontalRule,
   UniqueID.configure({
-    types: ["paragraph", "heading", "blockquote", "codeBlock", "table"],
+    types: ['paragraph', 'heading', 'blockquote', 'codeBlock', 'table'],
     filterTransaction: (transaction) => !isChangeOrigin(transaction),
   }),
   StarterKit.configure({
@@ -89,7 +89,7 @@ export const ExtensionKit = ({ provider }: ExtensionKitProps) => [
   Details.configure({
     persist: true,
     HTMLAttributes: {
-      class: "details",
+      class: 'details',
     },
   }),
   DetailsContent,
@@ -103,8 +103,8 @@ export const ExtensionKit = ({ provider }: ExtensionKitProps) => [
   Link.configure({
     openOnClick: true,
     HTMLAttributes: {
-      target: "_blank",
-      rel: "noopener noreferrer",
+      target: '_blank',
+      rel: 'noopener noreferrer',
     },
   }),
   Highlight.configure({ multicolor: true }),
@@ -125,7 +125,7 @@ export const ExtensionKit = ({ provider }: ExtensionKitProps) => [
     nocookie: true,
   }),
   FileHandler.configure({
-    allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
+    allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
     onDrop: (currentEditor, files, pos) => {
       files.forEach(async (file) => {
         const url = await API.uploadImage(file);
@@ -157,7 +157,7 @@ export const ExtensionKit = ({ provider }: ExtensionKitProps) => [
       return {};
     },
   }).configure({
-    types: ["heading", "paragraph"],
+    types: ['heading', 'paragraph'],
   }),
   Subscript,
   Superscript,
@@ -169,7 +169,7 @@ export const ExtensionKit = ({ provider }: ExtensionKitProps) => [
   Placeholder.configure({
     includeChildren: true,
     showOnlyCurrent: false,
-    placeholder: () => "",
+    placeholder: () => '',
   }),
   SlashCommand,
   Focus,
@@ -177,11 +177,11 @@ export const ExtensionKit = ({ provider }: ExtensionKitProps) => [
   BlockquoteFigure,
   Dropcursor.configure({
     width: 2,
-    class: "ProseMirror-dropcursor border-black",
+    class: 'ProseMirror-dropcursor border-black',
   }),
   Export.configure({
     appId: process.env.NEXT_PUBLIC_TIPTAP_APP_ID,
-    token: getJwtToken(process.env.NEXT_PUBLIC_TIPTAP_CONVERT_JWT_SECRET ?? ""),
+    token: getJwtToken(process.env.NEXT_PUBLIC_TIPTAP_CONVERT_JWT_SECRET ?? ''),
     //  process.env.NEXT_PUBLIC_TIPTAP_CONVERT_TOKEN,
   }),
 ];

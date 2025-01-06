@@ -1,23 +1,20 @@
-import { NodeViewProps, NodeViewWrapper, useEditorState } from "@tiptap/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import toast from "react-hot-toast";
-import { v4 as uuid } from "uuid";
+import { NodeViewProps, NodeViewWrapper, useEditorState } from '@tiptap/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
+import { v4 as uuid } from 'uuid';
 
-import { Icon } from "@/components/ui/Icon";
-import { Panel, PanelHeadline } from "@/components/ui/Panel-editor";
+import { Icon } from '@/components/ui/Icon';
+import { Panel, PanelHeadline } from '@/components/ui/Panel-editor';
 
-import {
-  AiTone,
-  AiToneOption,
-} from "@/components/new-editor/BlockEditor/types";
-import { Button } from "@/components/ui/Button-editor";
-import { DropdownButton } from "@/components/ui/Dropdown";
-import { Surface } from "@/components/ui/Surface";
-import { Textarea } from "@/components/ui/Textarea-editor";
-import { Toolbar } from "@/components/ui/Toolbar";
-import { AiStorage, tryParseToTiptapHTML } from "@/extensions/Ai/index";
-import { tones } from "@/lib/editor/constants";
-import * as Dropdown from "@radix-ui/react-dropdown-menu";
+import { AiTone, AiToneOption } from '@/components/new-editor/BlockEditor/types';
+import { Button } from '@/components/ui/Button-editor';
+import { DropdownButton } from '@/components/ui/Dropdown';
+import { Surface } from '@/components/ui/Surface';
+import { Textarea } from '@/components/ui/Textarea-editor';
+import { Toolbar } from '@/components/ui/Toolbar';
+import { AiStorage, tryParseToTiptapHTML } from '@/extensions/Ai/index';
+import { tones } from '@/lib/editor/constants';
+import * as Dropdown from '@radix-ui/react-dropdown-menu';
 
 export interface DataProps {
   text: string;
@@ -33,18 +30,13 @@ Instruction:
 `;
 
 // TODO rewrite this component to use the new Ai extension features
-export const AiWriterView = ({
-  editor,
-  node,
-  getPos,
-  deleteNode,
-}: NodeViewProps) => {
+export const AiWriterView = ({ editor, node, getPos, deleteNode }: NodeViewProps) => {
   const { isLoading, generatedText, error } = useEditorState({
     editor,
     selector: (ctx) => {
       const aiStorage = ctx.editor.storage.ai as AiStorage;
       return {
-        isLoading: aiStorage.state === "loading",
+        isLoading: aiStorage.state === 'loading',
         generatedText: aiStorage.response,
         error: aiStorage.error,
       };
@@ -52,7 +44,7 @@ export const AiWriterView = ({
   });
 
   const [data, setData] = useState<DataProps>({
-    text: "",
+    text: '',
     tone: undefined,
   });
   const currentTone = tones.find((t) => t.value === data.tone);
@@ -60,7 +52,7 @@ export const AiWriterView = ({
 
   const generateText = useCallback(() => {
     if (!data.text) {
-      toast.error("Please enter a description");
+      toast.error('Please enter a description');
 
       return;
     }
@@ -70,7 +62,7 @@ export const AiWriterView = ({
       insert: false,
       tone: data.tone,
       stream: true,
-      format: "rich-text",
+      format: 'rich-text',
     });
   }, [data.text, data.tone, editor]);
 
@@ -83,23 +75,16 @@ export const AiWriterView = ({
   const insert = useCallback(() => {
     const from = getPos();
     const to = from + node.nodeSize;
-    editor
-      .chain()
-      .focus()
-      .aiAccept({ insertAt: { from, to }, append: false })
-      .run();
+    editor.chain().focus().aiAccept({ insertAt: { from, to }, append: false }).run();
   }, [editor, getPos, node.nodeSize]);
 
   const discard = useCallback(() => {
     deleteNode();
   }, [deleteNode]);
 
-  const onTextAreaChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setData((prevData) => ({ ...prevData, text: e.target.value }));
-    },
-    []
-  );
+  const onTextAreaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setData((prevData) => ({ ...prevData, text: e.target.value }));
+  }, []);
 
   const onUndoClick = useCallback(() => {
     setData((prevData) => ({ ...prevData, tone: undefined }));
@@ -121,7 +106,7 @@ export const AiWriterView = ({
               <div
                 className="bg-white dark:bg-black border-l-4 border-neutral-100 dark:border-neutral-700 text-black dark:text-white text-base max-h-[14rem] mb-4 ml-2.5 overflow-y-auto px-4 relative"
                 dangerouslySetInnerHTML={{
-                  __html: tryParseToTiptapHTML(generatedText, editor) ?? "",
+                  __html: tryParseToTiptapHTML(generatedText, editor) ?? '',
                 }}
               />
             </>
@@ -135,7 +120,7 @@ export const AiWriterView = ({
             id={textareaId}
             value={data.text}
             onChange={onTextAreaChange}
-            placeholder={"Tell me what you want me to write about."}
+            placeholder={'Tell me what you want me to write about.'}
             required
             className="mb-2"
           />
@@ -145,7 +130,7 @@ export const AiWriterView = ({
                 <Dropdown.Trigger asChild>
                   <Button variant="tertiary">
                     <Icon name="Mic" />
-                    {currentTone?.label || "Change tone"}
+                    {currentTone?.label || 'Change tone'}
                     <Icon name="ChevronDown" />
                   </Button>
                 </Dropdown.Trigger>
@@ -193,11 +178,7 @@ export const AiWriterView = ({
                 </Button>
               )}
               {generatedText && (
-                <Button
-                  variant="ghost"
-                  onClick={insert}
-                  disabled={!generatedText}
-                >
+                <Button variant="ghost" onClick={insert} disabled={!generatedText}>
                   <Icon name="Check" />
                   Insert
                 </Button>
@@ -205,15 +186,11 @@ export const AiWriterView = ({
               <Button
                 variant="primary"
                 onClick={generateText}
-                style={{ whiteSpace: "nowrap" }}
+                style={{ whiteSpace: 'nowrap' }}
                 disabled={isLoading}
               >
-                {generatedText ? (
-                  <Icon name="Repeat" />
-                ) : (
-                  <Icon name="Sparkles" />
-                )}
-                {generatedText ? "Regenerate" : "Generate text"}
+                {generatedText ? <Icon name="Repeat" /> : <Icon name="Sparkles" />}
+                {generatedText ? 'Regenerate' : 'Generate text'}
               </Button>
             </div>
           </div>

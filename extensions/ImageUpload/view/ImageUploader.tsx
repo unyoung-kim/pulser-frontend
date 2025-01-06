@@ -1,15 +1,11 @@
-import { Button } from "@/components/ui/Button-editor";
-import { Icon } from "@/components/ui/Icon";
-import { Spinner } from "@/components/ui/Spinner-editor";
-import { cn } from "@/lib/utils";
-import { ChangeEvent, useCallback } from "react";
-import { useDropZone, useFileUpload, useUploader } from "./hooks";
+import { Button } from '@/components/ui/Button-editor';
+import { Icon } from '@/components/ui/Icon';
+import { Spinner } from '@/components/ui/Spinner-editor';
+import { cn } from '@/lib/utils';
+import { ChangeEvent, useCallback } from 'react';
+import { useDropZone, useFileUpload, useUploader } from './hooks';
 
-export const ImageUploader = ({
-  onUpload,
-}: {
-  onUpload: (url: string) => void;
-}) => {
+export const ImageUploader = ({ onUpload }: { onUpload: (url: string) => void }) => {
   const { loading, uploadFile } = useUploader({ onUpload });
   const { handleUploadClick, ref } = useFileUpload();
   const { draggedInside, onDrop, onDragEnter, onDragLeave } = useDropZone({
@@ -17,8 +13,7 @@ export const ImageUploader = ({
   });
 
   const onFileChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) =>
-      e.target.files ? uploadFile(e.target.files[0]) : null,
+    (e: ChangeEvent<HTMLInputElement>) => (e.target.files ? uploadFile(e.target.files[0]) : null),
     [uploadFile]
   );
 
@@ -31,8 +26,8 @@ export const ImageUploader = ({
   }
 
   const wrapperClass = cn(
-    "flex flex-col items-center justify-center px-8 py-10 rounded-lg bg-opacity-80",
-    draggedInside && "bg-neutral-100"
+    'flex flex-col items-center justify-center px-8 py-10 rounded-lg bg-opacity-80',
+    draggedInside && 'bg-neutral-100'
   );
 
   return (
@@ -43,13 +38,10 @@ export const ImageUploader = ({
       onDragLeave={onDragLeave}
       contentEditable={false}
     >
-      <Icon
-        name="Image"
-        className="w-12 h-12 mb-4 text-black dark:text-white opacity-20"
-      />
+      <Icon name="Image" className="w-12 h-12 mb-4 text-black dark:text-white opacity-20" />
       <div className="flex flex-col items-center justify-center gap-2">
         <div className="text-sm font-medium text-center text-neutral-400 dark:text-neutral-500">
-          {draggedInside ? "Drop image here" : "Drag and drop or"}
+          {draggedInside ? 'Drop image here' : 'Drag and drop or'}
         </div>
         <div>
           <Button

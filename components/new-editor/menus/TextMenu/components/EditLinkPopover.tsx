@@ -3,7 +3,6 @@ import { LinkEditorPanel } from '@/components/new-editor/panels';
 import { Icon } from '@/components/ui/Icon';
 import { Toolbar } from '@/components/ui/Toolbar';
 
-
 export type EditLinkPopoverProps = {
   onSetLink: (link: string, openInNewTab?: boolean) => void;
 };

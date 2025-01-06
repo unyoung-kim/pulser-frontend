@@ -1,6 +1,6 @@
-import { useAuth } from "@clerk/nextjs"; // Replace NextAuth with Clerk
-import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useAuth } from '@clerk/nextjs'; // Replace NextAuth with Clerk
+import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
 
 interface Plan {
   name: string;

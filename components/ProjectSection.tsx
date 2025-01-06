@@ -24,14 +24,14 @@ export default function ProjectSection() {
     (projectId: string) => {
       router.push(`/content?projectId=${projectId}`);
     },
-    [router],
+    [router]
   );
 
   const navigateToBackground = useCallback(
     (projectId: string) => {
       router.push(`/background?projectId=${projectId}`);
     },
-    [router],
+    [router]
   );
 
   const createProject = useCallback(
@@ -67,14 +67,7 @@ export default function ProjectSection() {
         console.error('Error creating project:', error);
       }
     },
-    [
-      newProjectName,
-      newProjectDescription,
-      fetchProjects,
-      navigateToBackground,
-      user,
-      organization,
-    ],
+    [newProjectName, newProjectDescription, fetchProjects, navigateToBackground, user, organization]
   );
 
   return (

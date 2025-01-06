@@ -3,10 +3,15 @@
 import { useState, useCallback } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
 
 interface CreateContentDialogProps {
   open: boolean;
@@ -27,7 +32,7 @@ export function CreateContentDialog({
   onKeywordsChange,
   onTopicChange,
   onSubmit,
-  isCreating
+  isCreating,
 }: CreateContentDialogProps) {
   const [newKeyword, setNewKeyword] = useState('');
 
@@ -38,16 +43,22 @@ export function CreateContentDialog({
     }
   }, [newKeyword, keywords, onKeywordsChange]);
 
-  const handleRemoveKeyword = useCallback((keywordToRemove: string) => {
-    onKeywordsChange(keywords.filter(k => k !== keywordToRemove));
-  }, [keywords, onKeywordsChange]);
+  const handleRemoveKeyword = useCallback(
+    (keywordToRemove: string) => {
+      onKeywordsChange(keywords.filter((k) => k !== keywordToRemove));
+    },
+    [keywords, onKeywordsChange]
+  );
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddKeyword();
-    }
-  }, [handleAddKeyword]);
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddKeyword();
+      }
+    },
+    [handleAddKeyword]
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -81,8 +92,8 @@ export function CreateContentDialog({
                     onChange={(e) => setNewKeyword(e.target.value)}
                     onKeyPress={handleKeyPress}
                   />
-                  <Button 
-                    type="button" 
+                  <Button
+                    type="button"
                     onClick={handleAddKeyword}
                     disabled={!newKeyword.trim()}
                     variant="outline"
@@ -120,16 +131,10 @@ export function CreateContentDialog({
               </div>
             </div>
             <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button
-                onClick={onSubmit}
-                disabled={keywords.length === 0}
-              >
+              <Button onClick={onSubmit} disabled={keywords.length === 0}>
                 Create Content
               </Button>
             </div>
@@ -138,4 +143,4 @@ export function CreateContentDialog({
       </DialogContent>
     </Dialog>
   );
-} 
+}

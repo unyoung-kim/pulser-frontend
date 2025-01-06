@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   AlertDialog,
@@ -10,65 +10,65 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { BACKEND_URL } from "@/lib/api/backend";
-import { plans } from "@/lib/pricing-plan";
-import { supabase } from "@/lib/supabaseClient";
-import { useAuth } from "@clerk/nextjs";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import Case from "case";
-import { AlertCircle, ExternalLink, Settings } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { Badge } from "../ui/badge";
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { BACKEND_URL } from '@/lib/api/backend';
+import { plans } from '@/lib/pricing-plan';
+import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@clerk/nextjs';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import Case from 'case';
+import { AlertCircle, ExternalLink, Settings } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { Badge } from '../ui/badge';
 
 interface Usage {
   credits_charged: number;
   additional_credits_charged: number;
   credits_used: number;
   plan: string;
-  term: "MONTHLY" | "YEARLY";
+  term: 'MONTHLY' | 'YEARLY';
 }
 
 export default function PricingPage() {
   const { orgId } = useAuth();
-  const [activeTab, setActiveTab] = useState<"plan" | "subscription" | "danger">("subscription");
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
+  const [activeTab, setActiveTab] = useState<'plan' | 'subscription' | 'danger'>('subscription');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const { toast } = useToast();
 
   const previousPurchases = [
-    { date: "-", credits: "-", amount: "-" },
+    { date: '-', credits: '-', amount: '-' },
     // Add more purchase history as needed
   ];
 
   const { data: usage, isPending: isLoadingUsage } = useQuery<Usage>({
-    queryKey: ["usage", orgId],
+    queryKey: ['usage', orgId],
     queryFn: async () => {
-      if (!orgId) throw new Error("No organization ID found");
+      if (!orgId) throw new Error('No organization ID found');
 
       // First, get the organization and its current_usage_id
       const { data: orgData, error: orgError } = await supabase
-        .from("Organization")
-        .select("current_usage_id")
-        .eq("org_id", orgId)
+        .from('Organization')
+        .select('current_usage_id')
+        .eq('org_id', orgId)
         .single();
 
       if (orgError) {
         // If org doesn't exist, create new usage and org records
-        if (orgError.code === "PGRST116") {
+        if (orgError.code === 'PGRST116') {
           const { data: newData, error: insertError } = await supabase
-            .from("Usage")
+            .from('Usage')
             .insert([
               {
                 org_id: orgId,
-                start_date: new Date().toISOString().split("T")[0],
+                start_date: new Date().toISOString().split('T')[0],
                 credits_used: 0,
                 credits_charged: 0,
                 additional_credits_charged: 0,
-                plan: "FREE_CREDIT",
-                term: "YEARLY",
+                plan: 'FREE_CREDIT',
+                term: 'YEARLY',
                 end_date: null,
               },
             ])
@@ -81,8 +81,8 @@ export default function PricingPage() {
             credits_charged: newData?.credits_charged ?? 0,
             additional_credits_charged: newData?.additional_credits_charged ?? 0,
             credits_used: newData?.credits_used ?? 0,
-            plan: newData?.plan ?? "FREE_CREDIT",
-            term: newData?.term ?? "YEARLY",
+            plan: newData?.plan ?? 'FREE_CREDIT',
+            term: newData?.term ?? 'YEARLY',
           };
         }
         throw orgError;
@@ -90,31 +90,31 @@ export default function PricingPage() {
 
       // Then fetch the usage data using the current_usage_id
       const { data, error } = await supabase
-        .from("Usage")
-        .select("plan, credits_charged, additional_credits_charged, credits_used, term")
-        .eq("id", orgData.current_usage_id)
+        .from('Usage')
+        .select('plan, credits_charged, additional_credits_charged, credits_used, term')
+        .eq('id', orgData.current_usage_id)
         .single();
 
       if (error) throw error;
 
-      setBillingCycle(data?.term?.toLowerCase() as "monthly" | "yearly");
+      setBillingCycle(data?.term?.toLowerCase() as 'monthly' | 'yearly');
 
       return {
         credits_charged: data?.credits_charged ?? 0,
         additional_credits_charged: data?.additional_credits_charged ?? 0,
         credits_used: data?.credits_used ?? 0,
-        plan: data?.plan ?? "FREE_CREDIT",
-        term: data?.term ?? "YEARLY",
+        plan: data?.plan ?? 'FREE_CREDIT',
+        term: data?.term ?? 'YEARLY',
       };
     },
     enabled: !!orgId,
   });
 
   useEffect(() => {
-    if (usage?.plan && usage.plan !== "FREE_CREDIT") {
-      setActiveTab("plan");
+    if (usage?.plan && usage.plan !== 'FREE_CREDIT') {
+      setActiveTab('plan');
     } else {
-      setActiveTab("subscription");
+      setActiveTab('subscription');
     }
   }, [usage?.plan]);
 
@@ -125,20 +125,20 @@ export default function PricingPage() {
   const handleChoosePlan = useCallback(
     async (planName: string) => {
       if (!orgId) {
-        console.log("No orgId found");
+        console.log('No orgId found');
         return;
       }
       try {
         const response = await fetch(`${BACKEND_URL}/api/create-stripe-session`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             orgId: orgId,
-            plan: planName as "SOLO" | "BUSINESS" | "AGENCY",
-            term: billingCycle === "monthly" ? "MONTHLY" : "YEARLY",
-            mode: "subscription",
+            plan: planName as 'SOLO' | 'BUSINESS' | 'AGENCY',
+            term: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+            mode: 'subscription',
           }),
         });
 
@@ -150,28 +150,28 @@ export default function PricingPage() {
 
         window.location.href = data.data;
       } catch (error) {
-        console.error("Error creating stripe session:", error);
+        console.error('Error creating stripe session:', error);
       }
     },
-    [orgId, billingCycle],
+    [orgId, billingCycle]
   );
 
   const handleUpdatePlan = useCallback(
     async (planName: string) => {
       if (!orgId) {
-        console.log("No orgId found");
+        console.log('No orgId found');
         return;
       }
       try {
         const response = await fetch(`${BACKEND_URL}/api/update-subscription`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             orgId: orgId,
-            plan: planName as "BASIC" | "PRO" | "AGENCY",
-            term: billingCycle === "monthly" ? "MONTHLY" : "YEARLY",
+            plan: planName as 'BASIC' | 'PRO' | 'AGENCY',
+            term: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
           }),
         });
 
@@ -179,37 +179,37 @@ export default function PricingPage() {
 
         if (!data.success) {
           toast({
-            variant: "destructive",
-            title: "Error",
-            description: data.error || "Failed to update subscription",
+            variant: 'destructive',
+            title: 'Error',
+            description: data.error || 'Failed to update subscription',
           });
           return;
         }
 
         toast({
-          title: "Success",
-          description: "Your subscription has been updated successfully",
+          title: 'Success',
+          description: 'Your subscription has been updated successfully',
         });
 
         window.location.reload();
       } catch (error) {
         toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to update subscription. Please try again later.",
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Failed to update subscription. Please try again later.',
         });
-        console.error("Error updating subscription:", error);
+        console.error('Error updating subscription:', error);
       }
     },
-    [orgId, billingCycle, toast],
+    [orgId, billingCycle, toast]
   );
 
   const cancelSubscriptionMutation = useMutation({
     mutationFn: async (orgId: string) => {
       const response = await fetch(`${BACKEND_URL}/api/delete-subscription`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ orgId }),
       });
@@ -221,23 +221,23 @@ export default function PricingPage() {
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Your subscription has been cancelled successfully",
+        title: 'Success',
+        description: 'Your subscription has been cancelled successfully',
       });
       window.location.reload();
     },
     onError: (error) => {
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to cancel subscription",
+        variant: 'destructive',
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to cancel subscription',
       });
     },
   });
 
   const handleCancelSubscription = async () => {
     if (!orgId) {
-      console.log("No orgId found");
+      console.log('No orgId found');
       return;
     }
     cancelSubscriptionMutation.mutate(orgId);
@@ -255,41 +255,41 @@ export default function PricingPage() {
 
         <div className="flex gap-8 border-b mb-8">
           <button
-            onClick={() => setActiveTab("plan")}
+            onClick={() => setActiveTab('plan')}
             className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
-              activeTab === "plan" ? "text-foreground" : "text-muted-foreground"
+              activeTab === 'plan' ? 'text-foreground' : 'text-muted-foreground'
             }`}
           >
             Plan
-            {activeTab === "plan" && (
+            {activeTab === 'plan' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
             )}
           </button>
           <button
-            onClick={() => setActiveTab("subscription")}
+            onClick={() => setActiveTab('subscription')}
             className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
-              activeTab === "subscription" ? "text-foreground" : "text-muted-foreground"
+              activeTab === 'subscription' ? 'text-foreground' : 'text-muted-foreground'
             }`}
           >
             Subscription
-            {activeTab === "subscription" && (
+            {activeTab === 'subscription' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
             )}
           </button>
           <button
-            onClick={() => setActiveTab("danger")}
+            onClick={() => setActiveTab('danger')}
             className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
-              activeTab === "danger" ? "text-destructive" : "text-muted-foreground"
+              activeTab === 'danger' ? 'text-destructive' : 'text-muted-foreground'
             }`}
           >
             Danger
-            {activeTab === "danger" && (
+            {activeTab === 'danger' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-destructive" />
             )}
           </button>
         </div>
 
-        {activeTab === "plan" ? (
+        {activeTab === 'plan' ? (
           <div className="space-y-6">
             <Card>
               <CardContent className="p-6">
@@ -299,7 +299,7 @@ export default function PricingPage() {
                     variant="secondary"
                     className="text-sm font-medium capitalize bg-secondary/100 text-secondary-foreground"
                   >
-                    {Case.capital(usage?.plan ?? "")}
+                    {Case.capital(usage?.plan ?? '')}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-baseline mb-4">
@@ -324,7 +324,7 @@ export default function PricingPage() {
                       <Button
                         variant="link"
                         className="text-indigo-600 p-0 h-auto font-semibold"
-                        onClick={() => setActiveTab("subscription")}
+                        onClick={() => setActiveTab('subscription')}
                       >
                         Manage Subscription
                       </Button>
@@ -346,9 +346,9 @@ export default function PricingPage() {
                       className="flex justify-between text-sm py-2 border-b last:border-b-0"
                     >
                       <span>{purchase.date}</span>
-                      <span>{purchase.credits === "-" ? "-" : `${purchase.credits} credits`}</span>
+                      <span>{purchase.credits === '-' ? '-' : `${purchase.credits} credits`}</span>
                       <span className="font-medium">
-                        {purchase.amount === "-" ? "-" : `$${purchase.amount}`}
+                        {purchase.amount === '-' ? '-' : `$${purchase.amount}`}
                       </span>
                     </li>
                   ))}
@@ -356,22 +356,22 @@ export default function PricingPage() {
               </CardContent>
             </Card>
           </div>
-        ) : activeTab === "subscription" ? (
+        ) : activeTab === 'subscription' ? (
           <>
             <div className="flex justify-center mb-12">
               <div className="inline-flex items-center bg-secondary rounded-lg p-1">
                 <button
-                  onClick={() => setBillingCycle("monthly")}
+                  onClick={() => setBillingCycle('monthly')}
                   className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                    billingCycle === "monthly" ? "bg-background shadow-sm" : "text-muted-foreground"
+                    billingCycle === 'monthly' ? 'bg-background shadow-sm' : 'text-muted-foreground'
                   }`}
                 >
                   Monthly
                 </button>
                 <button
-                  onClick={() => setBillingCycle("yearly")}
+                  onClick={() => setBillingCycle('yearly')}
                   className={`px-4 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${
-                    billingCycle === "yearly" ? "bg-background shadow-sm" : "text-muted-foreground"
+                    billingCycle === 'yearly' ? 'bg-background shadow-sm' : 'text-muted-foreground'
                   }`}
                 >
                   Yearly
@@ -386,13 +386,13 @@ export default function PricingPage() {
                   key={plan.name}
                   className={`relative ${
                     usage?.plan === plan.name.toUpperCase() &&
-                    usage?.plan !== "FREE_CREDIT" &&
+                    usage?.plan !== 'FREE_CREDIT' &&
                     usage?.term.toLowerCase() === billingCycle
-                      ? "border-indigo-600 shadow-md"
-                      : ""
+                      ? 'border-indigo-600 shadow-md'
+                      : ''
                   }`}
                 >
-                  {plan.popular && usage?.plan === "FREE_CREDIT" && (
+                  {plan.popular && usage?.plan === 'FREE_CREDIT' && (
                     <span className="absolute right-4 top-4 bg-indigo-600 text-white text-sm px-3 py-1 rounded-full">
                       Most Popular
                     </span>
@@ -400,7 +400,7 @@ export default function PricingPage() {
                   {(() => {
                     const isCurrentPlan =
                       usage?.plan === plan.name.toUpperCase() &&
-                      usage?.plan !== "FREE_CREDIT" &&
+                      usage?.plan !== 'FREE_CREDIT' &&
                       usage?.term.toLowerCase() === billingCycle;
 
                     return isCurrentPlan ? (
@@ -417,7 +417,7 @@ export default function PricingPage() {
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-4xl font-bold">
-                          ${billingCycle === "yearly" ? plan.yearlyPrice : plan.monthlyPrice}
+                          ${billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice}
                         </span>
                         <span className="text-muted-foreground">USD / mo</span>
                       </div>
@@ -426,20 +426,20 @@ export default function PricingPage() {
 
                     {!(
                       usage?.plan === plan.name.toUpperCase() &&
-                      usage?.plan !== "FREE_CREDIT" &&
+                      usage?.plan !== 'FREE_CREDIT' &&
                       usage?.term.toLowerCase() === billingCycle
                     ) && (
                       <Button
                         variant={
-                          usage?.plan !== "FREE_CREDIT"
-                            ? "default"
+                          usage?.plan !== 'FREE_CREDIT'
+                            ? 'default'
                             : plan.popular
-                              ? "default"
-                              : "outline"
+                              ? 'default'
+                              : 'outline'
                         }
-                        className={`w-full mb-6 ${usage?.plan !== "FREE_CREDIT" ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
+                        className={`w-full mb-6 ${usage?.plan !== 'FREE_CREDIT' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
                         onClick={() =>
-                          usage?.plan !== "FREE_CREDIT"
+                          usage?.plan !== 'FREE_CREDIT'
                             ? handleUpdatePlan(plan.name.toUpperCase())
                             : handleChoosePlan(plan.name.toUpperCase())
                         }
@@ -465,7 +465,7 @@ export default function PricingPage() {
             </div>
           </>
         ) : (
-          activeTab === "danger" && (
+          activeTab === 'danger' && (
             <Card className="border-destructive">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -473,7 +473,7 @@ export default function PricingPage() {
                     <AlertCircle className="w-8 h-8 text-destructive mt-1" />
                     <div>
                       <h3 className="text-lg font-semibold">Cancel Subscription</h3>
-                      {usage?.plan === "FREE_CREDIT" ? (
+                      {usage?.plan === 'FREE_CREDIT' ? (
                         <p className="text-muted-foreground">
                           You don&apos;t have any active subscription to cancel.
                         </p>
@@ -487,7 +487,7 @@ export default function PricingPage() {
                   </div>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" disabled={usage?.plan === "FREE_CREDIT"}>
+                      <Button variant="destructive" disabled={usage?.plan === 'FREE_CREDIT'}>
                         Cancel Subscription
                       </Button>
                     </AlertDialogTrigger>
@@ -508,8 +508,8 @@ export default function PricingPage() {
                           disabled={cancelSubscriptionMutation.isPending}
                         >
                           {cancelSubscriptionMutation.isPending
-                            ? "Cancelling..."
-                            : "Yes, Cancel Subscription"}
+                            ? 'Cancelling...'
+                            : 'Yes, Cancel Subscription'}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -520,7 +520,7 @@ export default function PricingPage() {
           )
         )}
 
-        {activeTab !== "danger" && (
+        {activeTab !== 'danger' && (
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">

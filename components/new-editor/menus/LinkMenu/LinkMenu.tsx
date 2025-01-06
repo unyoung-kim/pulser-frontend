@@ -3,7 +3,6 @@ import { BubbleMenu as BaseBubbleMenu, useEditorState } from '@tiptap/react';
 import { LinkEditorPanel, LinkPreviewPanel } from '../../panels';
 import { MenuProps } from '../types';
 
-
 export const LinkMenu = ({ editor, appendTo }: MenuProps): JSX.Element => {
   const [showEdit, setShowEdit] = useState(false);
   const { link, target } = useEditorState({
@@ -67,11 +66,7 @@ export const LinkMenu = ({ editor, appendTo }: MenuProps): JSX.Element => {
           onSetLink={onSetLink}
         />
       ) : (
-        <LinkPreviewPanel
-          url={link}
-          onClear={onUnsetLink}
-          onEdit={handleEdit}
-        />
+        <LinkPreviewPanel url={link} onClear={onUnsetLink} onEdit={handleEdit} />
       )}
     </BaseBubbleMenu>
   );

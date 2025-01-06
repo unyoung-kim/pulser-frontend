@@ -6,13 +6,7 @@ import { CheckCircle, FileText, MoreVertical } from 'lucide-react';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/card';
-
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
 interface CardViewProps {
   items: Array<{
@@ -30,13 +24,7 @@ interface CardViewProps {
   onDelete?: (id: number) => void;
 }
 
-export function CardView({
-  items,
-  loading,
-  hasNextPage,
-  onLoadMore,
-  onDelete,
-}: CardViewProps) {
+export function CardView({ items, loading, hasNextPage, onLoadMore, onDelete }: CardViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
@@ -63,20 +51,14 @@ export function CardView({
 
     if (!isPublished) {
       return (
-        <Badge
-          variant="secondary"
-          className="bg-gray-100 text-gray-700 flex items-center gap-1"
-        >
+        <Badge variant="secondary" className="bg-gray-100 text-gray-700 flex items-center gap-1">
           <FileText className="h-3 w-3" />
           {Case.capital(status)}
         </Badge>
       );
     }
     return (
-      <Badge
-        variant="secondary"
-        className="bg-indigo-100 text-indigo-700 flex items-center gap-1"
-      >
+      <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 flex items-center gap-1">
         <CheckCircle className="h-3 w-3" />
         {Case.capital(status)}
       </Badge>
@@ -88,8 +70,7 @@ export function CardView({
   };
 
   const sortedItems = [...items].sort(
-    (a, b) =>
-      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
   );
 
   return (
@@ -103,9 +84,7 @@ export function CardView({
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="flex gap-2">
               {getStatusBadge(item.status)}
-              {item.type && (
-                <Badge variant="outline">{Case.capital(item.type)}</Badge>
-              )}
+              {item.type && <Badge variant="outline">{Case.capital(item.type)}</Badge>}
             </div>
             <Button
               variant="ghost"

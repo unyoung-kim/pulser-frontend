@@ -2,12 +2,11 @@ import { memo } from 'react';
 import { icons } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-
 export type IconProps = {
-  name: keyof typeof icons
-  className?: string
-  strokeWidth?: number
-}
+  name: keyof typeof icons;
+  className?: string;
+  strokeWidth?: number;
+};
 
 export const Icon = memo(({ name, className, strokeWidth }: IconProps) => {
   const IconComponent = icons[name];

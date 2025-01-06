@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import Tooltip from "@/components/ui/tooltip";
-import { Project, useProjects } from "@/contexts/ProjectContext";
-import { useSidebarState } from "@/contexts/SidebarContext";
-import { supabase } from "@/lib/supabaseClient";
-import { cn } from "@/lib/utils";
-import { useAuth, UserButton, useUser } from "@clerk/nextjs";
-import { useQuery } from "@tanstack/react-query";
+} from '@/components/ui/dropdown-menu';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import Tooltip from '@/components/ui/tooltip';
+import { Project, useProjects } from '@/contexts/ProjectContext';
+import { useSidebarState } from '@/contexts/SidebarContext';
+import { supabase } from '@/lib/supabaseClient';
+import { cn } from '@/lib/utils';
+import { useAuth, UserButton, useUser } from '@clerk/nextjs';
+import { useQuery } from '@tanstack/react-query';
 import {
   Activity,
   BrainCircuit,
@@ -24,13 +24,13 @@ import {
   Mail,
   Settings,
   WholeWord,
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
-import { NewContentButton } from "./new-content-button";
-import ProgressRing from "./ProgressRing";
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo } from 'react';
+import { NewContentButton } from './new-content-button';
+import ProgressRing from './ProgressRing';
 
 interface SidebarProps {
   projectId: string;
@@ -43,7 +43,7 @@ interface Usage {
   additional_credits_charged: number;
   credits_used: number;
   plan: string;
-  term: "MONTHLY" | "YEARLY";
+  term: 'MONTHLY' | 'YEARLY';
 }
 
 export function Sidebar({ projectId, children, defaultCollapsed = false }: SidebarProps) {
@@ -62,24 +62,24 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
   // Memoize the selected project
   const selectedProject = useMemo(
     () => projects.find((p) => p.id.toString() === projectId) || null,
-    [projects, projectId],
+    [projects, projectId]
   );
 
   const links = [
-    { name: "Knowledge Base", href: "/background", icon: BrainCircuit },
-    { name: "Content", href: "/content", icon: WholeWord },
+    { name: 'Knowledge Base', href: '/background', icon: BrainCircuit },
+    { name: 'Content', href: '/content', icon: WholeWord },
   ];
 
   const bottomLinks = [
     // { name: "Integration", href: "/integration", icon: Plug },
-    { name: "Settings", href: "/settings", icon: Settings },
+    { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
   const ContactLink = () => {
     const Icon = Mail;
     const linkContent = (
       <div className="flex items-center rounded-md px-2 py-2.5 text-gray-600 font-medium cursor-default hover:bg-gray-50">
-        <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
+        <Icon className={`${isCollapsed ? '' : 'mr-3'} h-4 w-4`} />
         {!isCollapsed && <span>Contact</span>}
       </div>
     );
@@ -113,35 +113,35 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
     (project: Project) => {
       router.push(`/content?projectId=${project.id}`);
     },
-    [router],
+    [router]
   );
 
   const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
-    queryKey: ["usage", orgId],
+    queryKey: ['usage', orgId],
     queryFn: async () => {
-      if (!orgId) throw new Error("No organization ID found");
+      if (!orgId) throw new Error('No organization ID found');
 
       // First, get the organization and its current_usage_id
       const { data: orgData, error: orgError } = await supabase
-        .from("Organization")
-        .select("current_usage_id")
-        .eq("org_id", orgId)
+        .from('Organization')
+        .select('current_usage_id')
+        .eq('org_id', orgId)
         .single();
 
       if (orgError) {
-        console.error("Error fetching organization:", orgError);
+        console.error('Error fetching organization:', orgError);
         throw orgError;
       }
 
       // Then fetch the usage data using the current_usage_id
       const { data, error } = await supabase
-        .from("Usage")
-        .select("plan, credits_charged, additional_credits_charged, credits_used, term")
-        .eq("id", orgData.current_usage_id)
+        .from('Usage')
+        .select('plan, credits_charged, additional_credits_charged, credits_used, term')
+        .eq('id', orgData.current_usage_id)
         .single();
 
       if (error) {
-        console.error("Error fetching usage:", error);
+        console.error('Error fetching usage:', error);
         throw error;
       }
 
@@ -149,8 +149,8 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
         credits_charged: data.credits_charged || 0,
         additional_credits_charged: data.additional_credits_charged || 0,
         credits_used: data.credits_used || 0,
-        plan: data.plan ?? "FREE_CREDIT",
-        term: data.term ?? "MONTHLY",
+        plan: data.plan ?? 'FREE_CREDIT',
+        term: data.term ?? 'MONTHLY',
       };
     },
     enabled: !!orgId,
@@ -159,7 +159,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
   // Memoize credits calculations
   const totalCredits = useMemo(
     () => (usage ? usage.credits_charged + usage.additional_credits_charged : 0),
-    [usage],
+    [usage]
   );
 
   const usedCredits = useMemo(() => usage?.credits_used || 0, [usage]);
@@ -167,24 +167,24 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
   // Memoize the width calculation for the progress bar
   const progressBarWidth = useMemo(
     () => `${totalCredits > 0 ? (usedCredits / totalCredits) * 100 : 0}%`,
-    [totalCredits, usedCredits],
+    [totalCredits, usedCredits]
   );
 
   // Add useCallback for the UserButton click handler
   const handleUserButtonClick = useCallback(() => {
-    (document.querySelector(".cl-userButtonTrigger") as HTMLElement)?.click();
+    (document.querySelector('.cl-userButtonTrigger') as HTMLElement)?.click();
   }, []);
 
   // Memoize if credits are available
   const hasCreditsAvailable = useMemo(
     () => totalCredits > usedCredits,
-    [totalCredits, usedCredits],
+    [totalCredits, usedCredits]
   );
 
   return (
     <div
       className={`sticky top-0 h-screen border-r bg-white transition-all duration-300 ${
-        isCollapsed ? "w-[60px]" : "w-[220px] lg:w-[270px]"
+        isCollapsed ? 'w-[60px]' : 'w-[220px] lg:w-[270px]'
       }`}
     >
       <div className="flex h-full flex-col">
@@ -205,9 +205,9 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant={isCollapsed ? "ghost" : "outline"}
+                  variant={isCollapsed ? 'ghost' : 'outline'}
                   className={`w-full justify-between h-12 text-sm pl-2.5 ${
-                    isCollapsed ? "px-0" : ""
+                    isCollapsed ? 'px-0' : ''
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -217,7 +217,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                     {!isCollapsed && (
                       <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-[550]">
-                          {selectedProject ? selectedProject.name : "Select a project"}
+                          {selectedProject ? selectedProject.name : 'Select a project'}
                         </span>
                       </div>
                     )}
@@ -234,7 +234,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                   >
                     <div
                       className={`flex size-6 items-center justify-center rounded-sm ${
-                        project.id.toString() === projectId ? "bg-indigo-600 text-white" : "border"
+                        project.id.toString() === projectId ? 'bg-indigo-600 text-white' : 'border'
                       }`}
                     >
                       <GalleryVerticalEnd className="size-4" />
@@ -243,7 +243,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuItem
-                  onSelect={() => router.push("/")}
+                  onSelect={() => router.push('/')}
                   className="gap-2 p-2 border-t mt-1"
                 >
                   <div className="flex size-6 items-center justify-center rounded-sm border">
@@ -274,14 +274,14 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
               const linkContent = (
                 <Link
                   key={link.name}
-                  href={`${link.href}${projectId ? `?projectId=${projectId}` : ""}`}
+                  href={`${link.href}${projectId ? `?projectId=${projectId}` : ''}`}
                   className={`flex items-center rounded-md px-2 py-2.5 mb-1 ${
                     isActive
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   } font-medium`}
                 >
-                  <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
+                  <Icon className={`${isCollapsed ? '' : 'mr-3'} h-4 w-4`} />
                   {!isCollapsed && <span>{link.name}</span>}
                 </Link>
               );
@@ -308,7 +308,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                       total={totalCredits}
                       className="text-blue-500"
                       size={isCollapsed ? 34 : 48}
-                      labelClassName={isCollapsed ? "text-xs" : "text-sm"}
+                      labelClassName={isCollapsed ? 'text-xs' : 'text-sm'}
                     />
                   </div>
                 </HoverCardTrigger>
@@ -317,7 +317,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                   className="bg-white shadow-lg rounded-lg p-4 w-64"
                   sideOffset={8} // Adjust spacing between trigger and content
                 >
-                  <div className={cn("flex flex-1 flex-col")}>
+                  <div className={cn('flex flex-1 flex-col')}>
                     <h6 className="text-md font-semibold">Remaining Credit</h6>
                     <p className="text-xs text-gray-400">
                       You’ve used {usedCredits} of your {totalCredits} credits.
@@ -331,10 +331,10 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                 total={totalCredits}
                 className="text-blue-500"
                 size={isCollapsed ? 34 : 48}
-                labelClassName={isCollapsed ? "text-xs" : "text-sm"}
+                labelClassName={isCollapsed ? 'text-xs' : 'text-sm'}
               />
             )}
-            <div className={cn("flex flex-1 flex-col", isCollapsed && "hidden")}>
+            <div className={cn('flex flex-1 flex-col', isCollapsed && 'hidden')}>
               <h6 className="text-md font-semibold">Remaining Credit</h6>
               <p className="text-xs text-gray-400">
                 You’ve used {usedCredits} of your {totalCredits} credits.
@@ -348,14 +348,14 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
               return (
                 <Link
                   key={link.name}
-                  href={`${link.href}${selectedProject ? `?projectId=${selectedProject.id}` : ""}`}
+                  href={`${link.href}${selectedProject ? `?projectId=${selectedProject.id}` : ''}`}
                   className={`flex items-center rounded-md px-2 py-2.5 ${
                     isActive
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   } font-medium`}
                 >
-                  <Icon className={`${isCollapsed ? "" : "mr-3"} h-4 w-4`} />
+                  <Icon className={`${isCollapsed ? '' : 'mr-3'} h-4 w-4`} />
                   {!isCollapsed && <span>{link.name}</span>}
                 </Link>
               );
@@ -368,7 +368,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "h-8 w-8",
+                    avatarBox: 'h-8 w-8',
                   },
                 }}
               />

@@ -63,11 +63,7 @@ const Dashboard02 = () => {
   // }, []);
 
   const getContent = useCallback(
-    async (
-      supabase: SupabaseClient,
-      projectId: string,
-      page: number
-    ): Promise<ContentItem[]> => {
+    async (supabase: SupabaseClient, projectId: string, page: number): Promise<ContentItem[]> => {
       const start = (page - 1) * ITEMS_PER_PAGE;
       const end = start + ITEMS_PER_PAGE - 1;
 
@@ -152,9 +148,7 @@ const Dashboard02 = () => {
   const filteredItems =
     status === Status.All
       ? items
-      : items.filter(
-        (item) => item.status.toLowerCase() === status.toLowerCase()
-      );
+      : items.filter((item) => item.status.toLowerCase() === status.toLowerCase());
 
   const handleDeleteContent = useCallback(
     async (id: number) => {
@@ -191,9 +185,7 @@ const Dashboard02 = () => {
       return (
         <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-gray-300 shadow-sm">
           <div className="flex flex-col items-center gap-1 text-center">
-            <h3 className="text-2xl font-bold tracking-tight text-gray-900">
-              An error occurred
-            </h3>
+            <h3 className="text-2xl font-bold tracking-tight text-gray-900">An error occurred</h3>
             <p className="text-sm text-gray-500">{error}</p>
             <Button
               className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white"
@@ -224,9 +216,7 @@ const Dashboard02 = () => {
               // setView={setView}
               status={status}
               setStatus={handleSetStatus}
-              onNewContent={() =>
-                router.push(`/content/settings?projectId=${projectId}`)
-              }
+              onNewContent={() => router.push(`/content/settings?projectId=${projectId}`)}
             />
           </div>
           {items.length === 0 ? (
@@ -242,9 +232,7 @@ const Dashboard02 = () => {
                   variant="default"
                   size="sm"
                   className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
-                  onClick={() =>
-                    router.push(`/content/settings?projectId=${projectId}`)
-                  }
+                  onClick={() => router.push(`/content/settings?projectId=${projectId}`)}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   New Content
@@ -270,9 +258,7 @@ const Dashboard02 = () => {
         </>
       );
     } else {
-      const title = pathname
-        ? pathname.slice(1).charAt(0).toUpperCase() + pathname.slice(2)
-        : '';
+      const title = pathname ? pathname.slice(1).charAt(0).toUpperCase() + pathname.slice(2) : '';
       return (
         <>
           <div className="flex items-center">
@@ -303,9 +289,7 @@ const Dashboard02 = () => {
   return (
     <div
       className={`grid min-h-screen w-full transition-[grid-template-columns] duration-300 ${
-        isCollapsed
-          ? 'grid-cols-[60px_1fr]'
-          : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
+        isCollapsed ? 'grid-cols-[60px_1fr]' : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
       }`}
     >
       <Sidebar projectId={projectId} />

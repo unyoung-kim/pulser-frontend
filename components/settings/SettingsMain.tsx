@@ -9,7 +9,6 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/lib/supabaseClient';
 import { Separator } from '../ui/separator';
 
-
 export default function SettingsMain() {
   const { orgId } = useAuth();
 
@@ -61,9 +60,7 @@ export default function SettingsMain() {
     <div className="">
       <div className="flex flex-col">
         <h1 className="text-3xl font-bold tracking-tight">Plan</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your plan and billing details.
-        </p>
+        <p className="text-muted-foreground mt-1">Manage your plan and billing details.</p>
       </div>
       <Separator className="mt-5" />
 
@@ -93,9 +90,7 @@ export default function SettingsMain() {
 
         {/* Plan Usage */}
         <section>
-          <h2 className="text-xl font-semibold mb-3 text-gray-800">
-            Plan limits usage
-          </h2>
+          <h2 className="text-xl font-semibold mb-3 text-gray-800">Plan limits usage</h2>
           <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg font-semibold text-gray-700">
@@ -107,14 +102,11 @@ export default function SettingsMain() {
             </CardHeader>
             <CardContent>
               <Progress
-                value={
-                  (usage?.credits_used / usage?.credits_charged) * 100 || 0
-                }
+                value={(usage?.credits_used / usage?.credits_charged) * 100 || 0}
                 className="h-3"
               />
               <p className="mt-2 text-sm text-gray-600">
-                {(usage?.credits_used / usage?.credits_charged) * 100}% of your
-                monthly credits used
+                {(usage?.credits_used / usage?.credits_charged) * 100}% of your monthly credits used
               </p>
             </CardContent>
           </Card>

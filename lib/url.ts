@@ -24,4 +24,5 @@ export function getPathFromURL(url: string): string {
   }
 }
 
-export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pulser-backend.onrender.com';
+export const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pulser-backend.onrender.com';

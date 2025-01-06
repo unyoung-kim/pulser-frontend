@@ -6,7 +6,6 @@ import { Plus, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-
 interface NewContentButtonProps {
   disabled?: boolean;
 }
@@ -26,16 +25,14 @@ export function NewContentButton({ disabled }: NewContentButtonProps) {
         disabled
           ? 'bg-gray-400 cursor-not-allowed opacity-75 hover:bg-gray-400'
           : cn(
-            'bg-gradient-to-r from-indigo-600 to-indigo-400 hover:from-indigo-700 hover:to-indigo-500',
-            'hover:border-indigo-200',
-            isHovered ? 'shadow-xl shadow-indigo-300/20 scale-105' : ''
-          )
+              'bg-gradient-to-r from-indigo-600 to-indigo-400 hover:from-indigo-700 hover:to-indigo-500',
+              'hover:border-indigo-200',
+              isHovered ? 'shadow-xl shadow-indigo-300/20 scale-105' : ''
+            )
       )}
       onMouseEnter={() => !disabled && setIsHovered(true)}
       onMouseLeave={() => !disabled && setIsHovered(false)}
-      onClick={() =>
-        !disabled && router.push(`/content/settings?projectId=${projectId}`)
-      }
+      onClick={() => !disabled && router.push(`/content/settings?projectId=${projectId}`)}
       disabled={disabled}
     >
       <div className="flex items-center justify-between w-full">

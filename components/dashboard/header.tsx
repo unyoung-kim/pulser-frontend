@@ -7,10 +7,9 @@ import { UserButton } from '@clerk/nextjs';
 import { Search, Package2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-
 interface HeaderProps {
-  children?: React.ReactNode
-  showSearch?: boolean
+  children?: React.ReactNode;
+  showSearch?: boolean;
 }
 
 export function Header({ children, showSearch = false }: HeaderProps) {

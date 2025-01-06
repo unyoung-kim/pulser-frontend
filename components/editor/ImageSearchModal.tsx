@@ -4,16 +4,10 @@ import * as React from 'react';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { BACKEND_URL } from '@/lib/url';
-
 
 interface ImageSearchModalProps {
   onSelect: (imageUrl: string) => void;
@@ -46,20 +40,22 @@ export function ImageSearchModal({ onSelect, onClose }: ImageSearchModalProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          query: searchTerm
+          query: searchTerm,
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!data.success) {
         throw new Error('Failed to fetch images');
       }
       console.log('DATA ===', data);
-      setSearchResults(data.data.map((item: any) => ({
-        url: item.image_url,
-        title: item.image_title
-      })));
+      setSearchResults(
+        data.data.map((item: any) => ({
+          url: item.image_url,
+          title: item.image_title,
+        }))
+      );
     } catch (err) {
       setError('Failed to search images. Please try again.');
       console.error('Image search error:', err);

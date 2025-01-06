@@ -7,7 +7,6 @@ import { Toolbar } from '@/components/ui/Toolbar';
 import { languages, tones } from '@/lib/editor/constants';
 import type { Language } from '@/extensions/Ai';
 
-
 export type AIDropdownProps = {
   onSimplify: () => void;
   onFixSpelling: () => void;
@@ -33,10 +32,7 @@ export const AIDropdown = ({
   onTranslate,
   // onVisualSelection,
 }: AIDropdownProps) => {
-  const handleTone = useCallback(
-    (tone: string) => () => onTone(tone),
-    [onTone]
-  );
+  const handleTone = useCallback((tone: string) => () => onTone(tone), [onTone]);
   const handleTranslate = useCallback(
     (language: Language) => () => onTranslate(language),
     [onTranslate]
@@ -97,10 +93,7 @@ export const AIDropdown = ({
             <Dropdown.SubContent>
               <Surface className="flex flex-col min-w-[15rem] p-2 max-h-[20rem] overflow-auto">
                 {tones.map((tone) => (
-                  <Dropdown.Item
-                    onClick={handleTone(tone.value)}
-                    key={tone.value}
-                  >
+                  <Dropdown.Item onClick={handleTone(tone.value)} key={tone.value}>
                     <DropdownButton>{tone.label}</DropdownButton>
                   </Dropdown.Item>
                 ))}
@@ -130,10 +123,7 @@ export const AIDropdown = ({
             <Dropdown.SubContent>
               <Surface className="flex flex-col min-w-[15rem] p-2 max-h-[20rem] overflow-auto">
                 {languages.map((lang) => (
-                  <Dropdown.Item
-                    onClick={handleTranslate(lang.value)}
-                    key={lang.value}
-                  >
+                  <Dropdown.Item onClick={handleTranslate(lang.value)} key={lang.value}>
                     <DropdownButton>{lang.label}</DropdownButton>
                   </Dropdown.Item>
                 ))}

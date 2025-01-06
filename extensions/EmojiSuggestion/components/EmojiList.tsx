@@ -1,4 +1,4 @@
-import { EmojiItem } from "@tiptap-pro/extension-emoji";
+import { EmojiItem } from '@tiptap-pro/extension-emoji';
 import {
   ForwardedRef,
   forwardRef,
@@ -6,12 +6,12 @@ import {
   useEffect,
   useImperativeHandle,
   useState,
-} from "react";
+} from 'react';
 
-import { Button } from "@/components/ui/Button-editor";
-import { Panel } from "@/components/ui/Panel-editor";
-import { SuggestionKeyDownProps } from "@tiptap/suggestion";
-import { EmojiListProps } from "../types";
+import { Button } from '@/components/ui/Button-editor';
+import { Panel } from '@/components/ui/Panel-editor';
+import { SuggestionKeyDownProps } from '@tiptap/suggestion';
+import { EmojiListProps } from '../types';
 
 const EmojiList = forwardRef(
   (
@@ -38,19 +38,16 @@ const EmojiList = forwardRef(
         const item = props.items[index];
 
         if (item) {
-          const node = document.querySelector(
-            `[data-emoji-name="${item.name}"]`
-          );
+          const node = document.querySelector(`[data-emoji-name="${item.name}"]`);
 
           if (node) {
-            node.scrollIntoView({ block: "nearest" });
+            node.scrollIntoView({ block: 'nearest' });
           }
         }
       };
 
       const upHandler = () => {
-        const newIndex =
-          (selectedIndex + props.items.length - 1) % props.items.length;
+        const newIndex = (selectedIndex + props.items.length - 1) % props.items.length;
         setSelectedIndex(newIndex);
         scrollIntoView(newIndex);
       };
@@ -67,17 +64,17 @@ const EmojiList = forwardRef(
 
       return {
         onKeyDown: ({ event }) => {
-          if (event.key === "ArrowUp") {
+          if (event.key === 'ArrowUp') {
             upHandler();
             return true;
           }
 
-          if (event.key === "ArrowDown") {
+          if (event.key === 'ArrowDown') {
             downHandler();
             return true;
           }
 
-          if (event.key === "Enter") {
+          if (event.key === 'Enter') {
             enterHandler();
             return true;
           }
@@ -112,7 +109,7 @@ const EmojiList = forwardRef(
               <img src={item.fallbackImage} className="w-5 h-5" alt="emoji" />
             ) : (
               item.emoji
-            )}{" "}
+            )}{' '}
             <span className="truncate text-ellipsis">:{item.name}:</span>
           </Button>
         ))}
@@ -121,6 +118,6 @@ const EmojiList = forwardRef(
   }
 );
 
-EmojiList.displayName = "EmojiList";
+EmojiList.displayName = 'EmojiList';
 
 export default EmojiList;

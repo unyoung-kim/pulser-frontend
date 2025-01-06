@@ -9,10 +9,9 @@ import { Toolbar } from '@/components/ui/Toolbar';
 import useContentItemActions from './hooks/useContentItemActions';
 import { useData } from './hooks/useData';
 
-
 export type ContentItemMenuProps = {
-  editor: Editor
-}
+  editor: Editor;
+};
 
 export const ContentItemMenu = ({ editor }: ContentItemMenuProps) => {
   const [menuOpen, setMenuOpen] = useState(false);

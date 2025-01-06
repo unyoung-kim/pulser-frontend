@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/Icon';
 import { Toolbar } from '@/components/ui/Toolbar';
 
-
 export type EditorHeaderProps = {
   isSidebarOpen?: boolean;
   toggleSidebar?: () => void;
@@ -57,9 +56,7 @@ export const EditorHeader = ({
           </span>
         )}
         <Button
-          className={
-            hasChanges ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400'
-          }
+          className={hasChanges ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400'}
           size="sm"
           onClick={onSave}
           disabled={isSaving || !hasChanges}

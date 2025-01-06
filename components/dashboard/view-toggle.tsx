@@ -3,7 +3,6 @@ import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-
 export enum Status {
   All = 'All',
   Draft = 'draft',
@@ -31,11 +30,7 @@ export function ViewToggle({
 
   return (
     <div className="flex items-center justify-between h-6 mb-4">
-      <Tabs
-        value={status}
-        onValueChange={(value) => setStatus(value)}
-        className="w-auto"
-      >
+      <Tabs value={status} onValueChange={(value) => setStatus(value)} className="w-auto">
         <TabsList className="grid grid-cols-3 w-full sm:w-auto">
           {statuses.map((s) => (
             <TabsTrigger key={s} value={s} className="text-sm">
@@ -73,10 +68,7 @@ export function ViewToggle({
         </Button>
       </div> */}
       <div className="flex gap-2 ml-2">
-        <Button
-          className="bg-indigo-600 hover:bg-indigo-700"
-          onClick={onNewContent}
-        >
+        <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={onNewContent}>
           <Plus className="w-4 h-4 mr-2" />
           New Content
         </Button>

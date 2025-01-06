@@ -3,18 +3,13 @@ import { Surface } from '@/components/ui/Surface';
 import { Toolbar } from '@/components/ui/Toolbar';
 import Tooltip from '@/components/ui/Tooltip-editor';
 
-
 export type LinkPreviewPanelProps = {
   url: string;
   onEdit: () => void;
   onClear: () => void;
 };
 
-export const LinkPreviewPanel = ({
-  onClear,
-  onEdit,
-  url,
-}: LinkPreviewPanelProps) => {
+export const LinkPreviewPanel = ({ onClear, onEdit, url }: LinkPreviewPanelProps) => {
   return (
     <Surface className="flex items-center gap-2 p-2">
       <a

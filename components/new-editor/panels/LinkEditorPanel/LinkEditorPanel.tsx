@@ -11,7 +11,6 @@ import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/lib/supabaseClient';
 import { getPathFromURL } from '@/lib/url';
 
-
 export type LinkEditorPanelProps = {
   initialUrl?: string;
   initialOpenInNewTab?: boolean;
@@ -24,9 +23,7 @@ export const useLinkEditorState = ({
   onSetLink,
 }: LinkEditorPanelProps) => {
   const [url, setUrl] = useState(initialUrl || '');
-  const [openInNewTab, setOpenInNewTab] = useState(
-    initialOpenInNewTab || false
-  );
+  const [openInNewTab, setOpenInNewTab] = useState(initialOpenInNewTab || false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const searchParams = useSearchParams();
@@ -102,10 +99,7 @@ export const LinkEditorPanel = ({
           </Label>
           <div className="flex items-center gap-2">
             <div className="flex-1 flex items-center gap-2">
-              <Icon
-                name="Link"
-                className="absolute ml-3 text-muted-foreground"
-              />
+              <Icon name="Link" className="absolute ml-3 text-muted-foreground" />
               <Input
                 id="url-input"
                 type="url"
@@ -152,9 +146,7 @@ export const LinkEditorPanel = ({
               >
                 <Icon name="Link" className="h-4 w-4 mr-1 flex-shrink-0" />
                 <div className="flex flex-col items-start overflow-hidden">
-                  <span className="font-bold text-indigo-600">
-                    {getPathFromURL(link.url)}
-                  </span>
+                  <span className="font-bold text-indigo-600">{getPathFromURL(link.url)}</span>
 
                   {link.summary && (
                     <span

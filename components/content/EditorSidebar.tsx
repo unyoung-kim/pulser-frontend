@@ -19,7 +19,6 @@ import Tooltip from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 
-
 interface HeadingNode {
   level: number;
   text: string;
@@ -93,8 +92,9 @@ export function EditorSidebar({
           });
         }
         // Only count external links from editor content
-        if (node.type.name === 'link' || node.marks?.some(mark => mark.type.name === 'link')) {
-          const href = node.attrs?.href || node.marks?.find(mark => mark.type.name === 'link')?.attrs.href;
+        if (node.type.name === 'link' || node.marks?.some((mark) => mark.type.name === 'link')) {
+          const href =
+            node.attrs?.href || node.marks?.find((mark) => mark.type.name === 'link')?.attrs.href;
 
           if (href) {
             try {
@@ -112,7 +112,7 @@ export function EditorSidebar({
       setHeadings(newHeadings);
       setLinkCount({
         internal: internalLinkCount, // Use the count from database
-        external: externalLinks
+        external: externalLinks,
       });
     };
 
@@ -198,16 +198,16 @@ export function EditorSidebar({
 
   const getStatusColor = () => {
     switch (status) {
-    case 'published':
-      return 'bg-green-100 text-green-800 border-green-200';
-    case 'scheduled':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'drafted':
-      return 'bg-gray-100 text-gray-800 border-gray-200';
-    case 'archived':
-      return 'bg-red-100 text-red-800 border-red-200';
-    default:
-      return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'published':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'scheduled':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'drafted':
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'archived':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -258,10 +258,7 @@ export function EditorSidebar({
         updateData.published_at = new Date().toISOString();
       }
 
-      const { error } = await supabase
-        .from('Content')
-        .update(updateData)
-        .eq('id', contentId);
+      const { error } = await supabase.from('Content').update(updateData).eq('id', contentId);
 
       if (error) throw error;
 
@@ -269,8 +266,7 @@ export function EditorSidebar({
       onStatusChange?.(newStatus);
 
       toast({
-        title:
-          newStatus === 'published' ? 'Content Published' : 'Marked as Draft',
+        title: newStatus === 'published' ? 'Content Published' : 'Marked as Draft',
         description:
           newStatus === 'published'
             ? 'Your content has been marked as published.'
@@ -358,9 +354,7 @@ export function EditorSidebar({
 
         {/* Content Type */}
         <div className="pb-2">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">
-            Content Type
-          </h3>
+          <h3 className="text-sm font-medium text-gray-500 mb-2">Content Type</h3>
           <Badge
             variant="outline"
             className="bg-purple-100 text-indigo-800 border-indigo-50 border px-3 py-1 text-xs font-medium capitalize"
@@ -386,9 +380,7 @@ export function EditorSidebar({
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
               <div className="text-sm text-gray-600 mb-1">Words</div>
-              <div className="text-lg font-semibold text-indigo-600 truncate">
-                {getWordCount()}
-              </div>
+              <div className="text-lg font-semibold text-indigo-600 truncate">{getWordCount()}</div>
             </div>
             <div className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
               <div className="text-sm text-gray-600 mb-1">Headings</div>
@@ -420,11 +412,7 @@ export function EditorSidebar({
                   group flex items-center gap-2 text-sm hover:bg-gray-50 
                   rounded-md transition-colors duration-200
                   w-full text-left py-1.5 px-2
-                  ${
-              heading.level === 1
-                ? 'font-medium text-gray-900'
-                : 'text-gray-600'
-              }
+                  ${heading.level === 1 ? 'font-medium text-gray-900' : 'text-gray-600'}
                   ${heading.level === 2 ? 'pl-4' : ''}
                   ${heading.level === 3 ? 'pl-8' : ''}
                 `}
@@ -453,15 +441,11 @@ export function EditorSidebar({
           <div className="space-y-3 px-2">
             <div className="flex items-center gap-2">
               <LinkIcon className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">
-                {linkCount.internal} internal links
-              </span>
+              <span className="text-sm text-gray-600">{linkCount.internal} internal links</span>
             </div>
             <div className="flex items-center gap-2">
               <ExternalLink className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">
-                {linkCount.external} external links
-              </span>
+              <span className="text-sm text-gray-600">{linkCount.external} external links</span>
             </div>
           </div>
         </div>
@@ -481,12 +465,12 @@ export function EditorSidebar({
               {isDownloading ? (
                 <>
                   <Loader className="w-4 h-4 mr-2 animate-spin" />
-                      Downloading...
+                  Downloading...
                 </>
               ) : (
                 <>
                   <Download className="w-4 h-4 mr-2" />
-                      Download
+                  Download
                 </>
               )}
             </Button>
@@ -494,11 +478,13 @@ export function EditorSidebar({
           <StatusButton />
         </div>
 
-        <Tooltip content="Go to integration section to publish this article to your
-                website">
+        <Tooltip
+          content="Go to integration section to publish this article to your
+                website"
+        >
           <Button variant="default" size="sm" className="w-full" disabled>
             <Globe className="w-4 h-4 mr-2" />
-                Publish to Website
+            Publish to Website
           </Button>
         </Tooltip>
       </div>

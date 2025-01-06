@@ -6,7 +6,6 @@ import { CreateOrganization, useOrganization, useUser } from '@clerk/nextjs';
 import { Loader } from '@/components/ui/loader';
 import ProjectSection from './ProjectSection';
 
-
 export default function AuthWrapper() {
   const { isSignedIn } = useUser();
   const { organization, isLoaded } = useOrganization();

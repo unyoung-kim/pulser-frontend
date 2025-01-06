@@ -33,7 +33,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-
 interface TableViewProps {
   items: Array<{
     id: number;
@@ -74,13 +73,7 @@ const getValidImageUrl = (url?: string) => {
   }
 };
 
-export function TableView({
-  items,
-  loading,
-  hasNextPage,
-  onLoadMore,
-  onDelete,
-}: TableViewProps) {
+export function TableView({ items, loading, hasNextPage, onLoadMore, onDelete }: TableViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
@@ -196,10 +189,7 @@ export function TableView({
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className="text-xs justify-start w-32 group relative"
-                  >
+                  <Badge variant="secondary" className="text-xs justify-start w-32 group relative">
                     <span className="line-clamp-2 block">{item.keyword}</span>
                     <span className="invisible group-hover:visible absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap">
                       {item.keyword}
@@ -210,10 +200,7 @@ export function TableView({
                 <TableCell className="text-gray-600 font-medium">
                   {formatDate(item.updated_at)}
                 </TableCell>
-                <TableCell
-                  className="text-right"
-                  onClick={(e) => e.stopPropagation()}
-                >
+                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
