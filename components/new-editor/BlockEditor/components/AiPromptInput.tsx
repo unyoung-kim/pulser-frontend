@@ -175,7 +175,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   }, [editor]);
 
   return (
-    <div className="fixed left-32 right-[420px] bottom-3 z-[9999] p-4">
+    <div className="fixed left-32 right-[420px] bottom-3 z-30 p-4">
       <div className="max-w-xl mx-auto flex flex-col gap-3">
         {/* AI Response Panel */}
         <div
