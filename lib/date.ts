@@ -5,7 +5,7 @@ export const getLastUpdatedText = (dateStr: string) => {
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    
+
     if (hours < 1) return 'Just now';
     if (hours === 1) return '1 hour ago';
     if (hours < 24) return `${hours} hours ago`;
@@ -14,4 +14,4 @@ export const getLastUpdatedText = (dateStr: string) => {
   } catch {
     return '';
   }
-}; 
+};

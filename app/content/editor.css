@@ -19,7 +19,6 @@
     list-style-type: decimal;
   }
 
-
   h1 {
     font-size: 2em;
     font-weight: bold;
@@ -80,7 +79,7 @@
 
     .selectedCell:after {
       background: rgba(200, 200, 255, 0.4);
-      content: "";
+      content: '';
       left: 0;
       right: 0;
       top: 0;
@@ -152,7 +151,7 @@
   transition-property: none;
 }
 
-[cmdk-item][aria-selected="true"] {
+[cmdk-item][aria-selected='true'] {
   background: rgb(243 244 246);
   color: rgb(17 24 39);
 }

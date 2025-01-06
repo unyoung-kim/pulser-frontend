@@ -1,13 +1,13 @@
 import { Extension } from '@tiptap/core';
 
 export type ImageSearchEventProps = {
-  type: 'imageSearch'
-}
+  type: 'imageSearch';
+};
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     imageSearch: {
-      setImageSearchModal: () => ReturnType
+      setImageSearchModal: () => ReturnType;
     };
   }
 
@@ -21,10 +21,12 @@ export const ImageSearch = Extension.create({
 
   addCommands() {
     return {
-      setImageSearchModal: () => ({ editor }) => {
-        editor.emit('imageSearch', { type: 'imageSearch' } as ImageSearchEventProps);
-        return true;
-      },
+      setImageSearchModal:
+        () =>
+        ({ editor }) => {
+          editor.emit('imageSearch', { type: 'imageSearch' } as ImageSearchEventProps);
+          return true;
+        },
     };
   },
 });

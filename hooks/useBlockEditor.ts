@@ -1,16 +1,16 @@
-import { TiptapCollabProvider, WebSocketStatus } from "@hocuspocus/provider";
-import type { AnyExtension, Editor } from "@tiptap/core";
-import Collaboration from "@tiptap/extension-collaboration";
-import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import { useEditor, useEditorState } from "@tiptap/react";
-import { useEffect, useState } from "react";
-import type { Doc as YDoc } from "yjs";
+import { TiptapCollabProvider, WebSocketStatus } from '@hocuspocus/provider';
+import type { AnyExtension, Editor } from '@tiptap/core';
+import Collaboration from '@tiptap/extension-collaboration';
+import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
+import { useEditor, useEditorState } from '@tiptap/react';
+import { useEffect, useState } from 'react';
+import type { Doc as YDoc } from 'yjs';
 
-import { EditorUser } from "@/components/new-editor/BlockEditor/types";
-import { AiImage, AiWriter } from "@/extensions";
-import { Ai } from "@/extensions/Ai";
-import { ExtensionKit } from "@/extensions/extension-kit";
-import { userColors, userNames } from "@/lib/editor/constants";
+import { EditorUser } from '@/components/new-editor/BlockEditor/types';
+import { AiImage, AiWriter } from '@/extensions';
+import { Ai } from '@/extensions/Ai';
+import { ExtensionKit } from '@/extensions/extension-kit';
+import { userColors, userNames } from '@/lib/editor/constants';
 // import { initialContent } from "@/lib/editor/data/initialContent";
 
 export function randomElement<T>(array: Array<T>): T {
@@ -28,7 +28,7 @@ export const useBlockEditor = ({
   ydoc,
   provider,
   userId,
-  userName = "Maxi",
+  userName = 'Maxi',
 }: {
   aiToken?: string;
   ydoc: YDoc;
@@ -47,16 +47,16 @@ export const useBlockEditor = ({
       autofocus: true,
       onCreate: (ctx) => {
         if (provider && !provider.isSynced) {
-          provider.on("synced", () => {
+          provider.on('synced', () => {
             setTimeout(() => {
               if (ctx.editor.isEmpty) {
-                ctx.editor.commands.setContent("");
+                ctx.editor.commands.setContent('');
               }
             }, 0);
           });
         } else if (ctx.editor.isEmpty) {
-          ctx.editor.commands.setContent("");
-          ctx.editor.commands.focus("start", { scrollIntoView: true });
+          ctx.editor.commands.setContent('');
+          ctx.editor.commands.focus('start', { scrollIntoView: true });
         }
       },
       extensions: [
@@ -93,10 +93,10 @@ export const useBlockEditor = ({
       ].filter((e): e is AnyExtension => e !== undefined),
       editorProps: {
         attributes: {
-          autocomplete: "off",
-          autocorrect: "off",
-          autocapitalize: "off",
-          class: "min-h-full",
+          autocomplete: 'off',
+          autocorrect: 'off',
+          autocapitalize: 'off',
+          class: 'min-h-full',
         },
       },
     },
@@ -109,21 +109,19 @@ export const useBlockEditor = ({
         return [];
       }
 
-      return ctx.editor.storage.collaborationCursor.users.map(
-        (user: EditorUser) => {
-          const names = user.name?.split(" ");
-          const firstName = names?.[0];
-          const lastName = names?.[names.length - 1];
-          const initials = `${firstName?.[0] || "?"}${lastName?.[0] || "?"}`;
+      return ctx.editor.storage.collaborationCursor.users.map((user: EditorUser) => {
+        const names = user.name?.split(' ');
+        const firstName = names?.[0];
+        const lastName = names?.[names.length - 1];
+        const initials = `${firstName?.[0] || '?'}${lastName?.[0] || '?'}`;
 
-          return { ...user, initials: initials.length ? initials : "?" };
-        }
-      );
+        return { ...user, initials: initials.length ? initials : '?' };
+      });
     },
   });
 
   useEffect(() => {
-    provider?.on("status", (event: { status: WebSocketStatus }) => {
+    provider?.on('status', (event: { status: WebSocketStatus }) => {
       setCollabState(event.status);
     });
   }, [provider]);

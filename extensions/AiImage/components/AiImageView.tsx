@@ -1,32 +1,28 @@
-import { ImageOptions } from "@tiptap-pro/extension-ai";
-import {
-  Extension,
-  NodeViewWrapper,
-  NodeViewWrapperProps,
-} from "@tiptap/react";
-import { useCallback, useMemo, useState } from "react";
-import toast from "react-hot-toast";
-import { v4 as uuid } from "uuid";
+import { ImageOptions } from '@tiptap-pro/extension-ai';
+import { Extension, NodeViewWrapper, NodeViewWrapperProps } from '@tiptap/react';
+import { useCallback, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
+import { v4 as uuid } from 'uuid';
 
-import * as Dropdown from "@radix-ui/react-dropdown-menu";
+import * as Dropdown from '@radix-ui/react-dropdown-menu';
 
-import { Button } from "@/components/ui/Button-editor";
-import { DropdownButton } from "@/components/ui/Dropdown";
-import { Icon } from "@/components/ui/Icon";
-import { Loader } from "@/components/ui/Loader-editor";
-import { Panel, PanelHeadline } from "@/components/ui/Panel-editor";
-import { Surface } from "@/components/ui/Surface";
-import { Textarea } from "@/components/ui/Textarea-editor";
-import { Toolbar } from "@/components/ui/Toolbar";
+import { Button } from '@/components/ui/Button-editor';
+import { DropdownButton } from '@/components/ui/Dropdown';
+import { Icon } from '@/components/ui/Icon';
+import { Loader } from '@/components/ui/Loader-editor';
+import { Panel, PanelHeadline } from '@/components/ui/Panel-editor';
+import { Surface } from '@/components/ui/Surface';
+import { Textarea } from '@/components/ui/Textarea-editor';
+import { Toolbar } from '@/components/ui/Toolbar';
 
 const imageStyles = [
-  { name: "photorealistic", label: "Photorealistic", value: "photorealistic" },
-  { name: "digital-art", label: "Digital art", value: "digital_art" },
-  { name: "comic-book", label: "Comic book", value: "comic_book" },
-  { name: "neon-punk", label: "Neon punk", value: "neon_punk" },
-  { name: "isometric", label: "Isometric", value: "isometric" },
-  { name: "line-art", label: "Line art", value: "line_art" },
-  { name: "3d-model", label: "3D model", value: "3d_model" },
+  { name: 'photorealistic', label: 'Photorealistic', value: 'photorealistic' },
+  { name: 'digital-art', label: 'Digital art', value: 'digital_art' },
+  { name: 'comic-book', label: 'Comic book', value: 'comic_book' },
+  { name: 'neon-punk', label: 'Neon punk', value: 'neon_punk' },
+  { name: 'isometric', label: 'Isometric', value: 'isometric' },
+  { name: 'line-art', label: 'Line art', value: 'line_art' },
+  { name: '3d-model', label: '3D model', value: '3d_model' },
 ];
 
 interface Data {
@@ -34,32 +30,23 @@ interface Data {
   imageStyle?: ImageOptions;
 }
 
-export const AiImageView = ({
-  editor,
-  node,
-  getPos,
-  deleteNode,
-}: NodeViewWrapperProps) => {
+export const AiImageView = ({ editor, node, getPos, deleteNode }: NodeViewWrapperProps) => {
   const aiOptions = editor.extensionManager.extensions.find(
-    (ext: Extension) => ext.name === "ai"
+    (ext: Extension) => ext.name === 'ai'
   ).options;
 
   const [data, setData] = useState<Data>({
-    text: "",
+    text: '',
     imageStyle: undefined,
   });
-  const currentImageStyle = imageStyles.find(
-    (t) => t.value === data.imageStyle
-  );
-  const [previewImage, setPreviewImage] = useState<string | undefined>(
-    undefined
-  );
+  const currentImageStyle = imageStyles.find((t) => t.value === data.imageStyle);
+  const [previewImage, setPreviewImage] = useState<string | undefined>(undefined);
   const [isFetching, setIsFetching] = useState(false);
   const textareaId = useMemo(() => uuid(), []);
 
   const generateImage = useCallback(async () => {
     if (!data.text) {
-      toast.error("Please enter a description for the image");
+      toast.error('Please enter a description for the image');
 
       return;
     }
@@ -74,11 +61,11 @@ export const AiImageView = ({
     try {
       const { baseUrl, appId, token } = aiOptions;
       const response = await fetch(`${baseUrl}/image/prompt`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          accept: "application.json",
-          "Content-Type": "application/json",
-          "X-App-Id": appId.trim(),
+          accept: 'application.json',
+          'Content-Type': 'application/json',
+          'X-App-Id': appId.trim(),
           Authorization: `Bearer ${token.trim()}`,
         },
         body: JSON.stringify(payload),
@@ -97,7 +84,7 @@ export const AiImageView = ({
     } catch (errPayload: any) {
       const errorMessage = errPayload?.response?.data?.error;
       const message =
-        errorMessage !== "An error occurred"
+        errorMessage !== 'An error occurred'
           ? `An error has occured: ${errorMessage}`
           : errorMessage;
 
@@ -156,12 +143,12 @@ export const AiImageView = ({
             <>
               <PanelHeadline>Preview</PanelHeadline>
               <div
-                className="w-full mb-4 bg-white bg-center bg-no-repeat bg-contain border border-black rounded dark:border-neutral-700 aspect-square"
+                className="mb-4 aspect-square w-full rounded border border-black bg-white bg-contain bg-center bg-no-repeat dark:border-neutral-700"
                 style={{ backgroundImage: `url(${previewImage})` }}
               />
             </>
           )}
-          <div className="flex items-center justify-between gap-2 row">
+          <div className="row flex items-center justify-between gap-2">
             <PanelHeadline asChild>
               <label htmlFor={textareaId}>Prompt</label>
             </PanelHeadline>
@@ -175,18 +162,18 @@ export const AiImageView = ({
             className="mb-2"
           />
           <div className="flex flex-row items-center justify-between gap-1">
-            <div className="flex justify-between w-auto gap-1">
+            <div className="flex w-auto justify-between gap-1">
               <Dropdown.Root>
                 <Dropdown.Trigger asChild>
                   <Button variant="tertiary">
                     <Icon name="Image" />
-                    {currentImageStyle?.label || "Image style"}
+                    {currentImageStyle?.label || 'Image style'}
                     <Icon name="ChevronDown" />
                   </Button>
                 </Dropdown.Trigger>
                 <Dropdown.Portal>
                   <Dropdown.Content side="bottom" align="start" asChild>
-                    <Surface className="p-2 min-w-[12rem]">
+                    <Surface className="min-w-[12rem] p-2">
                       {!!data.imageStyle && (
                         <>
                           <DropdownButton
@@ -231,12 +218,8 @@ export const AiImageView = ({
                 </Button>
               )}
               <Button variant="primary" onClick={generateImage}>
-                {previewImage ? (
-                  <Icon name="Repeat" />
-                ) : (
-                  <Icon name="Sparkles" />
-                )}
-                {previewImage ? "Regenerate" : "Generate image"}
+                {previewImage ? <Icon name="Repeat" /> : <Icon name="Sparkles" />}
+                {previewImage ? 'Regenerate' : 'Generate image'}
               </Button>
             </div>
           </div>

@@ -3,7 +3,6 @@ import { Editor } from '@tiptap/react';
 import { cn } from '@/lib/utils';
 import { TableOfContents } from '../TableOfContents';
 
-
 export const Sidebar = memo(
   ({ editor, isOpen, onClose }: { editor: Editor; isOpen?: boolean; onClose: () => void }) => {
     const handlePotentialClose = useCallback(() => {
@@ -16,7 +15,7 @@ export const Sidebar = memo(
       'absolute top-0 left-0 bg-white lg:bg-white/30 lg:backdrop-blur-xl h-full lg:h-auto lg:relative w-0 duration-300 transition-all',
       'dark:bg-black lg:dark:bg-black/30',
       !isOpen && 'border-r-transparent',
-      isOpen && 'w-80 border-r border-r-neutral-200 dark:border-r-neutral-800',
+      isOpen && 'w-80 border-r border-r-neutral-200 dark:border-r-neutral-800'
     );
 
     return (
@@ -28,7 +27,7 @@ export const Sidebar = memo(
         </div>
       </div>
     );
-  },
+  }
 );
 
 Sidebar.displayName = 'TableOfContentSidepanel';

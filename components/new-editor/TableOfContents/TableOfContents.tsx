@@ -6,16 +6,15 @@ import { useEditorState } from '@tiptap/react';
 import { TableOfContentsStorage } from '@tiptap-pro/extension-table-of-contents';
 import { cn } from '@/lib/utils';
 
-
 export type TableOfContentsProps = {
-  editor: CoreEditor
-  onItemClick?: () => void
-}
+  editor: CoreEditor;
+  onItemClick?: () => void;
+};
 
 export const TableOfContents = memo(({ editor, onItemClick }: TableOfContentsProps) => {
   const content = useEditorState({
     editor,
-    selector: ctx => (ctx.editor.storage.tableOfContents as TableOfContentsStorage).content,
+    selector: (ctx) => (ctx.editor.storage.tableOfContents as TableOfContentsStorage).content,
   });
 
   const handleClick = (id: string) => {
@@ -31,16 +30,17 @@ export const TableOfContents = memo(({ editor, onItemClick }: TableOfContentsPro
       </div>
       {content.length > 0 ? (
         <div className="flex flex-col gap-1">
-          {content.map(item => (
+          {content.map((item) => (
             <button
               key={item.id}
               type="button"
               style={{ marginLeft: `${1 * item.level - 1}rem` }}
               onClick={() => handleClick(item.id)}
               className={cn(
-                'block font-medium text-left text-neutral-500 dark:text-neutral-300 p-1 rounded bg-opacity-10 text-sm hover:text-neutral-800 transition-all hover:bg-black hover:bg-opacity-5 truncate w-full cursor-pointer',
-                'underline focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-neutral-200 dark:focus:ring-neutral-700',
-                item.isActive && 'text-neutral-800 bg-neutral-100 dark:text-neutral-100 dark:bg-neutral-900',
+                'block w-full cursor-pointer truncate rounded bg-opacity-10 p-1 text-left text-sm font-medium text-neutral-500 transition-all hover:bg-black hover:bg-opacity-5 hover:text-neutral-800 dark:text-neutral-300',
+                'underline focus:outline-none focus:ring-2 focus:ring-neutral-200 focus:ring-offset-1 dark:focus:ring-neutral-700',
+                item.isActive &&
+                  'bg-neutral-100 text-neutral-800 dark:bg-neutral-900 dark:text-neutral-100'
               )}
             >
               {item.itemIndex}. {item.textContent}

@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import { Surface } from './Surface';
 import { Toolbar } from './Toolbar';
 
-
 export const Trigger = Popover.Trigger;
 export const Portal = Popover.Portal;
 
@@ -37,10 +36,7 @@ export const Menu = ({
         <Trigger asChild>{trigger}</Trigger>
       ) : (
         <Trigger asChild>
-          <Toolbar.Button
-            className={triggerClassName}
-            tooltip={!isOpen ? tooltip : ''}
-          >
+          <Toolbar.Button className={triggerClassName} tooltip={!isOpen ? tooltip : ''}>
             {trigger}
           </Toolbar.Button>
         </Trigger>
@@ -49,14 +45,14 @@ export const Menu = ({
         // @ts-expect-error
         <Popover.Portal className="z-9999">
           <Popover.Content asChild sideOffset={8}>
-            <Surface className="min-w-[15rem] p-2 flex flex-col gap-0.5 max-h-80 overflow-auto z-[9999]">
+            <Surface className="z-[9999] flex max-h-80 min-w-[15rem] flex-col gap-0.5 overflow-auto p-2">
               {children}
             </Surface>
           </Popover.Content>
         </Popover.Portal>
       ) : (
         <Popover.Content asChild sideOffset={8}>
-          <Surface className="min-w-[15rem] p-2 flex flex-col gap-0.5 max-h-80 overflow-auto z-[9999]">
+          <Surface className="z-[9999] flex max-h-80 min-w-[15rem] flex-col gap-0.5 overflow-auto p-2">
             {children}
           </Surface>
         </Popover.Content>
@@ -101,7 +97,7 @@ export const Item = ({
 
   return (
     <ItemComponent className={className} onClick={onClick} disabled={disabled}>
-      {IconComponent && <IconComponent className="w-4 h-4" />}
+      {IconComponent && <IconComponent className="h-4 w-4" />}
       {IconCustomComponent}
       {label}
     </ItemComponent>
@@ -114,20 +110,14 @@ export type CategoryTitle = {
 
 export const CategoryTitle = ({ children }: CategoryTitle) => {
   return (
-    <div className="mt-4 first:mt-1.5 mb-1.5 text-[0.625rem] font-medium text-neutral-400 dark:text-neutral-600 uppercase select-none px-1">
+    <div className="mb-1.5 mt-4 select-none px-1 text-[0.625rem] font-medium uppercase text-neutral-400 first:mt-1.5 dark:text-neutral-600">
       {children}
     </div>
   );
 };
 
 export const Divider = forwardRef<HTMLHRElement>((props, ref) => {
-  return (
-    <hr
-      {...props}
-      ref={ref}
-      className="my-1 border-neutral-200 dark:border-neutral-800"
-    />
-  );
+  return <hr {...props} ref={ref} className="my-1 border-neutral-200 dark:border-neutral-800" />;
 });
 
 Divider.displayName = 'Divider';

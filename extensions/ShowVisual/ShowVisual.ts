@@ -35,26 +35,26 @@ export const ShowVisual = Extension.create({
       // Command to open the visual modal with the provided text
       setVisualModal:
         (text: string) =>
-          ({ editor }): boolean => {
-            const event: ShowVisualEventProps = {
-              type: 'showVisual',
-              text,
-            };
-            // Update storage and emit the event
-            editor.storage.showVisualEvent = event;
-            editor.emit('showVisual', event);
-            return true;
-          },
+        ({ editor }): boolean => {
+          const event: ShowVisualEventProps = {
+            type: 'showVisual',
+            text,
+          };
+          // Update storage and emit the event
+          editor.storage.showVisualEvent = event;
+          editor.emit('showVisual', event);
+          return true;
+        },
       // Command to save the current selection in the editor
       setSavedSelection:
         (obj: { from: number; to: number }) =>
-          ({ editor }): boolean => {
-            // Update the saved selection if storage has the event
-            if (editor.storage.showVisualEvent) {
-              editor.storage.showVisualEvent.savedSelection = obj;
-            }
-            return true;
-          },
+        ({ editor }): boolean => {
+          // Update the saved selection if storage has the event
+          if (editor.storage.showVisualEvent) {
+            editor.storage.showVisualEvent.savedSelection = obj;
+          }
+          return true;
+        },
     };
   },
 });

@@ -8,7 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AiStorage } from "@tiptap-pro/extension-ai";
-import { Editor, generateHTML } from '@tiptap/core';
+import { Editor } from "@tiptap/core";
 import { useEditorState } from "@tiptap/react";
 import { motion } from "framer-motion";
 import {
@@ -179,7 +179,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   }, [editor]);
 
   return (
-    <div className="fixed left-32 right-[420px] bottom-3 z-30 p-4">
+    <div className="fixed left-32 right-[420px] bottom-3 z-[9999] p-4">
       <div className="max-w-xl mx-auto flex flex-col gap-3">
         {/* AI Response Panel */}
         <div

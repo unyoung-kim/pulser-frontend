@@ -3,10 +3,15 @@
 import { useState, useCallback } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
 
 interface CreateContentDialogProps {
   open: boolean;
@@ -27,7 +32,7 @@ export function CreateContentDialog({
   onKeywordsChange,
   onTopicChange,
   onSubmit,
-  isCreating
+  isCreating,
 }: CreateContentDialogProps) {
   const [newKeyword, setNewKeyword] = useState('');
 
@@ -38,24 +43,30 @@ export function CreateContentDialog({
     }
   }, [newKeyword, keywords, onKeywordsChange]);
 
-  const handleRemoveKeyword = useCallback((keywordToRemove: string) => {
-    onKeywordsChange(keywords.filter(k => k !== keywordToRemove));
-  }, [keywords, onKeywordsChange]);
+  const handleRemoveKeyword = useCallback(
+    (keywordToRemove: string) => {
+      onKeywordsChange(keywords.filter((k) => k !== keywordToRemove));
+    },
+    [keywords, onKeywordsChange]
+  );
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddKeyword();
-    }
-  }, [handleAddKeyword]);
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddKeyword();
+      }
+    },
+    [handleAddKeyword]
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         {isCreating ? (
-          <div className="py-8 flex flex-col items-center gap-4">
-            <div className="h-8 w-8 rounded-full border-4 border-b-transparent border-primary animate-spin" />
-            <div className="text-center space-y-2">
+          <div className="flex flex-col items-center gap-4 py-8">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-b-transparent" />
+            <div className="space-y-2 text-center">
               <h3 className="font-semibold">Generating Content</h3>
               <p className="text-sm text-muted-foreground">
                 This process may take up to 10 minutes. Please keep this window open.
@@ -81,8 +92,8 @@ export function CreateContentDialog({
                     onChange={(e) => setNewKeyword(e.target.value)}
                     onKeyPress={handleKeyPress}
                   />
-                  <Button 
-                    type="button" 
+                  <Button
+                    type="button"
                     onClick={handleAddKeyword}
                     disabled={!newKeyword.trim()}
                     variant="outline"
@@ -91,11 +102,11 @@ export function CreateContentDialog({
                   </Button>
                 </div>
                 {keywords.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {keywords.map((kw, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md text-sm"
+                        className="flex items-center gap-1 rounded-md bg-gray-100 px-2 py-1 text-sm"
                       >
                         <span>{kw}</span>
                         <button
@@ -120,16 +131,10 @@ export function CreateContentDialog({
               </div>
             </div>
             <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button
-                onClick={onSubmit}
-                disabled={keywords.length === 0}
-              >
+              <Button onClick={onSubmit} disabled={keywords.length === 0}>
                 Create Content
               </Button>
             </div>
@@ -138,4 +143,4 @@ export function CreateContentDialog({
       </DialogContent>
     </Dialog>
   );
-} 
+}

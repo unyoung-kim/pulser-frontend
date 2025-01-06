@@ -1,3 +1,8 @@
+import { useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Building2, CheckCircle, Loader2, MessageSquareText, Package2, Users } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -13,11 +18,6 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea2';
 import { useToast } from '@/hooks/use-toast';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, CheckCircle, Loader2, MessageSquareText, Package2, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 const BackgroundSchema = z.object({
   basic: z.object({
@@ -214,17 +214,17 @@ export function BackgroundForm({
       type="submit"
       onClick={form.handleSubmit(handleSubmit)}
       disabled={loading || externalLoading}
-      className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm min-w-[100px]"
+      className="min-w-[100px] rounded-full bg-indigo-600 text-sm text-white hover:bg-indigo-700"
       size="sm"
     >
       {loading || externalLoading ? (
         <>
-          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Saving...
         </>
       ) : (
         <>
-          <CheckCircle className="w-4 h-4 mr-2" />
+          <CheckCircle className="mr-2 h-4 w-4" />
           Save Info
         </>
       )}
@@ -233,31 +233,31 @@ export function BackgroundForm({
 
   return (
     <>
-      <div className="flex justify-between items-start gap-8">
+      <div className="flex items-start justify-between gap-8">
         <div className="space-y-0.5">
           <h2 className="text-2xl font-bold tracking-tight">Background</h2>
-          <p className="text-sm text-muted-foreground max-w-[450px]">
+          <p className="max-w-[450px] text-sm text-muted-foreground">
             Help us get to know your business to generate relevant articles. The more information
             you provide, the better content we can create for you.
           </p>
         </div>
 
         <div className="min-w-[200px]">
-          <div className="flex justify-between items-center mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-indigo-600"></div>
+                <div className="h-3 w-3 rounded-full bg-indigo-600"></div>
                 <span className="text-sm text-gray-600">Required</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-indigo-200"></div>
+                <div className="h-3 w-3 rounded-full bg-indigo-200"></div>
                 <span className="text-sm text-gray-600">Optional</span>
               </div>
             </div>
             <span className="text-sm font-medium">{progress.required}%</span>
           </div>
 
-          <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="relative h-2 overflow-hidden rounded-full bg-gray-100">
             <div
               className="absolute left-0 top-0 h-full bg-indigo-600 transition-all duration-300"
               style={{ width: `${progress.required}%` }}
@@ -275,21 +275,21 @@ export function BackgroundForm({
       <Tabs defaultValue="basic" className="w-full">
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
           <aside className="-mx-4 lg:w-1/5">
-            <TabsList className="flex flex-col h-auto space-y-1 bg-transparent p-0">
+            <TabsList className="flex h-auto flex-col space-y-1 bg-transparent p-0">
               <TabsTrigger value="basic" className="w-full justify-start px-4 py-2 font-normal">
-                <Building2 className="w-4 h-4 mr-2" />
+                <Building2 className="mr-2 h-4 w-4" />
                 Basic Information
               </TabsTrigger>
               <TabsTrigger value="product" className="w-full justify-start px-4 py-2 font-normal">
-                <Package2 className="w-4 h-4 mr-2" />
+                <Package2 className="mr-2 h-4 w-4" />
                 Product Details
               </TabsTrigger>
               <TabsTrigger value="audience" className="w-full justify-start px-4 py-2 font-normal">
-                <Users className="w-4 h-4 mr-2" />
+                <Users className="mr-2 h-4 w-4" />
                 Audience
               </TabsTrigger>
               <TabsTrigger value="voice" className="w-full justify-start px-4 py-2 font-normal">
-                <MessageSquareText className="w-4 h-4 mr-2" />
+                <MessageSquareText className="mr-2 h-4 w-4" />
                 Voice & Style
               </TabsTrigger>
             </TabsList>
@@ -300,7 +300,7 @@ export function BackgroundForm({
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
                 <TabsContent value="basic">
                   <div className="space-y-6">
-                    <div className="flex justify-between items-start">
+                    <div className="flex items-start justify-between">
                       <div>
                         <h3 className="text-lg font-medium">Basic Information</h3>
                         <p className="text-sm text-muted-foreground">
@@ -347,7 +347,7 @@ export function BackgroundForm({
 
                 <TabsContent value="product">
                   <div className="space-y-6">
-                    <div className="flex justify-between items-start">
+                    <div className="flex items-start justify-between">
                       <div>
                         <h3 className="text-lg font-medium">Product Details</h3>
                         <p className="text-sm text-muted-foreground">
@@ -440,7 +440,7 @@ export function BackgroundForm({
 
                 <TabsContent value="audience">
                   <div className="space-y-6">
-                    <div className="flex justify-between items-start">
+                    <div className="flex items-start justify-between">
                       <div>
                         <h3 className="text-lg font-medium">Target Audience</h3>
                         <p className="text-sm text-muted-foreground">
@@ -498,7 +498,7 @@ export function BackgroundForm({
 
                 <TabsContent value="voice">
                   <div className="space-y-6">
-                    <div className="flex justify-between items-start">
+                    <div className="flex items-start justify-between">
                       <div>
                         <h3 className="text-lg font-medium">Brand Voice</h3>
                         <p className="text-sm text-muted-foreground">

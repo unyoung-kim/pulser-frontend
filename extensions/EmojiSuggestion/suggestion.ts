@@ -1,20 +1,19 @@
-import { Editor } from "@tiptap/core";
-import { ReactRenderer } from "@tiptap/react";
-import { SuggestionKeyDownProps, SuggestionProps } from "@tiptap/suggestion";
-import tippy from "tippy.js";
+import { Editor } from '@tiptap/core';
+import { ReactRenderer } from '@tiptap/react';
+import { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion';
+import tippy from 'tippy.js';
 
-import { RefAttributes } from "react";
-import EmojiList from "./components/EmojiList";
-import { EmojiListProps } from "./types";
+import { RefAttributes } from 'react';
+import EmojiList from './components/EmojiList';
+import { EmojiListProps } from './types';
 
 export const emojiSuggestion = {
   items: ({ editor, query }: { editor: Editor; query: string }) =>
     editor.storage.emoji.emojis
       .filter(
         ({ shortcodes, tags }: { shortcodes: string[]; tags: string[] }) =>
-          shortcodes.find((shortcode) =>
-            shortcode.startsWith(query.toLowerCase())
-          ) || tags.find((tag) => tag.startsWith(query.toLowerCase()))
+          shortcodes.find((shortcode) => shortcode.startsWith(query.toLowerCase())) ||
+          tags.find((tag) => tag.startsWith(query.toLowerCase()))
       )
       .slice(0, 250),
 
@@ -23,8 +22,7 @@ export const emojiSuggestion = {
   render: () => {
     let component: ReactRenderer<
       { onKeyDown: (evt: SuggestionKeyDownProps) => boolean },
-      EmojiListProps &
-        RefAttributes<{ onKeyDown: (evt: SuggestionKeyDownProps) => boolean }>
+      EmojiListProps & RefAttributes<{ onKeyDown: (evt: SuggestionKeyDownProps) => boolean }>
     >;
     let popup: ReturnType<typeof tippy>;
 
@@ -35,14 +33,14 @@ export const emojiSuggestion = {
           editor: props.editor,
         });
 
-        popup = tippy("body", {
+        popup = tippy('body', {
           getReferenceClientRect: props.clientRect as () => DOMRect,
           appendTo: () => document.body,
           content: component.element,
           showOnCreate: true,
           interactive: true,
-          trigger: "manual",
-          placement: "bottom-start",
+          trigger: 'manual',
+          placement: 'bottom-start',
         });
       },
 
@@ -55,7 +53,7 @@ export const emojiSuggestion = {
       },
 
       onKeyDown(props: SuggestionKeyDownProps) {
-        if (props.event.key === "Escape") {
+        if (props.event.key === 'Escape') {
           popup[0].hide();
           component.destroy();
 

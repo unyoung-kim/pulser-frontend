@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Icon } from "@/components/ui/Icon";
-import { Surface } from "@/components/ui/Surface";
-import { Command, MenuListProps } from "./types";
+import { Icon } from '@/components/ui/Icon';
+import { Surface } from '@/components/ui/Surface';
+import { Command, MenuListProps } from './types';
 
 export const MenuList = React.forwardRef((props: MenuListProps, ref) => {
   const scrollContainer = useRef<HTMLDivElement>(null);
@@ -27,7 +27,7 @@ export const MenuList = React.forwardRef((props: MenuListProps, ref) => {
 
   React.useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }: { event: React.KeyboardEvent }) => {
-      if (event.key === "ArrowDown") {
+      if (event.key === 'ArrowDown') {
         if (!props.items.length) {
           return false;
         }
@@ -52,7 +52,7 @@ export const MenuList = React.forwardRef((props: MenuListProps, ref) => {
         return true;
       }
 
-      if (event.key === "ArrowUp") {
+      if (event.key === 'ArrowUp') {
         if (!props.items.length) {
           return false;
         }
@@ -62,8 +62,7 @@ export const MenuList = React.forwardRef((props: MenuListProps, ref) => {
 
         if (newCommandIndex < 0) {
           newGroupIndex = selectedGroupIndex - 1;
-          newCommandIndex =
-            props.items[newGroupIndex]?.commands.length - 1 || 0;
+          newCommandIndex = props.items[newGroupIndex]?.commands.length - 1 || 0;
         }
 
         if (newGroupIndex < 0) {
@@ -77,12 +76,8 @@ export const MenuList = React.forwardRef((props: MenuListProps, ref) => {
         return true;
       }
 
-      if (event.key === "Enter") {
-        if (
-          !props.items.length ||
-          selectedGroupIndex === -1 ||
-          selectedCommandIndex === -1
-        ) {
+      if (event.key === 'Enter') {
+        if (!props.items.length || selectedGroupIndex === -1 || selectedCommandIndex === -1) {
           return false;
         }
 
@@ -120,42 +115,36 @@ export const MenuList = React.forwardRef((props: MenuListProps, ref) => {
   return (
     <Surface
       ref={scrollContainer}
-      className="max-w-md p-4 pt-2 px-2 shadow-lg h-[400px] overflow-y-auto"
+      className="h-[400px] max-w-md overflow-y-auto p-4 px-2 pt-2 shadow-lg"
     >
       {props.items.map((group, groupIndex: number) => (
         <React.Fragment key={`${group.title}-wrapper`}>
-          {groupIndex > 0 && <div className="h-px bg-gray-200 mt-2 mb-2" />}
+          {groupIndex > 0 && <div className="mb-2 mt-2 h-px bg-gray-200" />}
 
-          <h2 className="text-sm font-medium mb-1 text-gray-500">
-            {group.title}
-          </h2>
+          <h2 className="mb-1 text-sm font-medium text-gray-500">{group.title}</h2>
           <div className="space-y-1">
             {group.commands.map((command: Command, commandIndex: number) => (
               <button
                 key={command.label}
                 ref={
-                  selectedGroupIndex === groupIndex &&
-                  selectedCommandIndex === commandIndex
+                  selectedGroupIndex === groupIndex && selectedCommandIndex === commandIndex
                     ? activeItem
                     : null
                 }
-                className={`w-full flex items-center gap-3 py-1 px-1 rounded-lg transition-colors ${
-                  selectedGroupIndex === groupIndex &&
-                  selectedCommandIndex === commandIndex
-                    ? "bg-gray-100"
-                    : "hover:bg-gray-50"
+                className={`flex w-full items-center gap-3 rounded-lg px-1 py-1 transition-colors ${
+                  selectedGroupIndex === groupIndex && selectedCommandIndex === commandIndex
+                    ? 'bg-gray-100'
+                    : 'hover:bg-gray-50'
                 }`}
                 onClick={createCommandClickHandler(groupIndex, commandIndex)}
               >
-                <div className="flex items-center justify-center w-11 h-11 bg-white rounded-lg border">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg border bg-white">
                   <Icon name={command.iconName} />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-sm">{command.label}</div>
+                  <div className="text-sm font-medium">{command.label}</div>
                   {command.description && (
-                    <div className="text-xs text-gray-500">
-                      {command.description}
-                    </div>
+                    <div className="text-xs text-gray-500">{command.description}</div>
                   )}
                 </div>
               </button>
@@ -167,6 +156,6 @@ export const MenuList = React.forwardRef((props: MenuListProps, ref) => {
   );
 });
 
-MenuList.displayName = "MenuList";
+MenuList.displayName = 'MenuList';
 
 export default MenuList;

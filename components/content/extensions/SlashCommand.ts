@@ -1,9 +1,6 @@
 import { Editor, Extension, Range as TiptapRange } from '@tiptap/core';
 import { ReactRenderer } from '@tiptap/react';
-import Suggestion, {
-  SuggestionKeyDownProps,
-  SuggestionProps,
-} from '@tiptap/suggestion';
+import Suggestion, { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion';
 import tippy, { Instance, Props } from 'tippy.js';
 import { CommandList } from '../CommandList';
 
@@ -73,11 +70,11 @@ export const SlashCommand = Extension.create({
                   editor,
                   sections: props.query
                     ? [
-                      {
-                        title: 'Matching Commands',
-                        items: props.items,
-                      },
-                    ]
+                        {
+                          title: 'Matching Commands',
+                          items: props.items,
+                        },
+                      ]
                     : CommandList.sections,
                   command: props.command,
                   filterQuery: props.query,
@@ -110,11 +107,11 @@ export const SlashCommand = Extension.create({
                 ...props,
                 sections: props.query
                   ? [
-                    {
-                      title: 'Matching Commands',
-                      items: props.items,
-                    },
-                  ]
+                      {
+                        title: 'Matching Commands',
+                        items: props.items,
+                      },
+                    ]
                   : CommandList.sections,
                 command: props.command,
                 editor,

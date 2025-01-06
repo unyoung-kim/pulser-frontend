@@ -1,8 +1,4 @@
-import {
-  AiToneOption,
-  LanguageOption,
-} from '@/components/new-editor/BlockEditor/types';
-
+import { AiToneOption, LanguageOption } from '@/components/new-editor/BlockEditor/types';
 
 export const languages: LanguageOption[] = [
   { name: 'arabic', label: 'Arabic', value: 'ar' as LanguageOption['value'] },
@@ -83,11 +79,4 @@ export const userColors = [
   '#f0abfc',
 ];
 
-export const themeColors = [
-  '#fb7185',
-  '#fdba74',
-  '#d9f99d',
-  '#a7f3d0',
-  '#a5f3fc',
-  '#a5b4fc',
-];
+export const themeColors = ['#fb7185', '#fdba74', '#d9f99d', '#a7f3d0', '#a5f3fc', '#a5b4fc'];

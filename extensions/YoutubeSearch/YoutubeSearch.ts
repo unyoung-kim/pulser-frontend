@@ -1,19 +1,19 @@
-import { Extension } from '@tiptap/core'
-import { Plugin, PluginKey } from '@tiptap/pm/state'
+import { Extension } from '@tiptap/core';
+import { Plugin, PluginKey } from '@tiptap/pm/state';
 
 export type YoutubeSearchEventProps = {
-  type: 'youtubeSearch'
-}
+  type: 'youtubeSearch';
+};
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     youtubeSearch: {
-      setYoutubeSearchModal: () => ReturnType
-    }
+      setYoutubeSearchModal: () => ReturnType;
+    };
   }
 
   interface EditorEvents {
-    youtubeSearch: YoutubeSearchEventProps
+    youtubeSearch: YoutubeSearchEventProps;
   }
 }
 
@@ -22,10 +22,12 @@ export const YoutubeSearch = Extension.create({
 
   addCommands() {
     return {
-      setYoutubeSearchModal: () => ({ editor }) => {
-        editor.emit('youtubeSearch', { type: 'youtubeSearch' } as YoutubeSearchEventProps)
-          return true
+      setYoutubeSearchModal:
+        () =>
+        ({ editor }) => {
+          editor.emit('youtubeSearch', { type: 'youtubeSearch' } as YoutubeSearchEventProps);
+          return true;
         },
-    }
+    };
   },
-}) 
+});

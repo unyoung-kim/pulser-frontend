@@ -4,23 +4,13 @@ import { Button, ButtonProps } from './Button-editor';
 import { Surface } from './Surface';
 import Tooltip from './Tooltip-editor';
 
-
 export type ToolbarWrapperProps = {
   shouldShowContent?: boolean;
   isVertical?: boolean;
 } & HTMLProps<HTMLDivElement>;
 
 const ToolbarWrapper = forwardRef<HTMLDivElement, ToolbarWrapperProps>(
-  (
-    {
-      shouldShowContent = true,
-      children,
-      isVertical = false,
-      className,
-      ...rest
-    },
-    ref
-  ) => {
+  ({ shouldShowContent = true, children, isVertical = false, className, ...rest }, ref) => {
     const toolbarClassName = cn(
       'text-black inline-flex h-full leading-none gap-0.5',
       isVertical ? 'flex-col p-2' : 'flex-row p-1 items-center',

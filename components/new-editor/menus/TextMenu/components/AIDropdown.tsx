@@ -7,7 +7,6 @@ import { Toolbar } from '@/components/ui/Toolbar';
 import { languages, tones } from '@/lib/editor/constants';
 import type { Language } from '@/extensions/Ai';
 
-
 export type AIDropdownProps = {
   onSimplify: () => void;
   onFixSpelling: () => void;
@@ -33,10 +32,7 @@ export const AIDropdown = ({
   onTranslate,
   // onVisualSelection,
 }: AIDropdownProps) => {
-  const handleTone = useCallback(
-    (tone: string) => () => onTone(tone),
-    [onTone]
-  );
+  const handleTone = useCallback((tone: string) => () => onTone(tone), [onTone]);
   const handleTranslate = useCallback(
     (language: Language) => () => onTranslate(language),
     [onTranslate]
@@ -51,11 +47,11 @@ export const AIDropdown = ({
         >
           <Icon name="Sparkles" className="mr-1" />
           AI Tools
-          <Icon name="ChevronDown" className="w-2 h-2 ml-1" />
+          <Icon name="ChevronDown" className="ml-1 h-2 w-2" />
         </Toolbar.Button>
       </Dropdown.Trigger>
       <Dropdown.Content asChild>
-        <Surface className="p-2 min-w-[10rem]">
+        <Surface className="min-w-[10rem] p-2">
           {/* <Dropdown.Item onClick={onVisualSelection}>
             <DropdownButton>
               <Icon name="ChartPie" />
@@ -91,16 +87,13 @@ export const AIDropdown = ({
               <DropdownButton>
                 <Icon name="Mic" />
                 Change tone
-                <Icon name="ChevronRight" className="w-4 h-4 ml-auto" />
+                <Icon name="ChevronRight" className="ml-auto h-4 w-4" />
               </DropdownButton>
             </Dropdown.SubTrigger>
             <Dropdown.SubContent>
-              <Surface className="flex flex-col min-w-[15rem] p-2 max-h-[20rem] overflow-auto">
+              <Surface className="flex max-h-[20rem] min-w-[15rem] flex-col overflow-auto p-2">
                 {tones.map((tone) => (
-                  <Dropdown.Item
-                    onClick={handleTone(tone.value)}
-                    key={tone.value}
-                  >
+                  <Dropdown.Item onClick={handleTone(tone.value)} key={tone.value}>
                     <DropdownButton>{tone.label}</DropdownButton>
                   </Dropdown.Item>
                 ))}
@@ -124,16 +117,13 @@ export const AIDropdown = ({
               <DropdownButton>
                 <Icon name="Languages" />
                 Translate
-                <Icon name="ChevronRight" className="w-4 h-4 ml-auto" />
+                <Icon name="ChevronRight" className="ml-auto h-4 w-4" />
               </DropdownButton>
             </Dropdown.SubTrigger>
             <Dropdown.SubContent>
-              <Surface className="flex flex-col min-w-[15rem] p-2 max-h-[20rem] overflow-auto">
+              <Surface className="flex max-h-[20rem] min-w-[15rem] flex-col overflow-auto p-2">
                 {languages.map((lang) => (
-                  <Dropdown.Item
-                    onClick={handleTranslate(lang.value)}
-                    key={lang.value}
-                  >
+                  <Dropdown.Item onClick={handleTranslate(lang.value)} key={lang.value}>
                     <DropdownButton>{lang.label}</DropdownButton>
                   </Dropdown.Item>
                 ))}

@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/Icon';
 import { Toolbar } from '@/components/ui/Toolbar';
 
-
 export type EditorHeaderProps = {
   isSidebarOpen?: boolean;
   toggleSidebar?: () => void;
@@ -37,8 +36,8 @@ export const EditorHeader = ({
   });
 
   return (
-    <div className="flex flex-row items-center justify-between flex-none py-2 pl-6 pr-3 text-black bg-white border-b border-neutral-200 dark:bg-black dark:text-white dark:border-neutral-800">
-      <div className="flex flex-row gap-x-1.5 items-center">
+    <div className="flex flex-none flex-row items-center justify-between border-b border-neutral-200 bg-white py-2 pl-6 pr-3 text-black dark:border-neutral-800 dark:bg-black dark:text-white">
+      <div className="flex flex-row items-center gap-x-1.5">
         <div className="flex items-center gap-x-1.5">
           <Toolbar.Button
             tooltip={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
@@ -52,26 +51,24 @@ export const EditorHeader = ({
       </div>
       <div className="flex items-center gap-2">
         {showSaved && !hasChanges && !isSaving && (
-          <span className="text-sm text-green-600 flex items-center">
-            <Check className="w-4 h-4 mr-1" /> Saved
+          <span className="flex items-center text-sm text-green-600">
+            <Check className="mr-1 h-4 w-4" /> Saved
           </span>
         )}
         <Button
-          className={
-            hasChanges ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400'
-          }
+          className={hasChanges ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400'}
           size="sm"
           onClick={onSave}
           disabled={isSaving || !hasChanges}
         >
           {isSaving ? (
             <>
-              <Save className="w-4 h-4 mr-2 animate-spin" />
+              <Save className="mr-2 h-4 w-4 animate-spin" />
               Saving...
             </>
           ) : (
             <>
-              <Save className="w-4 h-4 mr-2" />
+              <Save className="mr-2 h-4 w-4" />
               Save
             </>
           )}

@@ -6,13 +6,7 @@ import { CheckCircle, FileText, MoreVertical } from 'lucide-react';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/card';
-
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
 interface CardViewProps {
   items: Array<{
@@ -30,13 +24,7 @@ interface CardViewProps {
   onDelete?: (id: number) => void;
 }
 
-export function CardView({
-  items,
-  loading,
-  hasNextPage,
-  onLoadMore,
-  onDelete,
-}: CardViewProps) {
+export function CardView({ items, loading, hasNextPage, onLoadMore, onDelete }: CardViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
@@ -63,20 +51,14 @@ export function CardView({
 
     if (!isPublished) {
       return (
-        <Badge
-          variant="secondary"
-          className="bg-gray-100 text-gray-700 flex items-center gap-1"
-        >
+        <Badge variant="secondary" className="flex items-center gap-1 bg-gray-100 text-gray-700">
           <FileText className="h-3 w-3" />
           {Case.capital(status)}
         </Badge>
       );
     }
     return (
-      <Badge
-        variant="secondary"
-        className="bg-indigo-100 text-indigo-700 flex items-center gap-1"
-      >
+      <Badge variant="secondary" className="flex items-center gap-1 bg-indigo-100 text-indigo-700">
         <CheckCircle className="h-3 w-3" />
         {Case.capital(status)}
       </Badge>
@@ -88,24 +70,21 @@ export function CardView({
   };
 
   const sortedItems = [...items].sort(
-    (a, b) =>
-      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+    <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {sortedItems.map((item) => (
         <Card
           key={item.id}
-          className="flex flex-col hover:shadow-md transition-shadow"
+          className="flex flex-col transition-shadow hover:shadow-md"
           onClick={() => handleCardClick(item.id)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="flex gap-2">
               {getStatusBadge(item.status)}
-              {item.type && (
-                <Badge variant="outline">{Case.capital(item.type)}</Badge>
-              )}
+              {item.type && <Badge variant="outline">{Case.capital(item.type)}</Badge>}
             </div>
             <Button
               variant="ghost"
@@ -121,7 +100,7 @@ export function CardView({
           </CardHeader>
 
           <CardContent className="flex-grow">
-            <h3 className="font-semibold text-lg mb-4">{item.title}</h3>
+            <h3 className="mb-4 text-lg font-semibold">{item.title}</h3>
             <div className="flex flex-wrap gap-2">
               {item.keywords?.map((keyword, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">

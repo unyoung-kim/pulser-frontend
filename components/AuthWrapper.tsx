@@ -6,7 +6,6 @@ import { CreateOrganization, useOrganization, useUser } from '@clerk/nextjs';
 import { Loader } from '@/components/ui/loader';
 import ProjectSection from './ProjectSection';
 
-
 export default function AuthWrapper() {
   const { isSignedIn } = useUser();
   const { organization, isLoaded } = useOrganization();
@@ -27,8 +26,8 @@ export default function AuthWrapper() {
 
   if (!organization) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <h1 className="text-2xl font-bold mb-4">Create an Organization</h1>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+        <h1 className="mb-4 text-2xl font-bold">Create an Organization</h1>
         <CreateOrganization />
       </div>
     );
