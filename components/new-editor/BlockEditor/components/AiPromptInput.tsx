@@ -8,7 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AiStorage } from "@tiptap-pro/extension-ai";
-import { Editor } from "@tiptap/core";
+import { Editor, generateHTML } from '@tiptap/core';
 import { useEditorState } from "@tiptap/react";
 import { motion } from "framer-motion";
 import {
@@ -34,6 +34,7 @@ const formSchema = z.object({
 interface AiPromptInputProps {
   editor: Editor;
 }
+
 const HUMANIZE_PROMPT = `You will be given a user query. Please generate text that avoids using formal
 or overly academic phrases such as 'it is worth noting,' 'furthermore,' 'consequently,' 'in terms of,' 'one may argue,'
 'it is imperative,' 'this suggests that,' 'thus,' 'it is evident that,' 'notwithstanding,' 'pertaining to,'
@@ -41,7 +42,8 @@ or overly academic phrases such as 'it is worth noting,' 'furthermore,' 'consequ
 'it can be seen that.' Aim for a natural, conversational style that sounds like two friends talking at
 the coffee shop. Use direct, simple language and choose phrases that are commonly used in everyday speech.
 If a formal phrase is absolutely necessary for clarity or accuracy, you may include it, but otherwise,
-please prioritize making the text engaging, clear, and relatable.
+please prioritize making the text engaging, clear, and relatable. If selected paragraph contains links,
+please preserve the links in the generated text.
 Instruction: `;
 
 // utility function to check if the text is a heading
@@ -83,8 +85,10 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   const onSubmit = useCallback(
     (values: z.infer<typeof formSchema>) => {
       const { from, to } = editor.state.selection;
-      const selectedText = editor.state.doc.textBetween(from, to);
-      const textToInsert = selectedText ? `${values.prompt}: ${selectedText}` : values.prompt;
+      const selectedNode = editor.state.doc.cut(from, to).toJSON();
+      const selectedHTML = generateHTML(selectedNode, editor.extensionManager.extensions);
+
+      const textToInsert = selectedHTML ? `${values.prompt}: ${selectedHTML}` : values.prompt;
 
       editor
         .chain()
