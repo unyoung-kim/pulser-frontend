@@ -4,22 +4,22 @@
 
 1. **Install Node.js (if not already installed)**:
 
-    - **Option 1: Using** `nvm` (recommended):
-        - Install `nvm` from [nvm's GitHub page](https://github.com/nvm-sh/nvm#installing-and-updating):
-          ```bash
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-          ```
-        - Restart your terminal and verify installation:
-          ```bash
-          nvm --version
-          ```
-        - Install Node.js:
-          ```bash
-          nvm install # Installs the version specified in .nvmrc
-          nvm use     # Switches to the installed version
-          ```
-    - **Option 2: Without** `nvm`:
-        - Download and install Node.js from [nodejs.org](https://nodejs.org).
+   - **Option 1: Using** `nvm` (recommended):
+     - Install `nvm` from [nvm's GitHub page](https://github.com/nvm-sh/nvm#installing-and-updating):
+       ```bash
+       curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+       ```
+     - Restart your terminal and verify installation:
+       ```bash
+       nvm --version
+       ```
+     - Install Node.js:
+       ```bash
+       nvm install # Installs the version specified in .nvmrc
+       nvm use     # Switches to the installed version
+       ```
+   - **Option 2: Without** `nvm`:
+     - Download and install Node.js from [nodejs.org](https://nodejs.org).
 
 2. **Install Dependencies**:
 
@@ -43,3 +43,19 @@ Environment variables can be found here on Pulser Notion:
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+### Workspace Configuration
+
+To set up consistent code formatting and linting, add the following to your VS Code workspace settings:
+
+Open .vscode/settings.json.
+Add this configuration:
+
+```json
+{
+  "editor.formatOnSave": true,
+  "prettier.configPath": ".prettierrc",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
+}
+```

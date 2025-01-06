@@ -7,10 +7,9 @@ import { UserButton } from '@clerk/nextjs';
 import { Search, Package2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-
 interface HeaderProps {
-  children?: React.ReactNode
-  showSearch?: boolean
+  children?: React.ReactNode;
+  showSearch?: boolean;
 }
 
 export function Header({ children, showSearch = false }: HeaderProps) {
@@ -22,10 +21,10 @@ export function Header({ children, showSearch = false }: HeaderProps) {
       {pathname === '/' && (
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <Package2 className="h-6 w-6 text-indigo-600" />
-          <span className="text-indigo-600 text-sm">Pulser</span>
+          <span className="text-sm text-indigo-600">Pulser</span>
         </Link>
       )}
-      <div className="w-full flex-1 flex items-center justify-between">
+      <div className="flex w-full flex-1 items-center justify-between">
         {showSearch && (
           <form className="w-full md:w-2/3 lg:w-1/3">
             <div className="relative">
@@ -33,7 +32,7 @@ export function Header({ children, showSearch = false }: HeaderProps) {
               <Input
                 type="search"
                 placeholder="Search pulsers..."
-                className="w-full appearance-none text-xs bg-gray-50 pl-10 py-1 shadow-none focus:ring-indigo-500"
+                className="w-full appearance-none bg-gray-50 py-1 pl-10 text-xs shadow-none focus:ring-indigo-500"
               />
             </div>
           </form>

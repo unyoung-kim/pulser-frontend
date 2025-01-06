@@ -1,6 +1,5 @@
 import { Briefcase, Building2, User } from 'lucide-react';
 
-
 export interface PricingPlan {
   name: string;
   icon: any; // You could make this more specific with LucideIcon type if you want

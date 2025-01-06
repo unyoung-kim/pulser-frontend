@@ -9,10 +9,9 @@ import { Toolbar } from '@/components/ui/Toolbar';
 import useContentItemActions from './hooks/useContentItemActions';
 import { useData } from './hooks/useData';
 
-
 export type ContentItemMenuProps = {
-  editor: Editor
-}
+  editor: Editor;
+};
 
 export const ContentItemMenu = ({ editor }: ContentItemMenuProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -48,7 +47,7 @@ export const ContentItemMenu = ({ editor }: ContentItemMenuProps) => {
             </Toolbar.Button>
           </Popover.Trigger>
           <Popover.Content side="bottom" align="start" sideOffset={8}>
-            <Surface className="p-2 flex flex-col min-w-[16rem]">
+            <Surface className="flex min-w-[16rem] flex-col p-2">
               <Popover.Close>
                 <DropdownButton onClick={actions.resetTextFormatting}>
                   <Icon name="RemoveFormatting" />
@@ -71,7 +70,7 @@ export const ContentItemMenu = ({ editor }: ContentItemMenuProps) => {
               <Popover.Close>
                 <DropdownButton
                   onClick={actions.deleteNode}
-                  className="text-red-500 bg-red-500 dark:text-red-500 hover:bg-red-500 dark:hover:text-red-500 dark:hover:bg-red-500 bg-opacity-10 hover:bg-opacity-20 dark:hover:bg-opacity-20"
+                  className="bg-red-500 bg-opacity-10 text-red-500 hover:bg-red-500 hover:bg-opacity-20 dark:text-red-500 dark:hover:bg-red-500 dark:hover:bg-opacity-20 dark:hover:text-red-500"
                 >
                   <Icon name="Trash2" />
                   Delete

@@ -1,14 +1,8 @@
-"use client"; // Add this line at the top of the file
+'use client'; // Add this line at the top of the file
 
-import { supabase } from "@/lib/supabaseClient";
-import { useOrganization, useUser } from "@clerk/nextjs";
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { supabase } from '@/lib/supabaseClient';
+import { useOrganization, useUser } from '@clerk/nextjs';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 // const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -32,9 +26,7 @@ interface ProjectContextType {
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
-export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, isLoaded: isUserLoaded } = useUser();
@@ -43,7 +35,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fetchProjects = useCallback(async () => {
     if (!supabase || !organization) {
-      console.log("Supabase or organization not available");
+      console.log('Supabase or organization not available');
       return;
     }
     setLoading(true);
@@ -52,9 +44,9 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // First get all projects
       const { data: projectsData, error: projectsError } = await supabase
-        .from("Project")
-        .select("*")
-        .eq("org_id", organization.id);
+        .from('Project')
+        .select('*')
+        .eq('org_id', organization.id);
 
       if (projectsError) throw projectsError;
 
@@ -62,9 +54,9 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
       const promises =
         projectsData?.map(async (project) => {
           const { count, error } = await supabase
-            .from("Content")
-            .select("*", { count: "exact", head: true })
-            .eq("project_id", project.id);
+            .from('Content')
+            .select('*', { count: 'exact', head: true })
+            .eq('project_id', project.id);
 
           return {
             ...project,
@@ -81,10 +73,10 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime() // Then by creation date if counts are equal
       );
 
-      console.log("Fetched and sorted projects:", sortedProjects);
+      console.log('Fetched and sorted projects:', sortedProjects);
       setProjects(sortedProjects);
     } catch (error) {
-      console.error("Error fetching projects:", error);
+      console.error('Error fetching projects:', error);
     } finally {
       setLoading(false);
     }
@@ -115,7 +107,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useProjects = () => {
   const context = useContext(ProjectContext);
   if (context === undefined) {
-    throw new Error("useProjects must be used within a ProjectProvider");
+    throw new Error('useProjects must be used within a ProjectProvider');
   }
   return context;
 };

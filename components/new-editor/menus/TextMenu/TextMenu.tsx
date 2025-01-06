@@ -74,14 +74,8 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
         />
         <Toolbar.Divider />
         <MemoContentTypePicker options={blockOptions} />
-        <MemoFontFamilyPicker
-          onChange={commands.onSetFont}
-          value={states.currentFont || ''}
-        />
-        <MemoFontSizePicker
-          onChange={commands.onSetFontSize}
-          value={states.currentSize || ''}
-        />
+        <MemoFontFamilyPicker onChange={commands.onSetFont} value={states.currentFont || ''} />
+        <MemoFontSizePicker onChange={commands.onSetFontSize} value={states.currentSize || ''} />
         <Toolbar.Divider />
         <MemoButton
           tooltip="Bold"
@@ -129,10 +123,7 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
         <EditLinkPopover onSetLink={commands.onLink} />
         <Popover.Root>
           <Popover.Trigger asChild>
-            <MemoButton
-              active={!!states.currentHighlight}
-              tooltip="Highlight text"
-            >
+            <MemoButton active={!!states.currentHighlight} tooltip="Highlight text">
               <Icon name="Highlighter" />
             </MemoButton>
           </Popover.Trigger>

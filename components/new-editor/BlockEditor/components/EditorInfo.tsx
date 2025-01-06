@@ -1,6 +1,5 @@
 import { memo } from 'react';
 
-
 export type EditorInfoProps = {
   characters: number;
   words: number;
@@ -11,7 +10,7 @@ export type EditorInfoProps = {
 export const EditorInfo = memo(({ characters, words }: EditorInfoProps) => {
   return (
     <div className="flex items-center">
-      <div className="flex flex-col justify-center pr-4 mr-4 text-right border-r border-neutral-200 dark:border-neutral-800">
+      <div className="mr-4 flex flex-col justify-center border-r border-neutral-200 pr-4 text-right dark:border-neutral-800">
         <div className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
           {words} {words === 1 ? 'word' : 'words'}
         </div>

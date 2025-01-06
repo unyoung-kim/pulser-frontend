@@ -4,8 +4,8 @@ import React, { useCallback } from 'react';
 import Tippy from '@tippyjs/react/headless';
 import { TippyProps, TooltipProps } from './types';
 
-
-const isMac = typeof window !== 'undefined' ? navigator.platform.toUpperCase().indexOf('MAC') >= 0 : false;
+const isMac =
+  typeof window !== 'undefined' ? navigator.platform.toUpperCase().indexOf('MAC') >= 0 : false;
 
 const ShortcutKey = ({ children }: { children: string }): JSX.Element => {
   const className =
@@ -36,7 +36,7 @@ export const Tooltip = ({
   const renderTooltip = useCallback(
     (attrs: TippyProps) => (
       <span
-        className="flex items-center gap-2 px-2.5 py-1 bg-white border border-neutral-100 rounded-lg shadow-sm z-[999]"
+        className="z-[999] flex items-center gap-2 rounded-lg border border-neutral-100 bg-white px-2.5 py-1 shadow-sm"
         tabIndex={-1}
         data-placement={attrs['data-placement']}
         data-reference-hidden={attrs['data-reference-hidden']}
@@ -45,14 +45,14 @@ export const Tooltip = ({
         {title && <span className="text-xs font-medium text-neutral-500">{title}</span>}
         {shortcut && (
           <span className="flex items-center gap-0.5">
-            {shortcut.map(shortcutKey => (
+            {shortcut.map((shortcutKey) => (
               <ShortcutKey key={shortcutKey}>{shortcutKey}</ShortcutKey>
             ))}
           </span>
         )}
       </span>
     ),
-    [shortcut, title],
+    [shortcut, title]
   );
 
   if (enabled) {

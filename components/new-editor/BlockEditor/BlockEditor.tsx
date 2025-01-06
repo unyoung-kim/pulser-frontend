@@ -66,15 +66,21 @@ export const BlockEditor = ({
     }, 3000);
   };
 
-  const handleImageSelect = useCallback((imageUrl: string) => {
-    editor.commands.setImageBlock({ src: imageUrl });
-    setShowImageSearch(false);
-  }, [editor]);
+  const handleImageSelect = useCallback(
+    (imageUrl: string) => {
+      editor.commands.setImageBlock({ src: imageUrl });
+      setShowImageSearch(false);
+    },
+    [editor]
+  );
 
-  const handleYoutubeSelect = useCallback((videoId: string) => {
-    editor.chain().focus().setYoutubeVideo({ src: videoId }).run();
-    setShowYoutubeSearch(false);
-  }, [editor]);
+  const handleYoutubeSelect = useCallback(
+    (videoId: string) => {
+      editor.chain().focus().setYoutubeVideo({ src: videoId }).run();
+      setShowYoutubeSearch(false);
+    },
+    [editor]
+  );
 
   useEffect(() => {
     if (!editor) return;
@@ -108,12 +114,8 @@ export const BlockEditor = ({
 
   return (
     <div className="flex h-full" ref={menuContainerRef}>
-      <Sidebar
-        isOpen={leftSidebar.isOpen}
-        onClose={leftSidebar.close}
-        editor={editor}
-      />
-      <div className="relative flex flex-col flex-1 h-full">
+      <Sidebar isOpen={leftSidebar.isOpen} onClose={leftSidebar.close} editor={editor} />
+      <div className="relative flex h-full flex-1 flex-col">
         <EditorHeader
           editor={editor}
           isSidebarOpen={leftSidebar.isOpen}
@@ -125,7 +127,7 @@ export const BlockEditor = ({
         />
         <EditorContent
           editor={editor}
-          className={cn("flex-1 h-full min-h-[calc(100vh-64px)]", leftSidebar.isOpen && 'lg:ml-20')}
+          className={cn('h-full min-h-[calc(100vh-64px)] flex-1', leftSidebar.isOpen && 'lg:ml-20')}
         />
         <ContentItemMenu editor={editor} />
         <LinkMenu editor={editor} appendTo={menuContainerRef} />

@@ -14,7 +14,6 @@ import {
 import { supabase } from '@/lib/supabaseClient';
 import { getPathFromURL } from '@/lib/url';
 
-
 interface LinkPanelProps {
   onSelect: (url: string) => void;
 }
@@ -44,9 +43,7 @@ export default function LinkPanel({ onSelect }: LinkPanelProps) {
 
   const handleInputChange = (value: string) => {
     setInputValue(value);
-    setIsExternalLink(
-      value.startsWith('http://') || value.startsWith('https://')
-    );
+    setIsExternalLink(value.startsWith('http://') || value.startsWith('https://'));
   };
 
   const handleSelect = (value: string) => {
@@ -94,7 +91,7 @@ export default function LinkPanel({ onSelect }: LinkPanelProps) {
                 className="flex items-center gap-3 py-4"
               >
                 <LinkIcon className="h-4 w-4 flex-shrink-0" />
-                <div className="flex flex-col flex-1 overflow-hidden justify-center">
+                <div className="flex flex-1 flex-col justify-center overflow-hidden">
                   <a
                     href={link.url}
                     target="_blank"
@@ -105,9 +102,7 @@ export default function LinkPanel({ onSelect }: LinkPanelProps) {
                     {getPathFromURL(link.url)}
                   </a>
                   {link.summary && (
-                    <span className="truncate text-sm text-muted-foreground">
-                      {link.summary}
-                    </span>
+                    <span className="truncate text-sm text-muted-foreground">{link.summary}</span>
                   )}
                 </div>
                 <Check className="h-4 w-4 opacity-0 group-aria-selected:opacity-100" />

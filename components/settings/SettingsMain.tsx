@@ -9,7 +9,6 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/lib/supabaseClient';
 import { Separator } from '../ui/separator';
 
-
 export default function SettingsMain() {
   const { orgId } = useAuth();
 
@@ -61,23 +60,21 @@ export default function SettingsMain() {
     <div className="">
       <div className="flex flex-col">
         <h1 className="text-3xl font-bold tracking-tight">Plan</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your plan and billing details.
-        </p>
+        <p className="mt-1 text-muted-foreground">Manage your plan and billing details.</p>
       </div>
       <Separator className="mt-5" />
 
-      <div className="space-y-8 mt-8">
+      <div className="mt-8 space-y-8">
         {/* Plan Details */}
         <section>
-          <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Card className="bg-white shadow-lg transition-shadow duration-300 hover:shadow-xl">
             <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
+              <div className="mb-4 flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <h3 className="text-3xl font-bold text-gray-900">Pro</h3>
                   <Badge
                     variant="secondary"
-                    className="bg-green-100 text-green-800 text-sm px-3 py-1"
+                    className="bg-green-100 px-3 py-1 text-sm text-green-800"
                   >
                     Trialing
                   </Badge>
@@ -93,10 +90,8 @@ export default function SettingsMain() {
 
         {/* Plan Usage */}
         <section>
-          <h2 className="text-xl font-semibold mb-3 text-gray-800">
-            Plan limits usage
-          </h2>
-          <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <h2 className="mb-3 text-xl font-semibold text-gray-800">Plan limits usage</h2>
+          <Card className="bg-white shadow-lg transition-shadow duration-300 hover:shadow-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg font-semibold text-gray-700">
                 Blog Posts Created
@@ -107,14 +102,11 @@ export default function SettingsMain() {
             </CardHeader>
             <CardContent>
               <Progress
-                value={
-                  (usage?.credits_used / usage?.credits_charged) * 100 || 0
-                }
+                value={(usage?.credits_used / usage?.credits_charged) * 100 || 0}
                 className="h-3"
               />
               <p className="mt-2 text-sm text-gray-600">
-                {(usage?.credits_used / usage?.credits_charged) * 100}% of your
-                monthly credits used
+                {(usage?.credits_used / usage?.credits_charged) * 100}% of your monthly credits used
               </p>
             </CardContent>
           </Card>

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -15,9 +14,6 @@ export async function POST(request: Request) {
     return NextResponse.json(generatedContent);
   } catch (error) {
     console.error('Error generating content:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate content' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to generate content' }, { status: 500 });
   }
-} 
+}

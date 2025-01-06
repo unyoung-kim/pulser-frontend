@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import * as React from "react";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
 interface ProgressRingProps extends React.SVGAttributes<SVGSVGElement> {
   used: number;
@@ -11,8 +11,8 @@ interface ProgressRingProps extends React.SVGAttributes<SVGSVGElement> {
 
 const ProgressRing = React.forwardRef<SVGSVGElement, ProgressRingProps>(
   (
-    { used, total, size = 48, strokeWidth = 6, className, labelClassName = "text-sm", ...props },
-    ref,
+    { used, total, size = 48, strokeWidth = 6, className, labelClassName = 'text-sm', ...props },
+    ref
   ) => {
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
@@ -22,7 +22,7 @@ const ProgressRing = React.forwardRef<SVGSVGElement, ProgressRingProps>(
     return (
       <div className="relative inline-flex items-center justify-center">
         <svg
-          className={cn("transform rotate-90", className)}
+          className={cn('rotate-90 transform', className)}
           width={size}
           height={size}
           viewBox={`0 0 ${size} ${size}`}
@@ -52,13 +52,13 @@ const ProgressRing = React.forwardRef<SVGSVGElement, ProgressRingProps>(
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={cn("font-medium", labelClassName)}>{total - used}</span>
+          <span className={cn('font-medium', labelClassName)}>{total - used}</span>
         </div>
       </div>
     );
-  },
+  }
 );
 
-ProgressRing.displayName = "ProgressRing";
+ProgressRing.displayName = 'ProgressRing';
 
 export default ProgressRing;

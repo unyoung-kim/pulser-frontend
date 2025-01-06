@@ -1,16 +1,11 @@
-"use client";
+'use client';
 
-import { useTextmenuCommands } from "@/components/new-editor/menus/TextMenu/hooks/useTextmenuCommands";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import Tooltip from "@/components/ui/tooltip";
-import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AiStorage } from "@tiptap-pro/extension-ai";
-import { Editor } from "@tiptap/core";
-import { useEditorState } from "@tiptap/react";
-import { motion } from "framer-motion";
+import { useCallback, useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Editor } from '@tiptap/core';
+import { useEditorState } from '@tiptap/react';
+import { AiStorage } from '@tiptap-pro/extension-ai';
+import { motion } from 'framer-motion';
 import {
   ArrowRight,
   Brain,
@@ -20,20 +15,26 @@ import {
   RefreshCw,
   Sparkles,
   Trash2,
-} from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+} from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { useTextmenuCommands } from '@/components/new-editor/menus/TextMenu/hooks/useTextmenuCommands';
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import Tooltip from '@/components/ui/tooltip';
+import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   prompt: z.string().min(1, {
-    message: "Prompt must be at least 1 character.",
+    message: 'Prompt must be at least 1 character.',
   }),
 });
 
 interface AiPromptInputProps {
   editor: Editor;
 }
+
 const HUMANIZE_PROMPT = `You will be given a user query. Please generate text that avoids using formal
 or overly academic phrases such as 'it is worth noting,' 'furthermore,' 'consequently,' 'in terms of,' 'one may argue,'
 'it is imperative,' 'this suggests that,' 'thus,' 'it is evident that,' 'notwithstanding,' 'pertaining to,'
@@ -46,13 +47,13 @@ Instruction: `;
 
 // utility function to check if the text is a heading
 const isHeading = (text: string | string[]): boolean => {
-  return text.length <= 60 && !text.includes(".");
+  return text.length <= 60 && !text.includes('.');
 };
 
 export function AiPromptInput({ editor }: AiPromptInputProps) {
   const [isVisible, setIsVisible] = useState(false);
   const { onVisualSelection } = useTextmenuCommands(editor);
-  const [selectedText, setSelectedText] = useState("");
+  const [selectedText, setSelectedText] = useState('');
 
   // Get the generated text and loading state from the editor
   const { isLoading, generatedText, error, isTextSelected } = useEditorState({
@@ -64,7 +65,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
       const isTextSelected = from !== to;
 
       return {
-        isLoading: aiStorage.state === "loading",
+        isLoading: aiStorage.state === 'loading',
         generatedText: aiStorage.response,
         error: aiStorage.error,
         isTextSelected,
@@ -75,7 +76,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      prompt: "",
+      prompt: '',
     },
   });
 
@@ -91,7 +92,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
         .focus()
         .aiTextPrompt({
           stream: true,
-          format: "rich-text",
+          format: 'rich-text',
           text: textToInsert,
           insert: false,
         })
@@ -100,7 +101,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
       form.reset();
       setIsVisible(true);
     },
-    [editor, form],
+    [editor, form]
   );
 
   // Handle humanize button click
@@ -109,17 +110,17 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
     const selectedText = editor.state.doc.textBetween(from, to);
 
     if (selectedText.length === 0) {
-      toast({ description: "Select Text first", variant: "destructive" });
+      toast({ description: 'Select Text first', variant: 'destructive' });
       return;
     }
 
     const instruction = isHeading(selectedText)
-      ? "Humanize this heading to make it clear and conversational: "
-      : "Humanize this paragraph to make it friendly and relatable: ";
+      ? 'Humanize this heading to make it clear and conversational: '
+      : 'Humanize this paragraph to make it friendly and relatable: ';
 
     const finalPrompt = HUMANIZE_PROMPT + instruction;
 
-    form.setValue("prompt", finalPrompt);
+    form.setValue('prompt', finalPrompt);
     form.handleSubmit(onSubmit)();
   }, [editor, form, onSubmit]);
 
@@ -151,7 +152,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   // Show error toast if there's an error
   useEffect(() => {
     if (error) {
-      toast({ description: error.message, variant: "destructive" });
+      toast({ description: error.message, variant: 'destructive' });
     }
   }, [error]);
 
@@ -167,34 +168,34 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
     updateSelection();
 
     // Add selection change listener
-    editor.on("selectionUpdate", updateSelection);
+    editor.on('selectionUpdate', updateSelection);
 
     return () => {
-      editor.off("selectionUpdate", updateSelection);
+      editor.off('selectionUpdate', updateSelection);
     };
   }, [editor]);
 
   return (
-    <div className="fixed left-32 right-[420px] bottom-3 z-[9999] p-4">
-      <div className="max-w-xl mx-auto flex flex-col gap-3">
+    <div className="fixed bottom-3 left-32 right-[420px] z-[9999] p-4">
+      <div className="mx-auto flex max-w-xl flex-col gap-3">
         {/* AI Response Panel */}
         <div
           className={cn(
-            "mb-4 overflow-hidden rounded-lg bg-white p-4",
-            "ring-2 ring-indigo-500/50",
-            "shadow-[0_0_25px_rgba(99,102,241,0.4)]",
-            isVisible ? "block" : "hidden",
+            'mb-4 overflow-hidden rounded-lg bg-white p-4',
+            'ring-2 ring-indigo-500/50',
+            'shadow-[0_0_25px_rgba(99,102,241,0.4)]',
+            isVisible ? 'block' : 'hidden'
           )}
         >
           {/* Add the selection badge */}
 
           <div className="prose prose-sm max-h-[14rem] overflow-y-auto">
             {isLoading ? (
-              <div className="overflow-hidden w-full">
-                <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+              <div className="w-full overflow-hidden">
+                <Loader2 className="mx-auto h-4 w-4 animate-spin" />
               </div>
             ) : (
-              <div dangerouslySetInnerHTML={{ __html: generatedText || "" }} />
+              <div dangerouslySetInnerHTML={{ __html: generatedText || '' }} />
             )}
           </div>
           <div className="mt-4 flex justify-end space-x-2">
@@ -233,8 +234,8 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
         {/* Action Buttons */}
         <div
           className={cn(
-            "flex flex-wrap items-center gap-2",
-            isVisible && generatedText && "hidden",
+            'flex flex-wrap items-center gap-2',
+            isVisible && generatedText && 'hidden'
           )}
         >
           <Tooltip
@@ -244,7 +245,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
             <span>
               <Button
                 variant="outline"
-                className="h-8 rounded-full bg-white hover:bg-gray-50 px-4"
+                className="h-8 rounded-full bg-white px-4 hover:bg-gray-50"
                 onClick={handleHumanize}
                 disabled={!isTextSelected}
               >
@@ -258,7 +259,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
             <span>
               <Button
                 variant="outline"
-                className="h-8 rounded-full bg-white hover:bg-gray-50 px-4"
+                className="h-8 rounded-full bg-white px-4 hover:bg-gray-50"
                 onClick={onVisualSelection}
                 disabled={!isTextSelected}
               >
@@ -272,7 +273,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
             <span>
               <Button
                 variant="outline"
-                className="h-8 rounded-full bg-white hover:bg-gray-50 px-4"
+                className="h-8 rounded-full bg-white px-4 hover:bg-gray-50"
                 onClick={() => editor.chain().focus().setAiImage().run()}
               >
                 <ImagePlus className="mr-2 h-4 w-4 text-green-500" />
@@ -294,37 +295,37 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="relative group w-full"
+                      className="group relative w-full"
                     >
                       <div className="flex flex-col">
                         <div className="relative w-full">
                           <div
                             className={cn(
-                              "w-full px-7 py-4 bg-gray-50 rounded-t-full rounded-b-full transition-all duration-200",
-                              "border border-gray-300",
+                              'w-full rounded-b-full rounded-t-full bg-gray-50 px-7 py-4 transition-all duration-200',
+                              'border border-gray-300'
                             )}
                           >
                             {selectedText && (
                               <div className="mb-2">
-                                <div className="inline-flex items-center w-fit max-w-[90%] bg-indigo-100 text-gray-700 text-xs px-2.5 py-1 rounded-full truncate">
-                                  <span className="text-gray-500 mr-1.5">Editing:</span>
+                                <div className="inline-flex w-fit max-w-[90%] items-center truncate rounded-full bg-indigo-100 px-2.5 py-1 text-xs text-gray-700">
+                                  <span className="mr-1.5 text-gray-500">Editing:</span>
                                   <span className="truncate">{selectedText}</span>
                                 </div>
                               </div>
                             )}
                             <motion.input
                               initial={false}
-                              whileFocus={{ boxShadow: "none" }}
+                              whileFocus={{ boxShadow: 'none' }}
                               placeholder={
                                 selectedText
-                                  ? "Ask AI to enhance your selected text..."
-                                  : "Ask AI to enhance your writing..."
+                                  ? 'Ask AI to enhance your selected text...'
+                                  : 'Ask AI to enhance your writing...'
                               }
                               className="w-full bg-transparent text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0 focus:ring-offset-0"
                               {...field}
                             />
                           </div>
-                          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 rounded-full blur-lg" />
+                          <div className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 blur-lg" />
                         </div>
                         <motion.button
                           type="submit"
@@ -332,8 +333,8 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           className={cn(
-                            "absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center p-1.5 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
-                            field.value ? "bg-gray-300 hover:bg-gray-400" : "hover:bg-gray-50",
+                            'absolute right-2 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full p-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+                            field.value ? 'bg-gray-300 hover:bg-gray-400' : 'hover:bg-gray-50'
                           )}
                         >
                           {isLoading ? (
