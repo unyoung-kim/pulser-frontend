@@ -64,9 +64,9 @@ export function CreateContentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         {isCreating ? (
-          <div className="py-8 flex flex-col items-center gap-4">
-            <div className="h-8 w-8 rounded-full border-4 border-b-transparent border-primary animate-spin" />
-            <div className="text-center space-y-2">
+          <div className="flex flex-col items-center gap-4 py-8">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-b-transparent" />
+            <div className="space-y-2 text-center">
               <h3 className="font-semibold">Generating Content</h3>
               <p className="text-sm text-muted-foreground">
                 This process may take up to 10 minutes. Please keep this window open.
@@ -102,11 +102,11 @@ export function CreateContentDialog({
                   </Button>
                 </div>
                 {keywords.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {keywords.map((kw, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md text-sm"
+                        className="flex items-center gap-1 rounded-md bg-gray-100 px-2 py-1 text-sm"
                       >
                         <span>{kw}</span>
                         <button

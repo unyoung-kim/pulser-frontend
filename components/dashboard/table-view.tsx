@@ -102,7 +102,7 @@ export function TableView({ items, loading, hasNextPage, onLoadMore, onDelete }:
       return (
         <Badge
           variant="secondary"
-          className="w-24 justify-center bg-indigo-100 text-indigo-600 inline-flex items-center gap-1"
+          className="inline-flex w-24 items-center justify-center gap-1 bg-indigo-100 text-indigo-600"
         >
           <FileText className="h-3 w-3" />
           Draft
@@ -112,7 +112,7 @@ export function TableView({ items, loading, hasNextPage, onLoadMore, onDelete }:
       return (
         <Badge
           variant="secondary"
-          className="w-24 justify-center bg-green-100 text-green-700 inline-flex items-center gap-1"
+          className="inline-flex w-24 items-center justify-center gap-1 bg-green-100 text-green-700"
         >
           <CheckCircle className="h-3 w-3" />
           Published
@@ -123,10 +123,10 @@ export function TableView({ items, loading, hasNextPage, onLoadMore, onDelete }:
 
   return (
     <div className="mt-6 flow-root">
-      <div className="rounded-lg border-gray-200 border bg-white">
+      <div className="rounded-lg border border-gray-200 bg-white">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-100 rounded-t-lg [&>*:first-child]:rounded-tl-lg [&>*:last-child]:rounded-tr-lg hover:bg-gray-100">
+            <TableRow className="rounded-t-lg bg-gray-100 hover:bg-gray-100 [&>*:first-child]:rounded-tl-lg [&>*:last-child]:rounded-tr-lg">
               <TableHead className="w-[300px] font-[550] text-gray-900">
                 <div className="flex items-center gap-2">
                   <Type className="h-4 w-4 text-gray-900" />
@@ -172,7 +172,7 @@ export function TableView({ items, loading, hasNextPage, onLoadMore, onDelete }:
                   {item.type && (
                     <Badge
                       variant="outline"
-                      className="w-24 justify-center inline-flex items-center gap-1"
+                      className="inline-flex w-24 items-center justify-center gap-1"
                     >
                       {item.type.toLowerCase() === 'normal' ? (
                         <>
@@ -189,15 +189,15 @@ export function TableView({ items, loading, hasNextPage, onLoadMore, onDelete }:
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant="secondary" className="text-xs justify-start w-32 group relative">
+                  <Badge variant="secondary" className="group relative w-32 justify-start text-xs">
                     <span className="line-clamp-2 block">{item.keyword}</span>
-                    <span className="invisible group-hover:visible absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap">
+                    <span className="invisible absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-xs text-white group-hover:visible">
                       {item.keyword}
                     </span>
                   </Badge>
                 </TableCell>
                 <TableCell>{getStatusBadge(item.status)}</TableCell>
-                <TableCell className="text-gray-600 font-medium">
+                <TableCell className="font-medium text-gray-600">
                   {formatDate(item.updated_at)}
                 </TableCell>
                 <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
@@ -211,9 +211,9 @@ export function TableView({ items, loading, hasNextPage, onLoadMore, onDelete }:
                     <DropdownMenuContent align="end" className="w-[160px]">
                       <DropdownMenuItem
                         onClick={() => onDelete(item.id)}
-                        className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                        className="text-red-600 focus:bg-red-50 focus:text-red-600"
                       >
-                        <Trash2 className="h-4 w-4 mr-2" />
+                        <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>

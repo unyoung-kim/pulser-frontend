@@ -291,12 +291,12 @@ export function EditorSidebar({
       return (
         <Tooltip side="right" content="Move this content back to drafts">
           <Button
-            className="w-full bg-indigo-600 text-white hover:bg-indigo-700 rounded-full text-sm"
+            className="w-full rounded-full bg-indigo-600 text-sm text-white hover:bg-indigo-700"
             size="sm"
             onClick={() => handleStatusChange('draft')}
             disabled={isUpdating}
           >
-            <FileCheck className="w-4 h-4 mr-2" />
+            <FileCheck className="mr-2 h-4 w-4" />
             {isUpdating ? 'Updating...' : 'Mark as Draft'}
           </Button>
         </Tooltip>
@@ -306,12 +306,12 @@ export function EditorSidebar({
     return (
       <Tooltip side="right" content="Mark this content as published manually">
         <Button
-          className="w-full bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
+          className="w-full bg-indigo-600 text-sm text-white hover:bg-indigo-700"
           size="sm"
           onClick={() => handleStatusChange('published')}
           disabled={isUpdating}
         >
-          <FileCheck className="w-4 h-4 mr-2" />
+          <FileCheck className="mr-2 h-4 w-4" />
           {isUpdating ? 'Publishing...' : 'Mark as Published'}
         </Button>
       </Tooltip>
@@ -325,9 +325,9 @@ export function EditorSidebar({
   // };
 
   return (
-    <div className="w-80 border-l border-gray-200 p-6 flex flex-col h-screen bg-white">
+    <div className="flex h-screen w-80 flex-col border-l border-gray-200 bg-white p-6">
       {/* Add Header Section */}
-      <div className="pb-6 border-b border-gray-200 mb-6">
+      <div className="mb-6 border-b border-gray-200 pb-6">
         <h2 className="text-lg font-semibold text-gray-900">Content Details</h2>
         {/* <p className="text-sm text-gray-500 mt-1">
           Manage your content settings and structure
@@ -337,12 +337,12 @@ export function EditorSidebar({
       <div className="flex-1 space-y-8 overflow-y-auto">
         {/* Keywords Section */}
         <div className="pb-2">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Keyword</h3>
+          <h3 className="mb-2 text-sm font-medium text-gray-500">Keyword</h3>
           <div className="flex flex-wrap gap-2">
             {keyword ? (
               <Badge
                 variant="outline"
-                className="bg-gray-100 text-gray-800 border-gray-50 border px-3 py-1 text-xs font-medium capitalize"
+                className="border border-gray-50 bg-gray-100 px-3 py-1 text-xs font-medium capitalize text-gray-800"
               >
                 {keyword}
               </Badge>
@@ -354,10 +354,10 @@ export function EditorSidebar({
 
         {/* Content Type */}
         <div className="pb-2">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Content Type</h3>
+          <h3 className="mb-2 text-sm font-medium text-gray-500">Content Type</h3>
           <Badge
             variant="outline"
-            className="bg-purple-100 text-indigo-800 border-indigo-50 border px-3 py-1 text-xs font-medium capitalize"
+            className="border border-indigo-50 bg-purple-100 px-3 py-1 text-xs font-medium capitalize text-indigo-800"
           >
             {Case.capital(type)}
           </Badge>
@@ -365,7 +365,7 @@ export function EditorSidebar({
 
         {/* Status */}
         <div className="pb-2">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Status</h3>
+          <h3 className="mb-2 text-sm font-medium text-gray-500">Status</h3>
           <Badge
             variant="outline"
             className={`${getStatusColor()} border px-3 py-1 text-xs font-medium capitalize`}
@@ -376,21 +376,21 @@ export function EditorSidebar({
 
         {/* Statistics */}
         <div className="pb-2">
-          <h3 className="text-sm font-medium text-gray-500 mb-4">Statistics</h3>
+          <h3 className="mb-4 text-sm font-medium text-gray-500">Statistics</h3>
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
-              <div className="text-sm text-gray-600 mb-1">Words</div>
-              <div className="text-lg font-semibold text-indigo-600 truncate">{getWordCount()}</div>
+            <div className="rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100">
+              <div className="mb-1 text-sm text-gray-600">Words</div>
+              <div className="truncate text-lg font-semibold text-indigo-600">{getWordCount()}</div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
-              <div className="text-sm text-gray-600 mb-1">Headings</div>
-              <div className="text-lg font-semibold text-indigo-600 truncate">
+            <div className="rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100">
+              <div className="mb-1 text-sm text-gray-600">Headings</div>
+              <div className="truncate text-lg font-semibold text-indigo-600">
                 {getHeadingCount()}
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
-              <div className="text-sm text-gray-600 mb-1">Images</div>
-              <div className="text-lg font-semibold text-indigo-600 truncate">
+            <div className="rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100">
+              <div className="mb-1 text-sm text-gray-600">Images</div>
+              <div className="truncate text-lg font-semibold text-indigo-600">
                 {getImageCount()}
               </div>
             </div>
@@ -399,8 +399,8 @@ export function EditorSidebar({
 
         {/* Outline - Updated styling with icons */}
         <div className="pb-2">
-          <div className="flex items-center gap-2 mb-4">
-            <ListTree className="w-4 h-4 text-gray-500" />
+          <div className="mb-4 flex items-center gap-2">
+            <ListTree className="h-4 w-4 text-gray-500" />
             <h3 className="text-sm font-medium text-gray-500">Outline</h3>
           </div>
           <nav className="space-y-2">
@@ -408,23 +408,16 @@ export function EditorSidebar({
               <button
                 key={index}
                 onClick={() => scrollToHeading(heading.pos)}
-                className={`
-                  group flex items-center gap-2 text-sm hover:bg-gray-50 
-                  rounded-md transition-colors duration-200
-                  w-full text-left py-1.5 px-2
-                  ${heading.level === 1 ? 'font-medium text-gray-900' : 'text-gray-600'}
-                  ${heading.level === 2 ? 'pl-4' : ''}
-                  ${heading.level === 3 ? 'pl-8' : ''}
-                `}
+                className={`group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors duration-200 hover:bg-gray-50 ${heading.level === 1 ? 'font-medium text-gray-900' : 'text-gray-600'} ${heading.level === 2 ? 'pl-4' : ''} ${heading.level === 3 ? 'pl-8' : ''} `}
               >
                 {heading.level === 1 && (
-                  <Hash className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600" />
+                  <Hash className="h-3.5 w-3.5 text-gray-400 group-hover:text-gray-600" />
                 )}
                 {heading.level === 2 && (
-                  <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600" />
+                  <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-gray-600" />
                 )}
                 {heading.level === 3 && (
-                  <CircleDot className="w-3 h-3 text-gray-400 group-hover:text-gray-600" />
+                  <CircleDot className="h-3 w-3 text-gray-400 group-hover:text-gray-600" />
                 )}
                 <span className="truncate">{heading.text}</span>
               </button>
@@ -434,17 +427,17 @@ export function EditorSidebar({
 
         {/* Links */}
         <div className="pb-2">
-          <div className="flex items-center gap-2 mb-4">
-            <LinkIcon className="w-4 h-4 text-gray-500" />
+          <div className="mb-4 flex items-center gap-2">
+            <LinkIcon className="h-4 w-4 text-gray-500" />
             <h3 className="text-sm font-medium text-gray-500">Links</h3>
           </div>
           <div className="space-y-3 px-2">
             <div className="flex items-center gap-2">
-              <LinkIcon className="w-4 h-4 text-gray-500" />
+              <LinkIcon className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">{linkCount.internal} internal links</span>
             </div>
             <div className="flex items-center gap-2">
-              <ExternalLink className="w-4 h-4 text-gray-500" />
+              <ExternalLink className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">{linkCount.external} external links</span>
             </div>
           </div>
@@ -452,7 +445,7 @@ export function EditorSidebar({
       </div>
 
       {/* Action Buttons - Updated spacing */}
-      <div className="pt-6 border-t mt-6 space-y-3">
+      <div className="mt-6 space-y-3 border-t pt-6">
         <div className="flex gap-2">
           <Tooltip content="Download as Word document">
             <Button
@@ -464,12 +457,12 @@ export function EditorSidebar({
             >
               {isDownloading ? (
                 <>
-                  <Loader className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
                   Downloading...
                 </>
               ) : (
                 <>
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="mr-2 h-4 w-4" />
                   Download
                 </>
               )}
@@ -483,7 +476,7 @@ export function EditorSidebar({
                 website"
         >
           <Button variant="default" size="sm" className="w-full" disabled>
-            <Globe className="w-4 h-4 mr-2" />
+            <Globe className="mr-2 h-4 w-4" />
             Publish to Website
           </Button>
         </Tooltip>

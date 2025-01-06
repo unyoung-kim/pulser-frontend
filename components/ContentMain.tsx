@@ -188,7 +188,7 @@ const Dashboard02 = () => {
             <h3 className="text-2xl font-bold tracking-tight text-gray-900">An error occurred</h3>
             <p className="text-sm text-gray-500">{error}</p>
             <Button
-              className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700"
               onClick={() => window.location.reload()}
             >
               Retry
@@ -204,7 +204,7 @@ const Dashboard02 = () => {
           <div className="">
             <div className="flex flex-col">
               <h1 className="text-3xl font-bold tracking-tight">Content</h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="mt-1 text-muted-foreground">
                 Create, edit, and publish your content directly from Pulser.
               </p>
             </div>
@@ -220,21 +220,21 @@ const Dashboard02 = () => {
             />
           </div>
           {items.length === 0 ? (
-            <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-gray-300 shadow-sm mt-4">
-              <div className="flex flex-col items-center gap-1 text-center p-8">
+            <div className="mt-4 flex flex-1 items-center justify-center rounded-lg border border-dashed border-gray-300 shadow-sm">
+              <div className="flex flex-col items-center gap-1 p-8 text-center">
                 <h3 className="text-2xl font-bold tracking-tight text-gray-900">
                   No content available
                 </h3>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="mt-2 text-sm text-gray-500">
                   Get started by creating your first piece of content
                 </p>
                 <Button
                   variant="default"
                   size="sm"
-                  className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
+                  className="mt-4 bg-indigo-600 text-sm text-white hover:bg-indigo-700"
                   onClick={() => router.push(`/content/settings?projectId=${projectId}`)}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 h-4 w-4" />
                   New Content
                 </Button>
               </div>
@@ -272,7 +272,7 @@ const Dashboard02 = () => {
               <p className="text-sm text-gray-500">
                 You can start by adding some {title.toLowerCase()} information.
               </p>
-              <Button className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white">
+              <Button className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700">
                 Add {title}
               </Button>
             </div>

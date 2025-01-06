@@ -253,10 +253,10 @@ export default function PricingPage() {
 
         {/* <Separator className="" /> */}
 
-        <div className="flex gap-8 border-b mb-8">
+        <div className="mb-8 flex gap-8 border-b">
           <button
             onClick={() => setActiveTab('plan')}
-            className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
+            className={`relative px-1 pb-4 text-sm font-semibold transition-colors ${
               activeTab === 'plan' ? 'text-foreground' : 'text-muted-foreground'
             }`}
           >
@@ -267,7 +267,7 @@ export default function PricingPage() {
           </button>
           <button
             onClick={() => setActiveTab('subscription')}
-            className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
+            className={`relative px-1 pb-4 text-sm font-semibold transition-colors ${
               activeTab === 'subscription' ? 'text-foreground' : 'text-muted-foreground'
             }`}
           >
@@ -278,7 +278,7 @@ export default function PricingPage() {
           </button>
           <button
             onClick={() => setActiveTab('danger')}
-            className={`pb-4 px-1 font-semibold text-sm transition-colors relative ${
+            className={`relative px-1 pb-4 text-sm font-semibold transition-colors ${
               activeTab === 'danger' ? 'text-destructive' : 'text-muted-foreground'
             }`}
           >
@@ -293,19 +293,19 @@ export default function PricingPage() {
           <div className="space-y-6">
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-base text-muted-foreground font-normal">Credits left</h3>
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-base font-normal text-muted-foreground">Credits left</h3>
                   <Badge
                     variant="secondary"
-                    className="text-sm font-medium capitalize bg-secondary/100 text-secondary-foreground"
+                    className="bg-secondary/100 text-sm font-medium capitalize text-secondary-foreground"
                   >
                     {Case.capital(usage?.plan ?? '')}
                   </Badge>
                 </div>
-                <div className="flex justify-between items-baseline mb-4">
+                <div className="mb-4 flex items-baseline justify-between">
                   <p className="text-5xl font-semibold">
                     {remainingCredits}
-                    <span className="text-2xl text-muted-foreground font-normal ml-2">
+                    <span className="ml-2 text-2xl font-normal text-muted-foreground">
                       /{totalCredits}
                     </span>
                   </p>
@@ -313,17 +313,17 @@ export default function PricingPage() {
                 </div>
                 {/* Add subscription info section */}
                 {usage?.plan && (
-                  <div className="mt-6 pt-6 border-t">
+                  <div className="mt-6 border-t pt-6">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="text-sm font-medium">Current Subscription</h4>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="mt-1 text-sm text-muted-foreground">
                           {Case.capital(usage.plan)} Plan ({Case.capital(usage.term.toLowerCase())})
                         </p>
                       </div>
                       <Button
                         variant="link"
-                        className="text-indigo-600 p-0 h-auto font-semibold"
+                        className="h-auto p-0 font-semibold text-indigo-600"
                         onClick={() => setActiveTab('subscription')}
                       >
                         Manage Subscription
@@ -343,7 +343,7 @@ export default function PricingPage() {
                   {previousPurchases.map((purchase, index) => (
                     <li
                       key={index}
-                      className="flex justify-between text-sm py-2 border-b last:border-b-0"
+                      className="flex justify-between border-b py-2 text-sm last:border-b-0"
                     >
                       <span>{purchase.date}</span>
                       <span>{purchase.credits === '-' ? '-' : `${purchase.credits} credits`}</span>
@@ -358,11 +358,11 @@ export default function PricingPage() {
           </div>
         ) : activeTab === 'subscription' ? (
           <>
-            <div className="flex justify-center mb-12">
-              <div className="inline-flex items-center bg-secondary rounded-lg p-1">
+            <div className="mb-12 flex justify-center">
+              <div className="inline-flex items-center rounded-lg bg-secondary p-1">
                 <button
                   onClick={() => setBillingCycle('monthly')}
-                  className={`px-4 py-2 rounded-md text-sm transition-colors ${
+                  className={`rounded-md px-4 py-2 text-sm transition-colors ${
                     billingCycle === 'monthly' ? 'bg-background shadow-sm' : 'text-muted-foreground'
                   }`}
                 >
@@ -370,7 +370,7 @@ export default function PricingPage() {
                 </button>
                 <button
                   onClick={() => setBillingCycle('yearly')}
-                  className={`px-4 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${
+                  className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm transition-colors ${
                     billingCycle === 'yearly' ? 'bg-background shadow-sm' : 'text-muted-foreground'
                   }`}
                 >
@@ -380,7 +380,7 @@ export default function PricingPage() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="mb-12 grid gap-8 md:grid-cols-3">
               {plans.map((plan) => (
                 <Card
                   key={plan.name}
@@ -393,7 +393,7 @@ export default function PricingPage() {
                   }`}
                 >
                   {plan.popular && usage?.plan === 'FREE_CREDIT' && (
-                    <span className="absolute right-4 top-4 bg-indigo-600 text-white text-sm px-3 py-1 rounded-full">
+                    <span className="absolute right-4 top-4 rounded-full bg-indigo-600 px-3 py-1 text-sm text-white">
                       Most Popular
                     </span>
                   )}
@@ -404,15 +404,15 @@ export default function PricingPage() {
                       usage?.term.toLowerCase() === billingCycle;
 
                     return isCurrentPlan ? (
-                      <span className="absolute right-4 top-4 bg-indigo-600 text-white text-sm px-3 py-1 rounded-full">
+                      <span className="absolute right-4 top-4 rounded-full bg-indigo-600 px-3 py-1 text-sm text-white">
                         Current Plan
                       </span>
                     ) : null;
                   })()}
-                  <CardContent className="pt-6 pb-8 px-6">
+                  <CardContent className="px-6 pb-8 pt-6">
                     <div className="mb-6">
-                      <div className="flex items-center gap-2 mb-4">
-                        <plan.icon className="w-5 h-5 text-indigo-600" />
+                      <div className="mb-4 flex items-center gap-2">
+                        <plan.icon className="h-5 w-5 text-indigo-600" />
                         <h3 className="text-xl font-semibold">{plan.name}</h3>
                       </div>
                       <div className="flex items-baseline gap-2">
@@ -421,7 +421,7 @@ export default function PricingPage() {
                         </span>
                         <span className="text-muted-foreground">USD / mo</span>
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">Billed yearly</div>
+                      <div className="mt-1 text-sm text-muted-foreground">Billed yearly</div>
                     </div>
 
                     {!(
@@ -437,7 +437,7 @@ export default function PricingPage() {
                               ? 'default'
                               : 'outline'
                         }
-                        className={`w-full mb-6 ${usage?.plan !== 'FREE_CREDIT' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
+                        className={`mb-6 w-full ${usage?.plan !== 'FREE_CREDIT' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
                         onClick={() =>
                           usage?.plan !== 'FREE_CREDIT'
                             ? handleUpdatePlan(plan.name.toUpperCase())
@@ -449,15 +449,15 @@ export default function PricingPage() {
                     )}
 
                     <div className="flex items-center gap-2 text-sm">
-                      <div className="w-4 h-4 rounded-full bg-indigo-600/10 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-indigo-600" />
+                      <div className="flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600/10">
+                        <div className="h-2 w-2 rounded-full bg-indigo-600" />
                       </div>
                       {plan.credits} credits per month
                     </div>
 
                     <Button variant="link" className="mt-6 w-full">
                       See Plan Details
-                      <ExternalLink className="w-4 h-4 ml-2" />
+                      <ExternalLink className="ml-2 h-4 w-4" />
                     </Button>
                   </CardContent>
                 </Card>
@@ -470,7 +470,7 @@ export default function PricingPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-start gap-4">
-                    <AlertCircle className="w-8 h-8 text-destructive mt-1" />
+                    <AlertCircle className="mt-1 h-8 w-8 text-destructive" />
                     <div>
                       <h3 className="text-lg font-semibold">Cancel Subscription</h3>
                       {usage?.plan === 'FREE_CREDIT' ? (
@@ -525,9 +525,9 @@ export default function PricingPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-start gap-4">
-                  <Settings className="w-8 h-8 text-indigo-600 mt-1" />
+                  <Settings className="mt-1 h-8 w-8 text-indigo-600" />
                   <div>
-                    <h3 className="text-lg font-semibold mb-1">Need a Custom Plan?</h3>
+                    <h3 className="mb-1 text-lg font-semibold">Need a Custom Plan?</h3>
                     <p className="text-muted-foreground">
                       Have specific needs or special requests? Contact us for a tailored solution.
                     </p>

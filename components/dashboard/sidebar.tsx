@@ -78,7 +78,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
   const ContactLink = () => {
     const Icon = Mail;
     const linkContent = (
-      <div className="flex items-center rounded-md px-2 py-2.5 text-gray-600 font-medium cursor-default hover:bg-gray-50">
+      <div className="flex cursor-default items-center rounded-md px-2 py-2.5 font-medium text-gray-600 hover:bg-gray-50">
         <Icon className={`${isCollapsed ? '' : 'mr-3'} h-4 w-4`} />
         {!isCollapsed && <span>Contact</span>}
       </div>
@@ -192,7 +192,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
           {children}
           <div className="px-3 py-4">
             {isCollapsed ? (
-              <Activity className="h-8 w-8 mx-auto text-indigo-600 mb-4" />
+              <Activity className="mx-auto mb-4 h-8 w-8 text-indigo-600" />
             ) : (
               <Image
                 src="/images/logo.png"
@@ -206,7 +206,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
               <DropdownMenuTrigger asChild>
                 <Button
                   variant={isCollapsed ? 'ghost' : 'outline'}
-                  className={`w-full justify-between h-12 text-sm pl-2.5 ${
+                  className={`h-12 w-full justify-between pl-2.5 text-sm ${
                     isCollapsed ? 'px-0' : ''
                   }`}
                 >
@@ -244,7 +244,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                 ))}
                 <DropdownMenuItem
                   onSelect={() => router.push('/')}
-                  className="gap-2 p-2 border-t mt-1"
+                  className="mt-1 gap-2 border-t p-2"
                 >
                   <div className="flex size-6 items-center justify-center rounded-sm border">
                     <GalleryVerticalEnd className="size-4" />
@@ -275,7 +275,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                 <Link
                   key={link.name}
                   href={`${link.href}${projectId ? `?projectId=${projectId}` : ''}`}
-                  className={`flex items-center rounded-md px-2 py-2.5 mb-1 ${
+                  className={`mb-1 flex items-center rounded-md px-2 py-2.5 ${
                     isActive
                       ? 'bg-gray-100 text-gray-900'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -298,7 +298,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
         </div>
         {/* Remaining Credit */}
         <div className="mt-auto">
-          <div className="flex p-3 gap-3 items-center">
+          <div className="flex items-center gap-3 p-3">
             {isCollapsed ? (
               <HoverCard>
                 <HoverCardTrigger asChild>
@@ -314,7 +314,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                 </HoverCardTrigger>
                 <HoverCardContent
                   side="right"
-                  className="bg-white shadow-lg rounded-lg p-4 w-64"
+                  className="w-64 rounded-lg bg-white p-4 shadow-lg"
                   sideOffset={8} // Adjust spacing between trigger and content
                 >
                   <div className={cn('flex flex-1 flex-col')}>
@@ -363,7 +363,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
             <ContactLink />
           </nav>
           <div className="mt-4 px-3 pb-4">
-            <div className="flex items-center w-full">
+            <div className="flex w-full items-center">
               <UserButton
                 afterSignOutUrl="/"
                 appearance={{
@@ -373,8 +373,8 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                 }}
               />
               {!isCollapsed && (
-                <div onClick={handleUserButtonClick} className="cursor-pointer flex-1">
-                  <Button variant="ghost" className="w-full justify-between h-12 text-sm pl-2">
+                <div onClick={handleUserButtonClick} className="flex-1 cursor-pointer">
+                  <Button variant="ghost" className="h-12 w-full justify-between pl-2 text-sm">
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">{user?.fullName}</span>
                       <span className="truncate text-xs">

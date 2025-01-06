@@ -92,13 +92,13 @@ export const LinkEditorPanel = ({
 
   return (
     <Card className="w-full max-w-[425px]">
-      <CardContent className="space-y-3 mt-4">
+      <CardContent className="mt-4 space-y-3">
         <div className="space-y-2">
           <Label htmlFor="url-input" className="font-bold">
             URL
           </Label>
           <div className="flex items-center gap-2">
-            <div className="flex-1 flex items-center gap-2">
+            <div className="flex flex-1 items-center gap-2">
               <Icon name="Link" className="absolute ml-3 text-muted-foreground" />
               <Input
                 id="url-input"
@@ -136,21 +136,21 @@ export const LinkEditorPanel = ({
           </Label>
         </div>
         <ScrollArea className="h-[200px] w-full rounded-md border">
-          <div className="p-1 space-y-2">
+          <div className="space-y-2 p-1">
             {filteredLinks?.map((link) => (
               <Button
                 key={link.id}
                 variant="ghost"
-                className="w-full justify-start group"
+                className="group w-full justify-start"
                 onClick={() => onSetLink(link.url, state.openInNewTab)}
               >
-                <Icon name="Link" className="h-4 w-4 mr-1 flex-shrink-0" />
+                <Icon name="Link" className="mr-1 h-4 w-4 flex-shrink-0" />
                 <div className="flex flex-col items-start overflow-hidden">
                   <span className="font-bold text-indigo-600">{getPathFromURL(link.url)}</span>
 
                   {link.summary && (
                     <span
-                      className="text-xs text-muted-foreground truncate w-full group-hover:whitespace-normal group-hover:text-wrap font-normal"
+                      className="w-full truncate text-xs font-normal text-muted-foreground group-hover:whitespace-normal group-hover:text-wrap"
                       title={link.summary}
                     >
                       {link.summary}

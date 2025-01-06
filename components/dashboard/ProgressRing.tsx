@@ -22,7 +22,7 @@ const ProgressRing = React.forwardRef<SVGSVGElement, ProgressRingProps>(
     return (
       <div className="relative inline-flex items-center justify-center">
         <svg
-          className={cn('transform rotate-90', className)}
+          className={cn('rotate-90 transform', className)}
           width={size}
           height={size}
           viewBox={`0 0 ${size} ${size}`}

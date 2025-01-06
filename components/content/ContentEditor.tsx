@@ -356,8 +356,8 @@ export function ContentEditor({
   );
 
   return (
-    <div className="flex w-full max-w-screen-2xl mx-auto relative">
-      <div className="flex-1 max-w-none">
+    <div className="relative mx-auto flex w-full max-w-screen-2xl">
+      <div className="max-w-none flex-1">
         {/* <div className="mb-4">
           <input
             type="text"
@@ -370,7 +370,7 @@ export function ContentEditor({
 
         {/* {editor2 && <Toolbar editor={editor2} isSaving={isSaving} />} */}
 
-        <div className="prose-container bg-white rounded-lg shadow-lg border border-gray-200 p-8 min-h-[500px] px-12">
+        <div className="prose-container min-h-[500px] rounded-lg border border-gray-200 bg-white p-8 px-12 shadow-lg">
           {/* <EditorContent editor={editor} /> */}
           <BlockEditor
             aiToken={aiToken ?? undefined}
@@ -383,7 +383,7 @@ export function ContentEditor({
       </div>
 
       {editor2 && (
-        <div className="fixed top-0 right-0 h-screen">
+        <div className="fixed right-0 top-0 h-screen">
           <EditorSidebar
             editor={editor2}
             status={currentStatus}

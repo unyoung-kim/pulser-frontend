@@ -115,7 +115,7 @@ export const BlockEditor = ({
   return (
     <div className="flex h-full" ref={menuContainerRef}>
       <Sidebar isOpen={leftSidebar.isOpen} onClose={leftSidebar.close} editor={editor} />
-      <div className="relative flex flex-col flex-1 h-full">
+      <div className="relative flex h-full flex-1 flex-col">
         <EditorHeader
           editor={editor}
           isSidebarOpen={leftSidebar.isOpen}
@@ -127,7 +127,7 @@ export const BlockEditor = ({
         />
         <EditorContent
           editor={editor}
-          className={cn('flex-1 h-full min-h-[calc(100vh-64px)]', leftSidebar.isOpen && 'lg:ml-20')}
+          className={cn('h-full min-h-[calc(100vh-64px)] flex-1', leftSidebar.isOpen && 'lg:ml-20')}
         />
         <ContentItemMenu editor={editor} />
         <LinkMenu editor={editor} appendTo={menuContainerRef} />

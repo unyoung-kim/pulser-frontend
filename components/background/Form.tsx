@@ -694,7 +694,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 >
                   {isFindingLinks ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Finding Links...
                     </>
                   ) : (
@@ -740,7 +740,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                   These links will be strategically incorporated into your generated articles to
                   improve internal linking and SEO performance of your website.
                 </p>
-                <div className="border rounded-lg">
+                <div className="rounded-lg border">
                   {isLoadingLinks ? (
                     <p className="p-4">Loading links...</p>
                   ) : !internalLinks?.length ? (
@@ -752,18 +752,18 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                     <div className="divide-y">
                       {internalLinks.map((link) => (
                         <div key={link.id} className="flex items-start gap-3 p-4">
-                          <LinkIcon className="h-4 w-4 flex-shrink-0 mt-1" />
-                          <div className="flex flex-col flex-1 justify-center">
+                          <LinkIcon className="mt-1 h-4 w-4 flex-shrink-0" />
+                          <div className="flex flex-1 flex-col justify-center">
                             <a
                               href={link.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-sm font-bold hover:underline break-all"
+                              className="break-all text-sm font-bold hover:underline"
                             >
                               {getPathFromURL(link.url)}
                             </a>
                             {link.summary && (
-                              <span className="text-xs text-muted-foreground break-words">
+                              <span className="break-words text-xs text-muted-foreground">
                                 {link.summary}
                               </span>
                             )}
@@ -776,8 +776,8 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
               </div>
 
               {isFindingLinks && (
-                <div className="mt-4 p-4 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <div className="mt-4 rounded-lg bg-muted p-4">
+                  <p className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span className="text-lg">⏳</span>
                     This process may take a few minutes as we scan your website for internal links.
                     Please keep this tab open.
@@ -807,7 +807,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
 
         <Separator className="" />
 
-        <div className="grid md:grid-cols-[240px_1fr] gap-6 mt-2">
+        <div className="mt-2 grid gap-6 md:grid-cols-[240px_1fr]">
           {/* Navigation Sidebar */}
           <nav className="space-y-2">
             {tabs.map((tab) => (
@@ -815,14 +815,14 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  'flex items-center gap-3 w-full rounded-lg border p-3 text-left text-sm transition-colors bg-white hover:bg-accent',
+                  'flex w-full items-center gap-3 rounded-lg border bg-white p-3 text-left text-sm transition-colors hover:bg-accent',
                   activeTab === tab.id && 'bg-accent'
                 )}
               >
                 <tab.icon className="h-5 w-5" />
                 <span>{tab.label}</span>
-                {tab.required && <span className="text-red-600  text-lg">*</span>}
-                {activeTab === tab.id && <ChevronRight className="h-5 w-5 ml-auto" />}
+                {tab.required && <span className="text-lg text-red-600">*</span>}
+                {activeTab === tab.id && <ChevronRight className="ml-auto h-5 w-5" />}
               </button>
             ))}
           </nav>

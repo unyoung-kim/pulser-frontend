@@ -39,43 +39,43 @@ const commands: CommandSection[] = [
       {
         title: 'Text',
         description: 'Just start writing with plain text.',
-        icon: <Type className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />,
+        icon: <Type className="h-7 w-7 rounded border bg-white p-0.5 shadow-sm" />,
         command: (editor: Editor) => editor.chain().focus().setParagraph().run(),
       },
       {
         title: 'Heading 1',
         description: 'Large section heading.',
-        icon: <Heading1 className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />,
+        icon: <Heading1 className="h-7 w-7 rounded border bg-white p-0.5 shadow-sm" />,
         command: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
       },
       {
         title: 'Heading 2',
         description: 'Medium section heading.',
-        icon: <Heading2 className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />,
+        icon: <Heading2 className="h-7 w-7 rounded border bg-white p-0.5 shadow-sm" />,
         command: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
       },
       {
         title: 'Heading 3',
         description: 'Small section heading.',
-        icon: <Heading3 className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />,
+        icon: <Heading3 className="h-7 w-7 rounded border bg-white p-0.5 shadow-sm" />,
         command: (editor: Editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
       },
       {
         title: 'Bullet List',
         description: 'Create a simple bullet list.',
-        icon: <List className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />,
+        icon: <List className="h-7 w-7 rounded border bg-white p-0.5 shadow-sm" />,
         command: (editor: Editor) => editor.chain().focus().toggleBulletList().run(),
       },
       {
         title: 'Numbered List',
         description: 'Create a numbered list.',
-        icon: <ListOrdered className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />,
+        icon: <ListOrdered className="h-7 w-7 rounded border bg-white p-0.5 shadow-sm" />,
         command: (editor: Editor) => editor.chain().focus().toggleOrderedList().run(),
       },
       {
         title: 'Table',
         description: 'Add a table to display data.',
-        icon: <Table className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm" />,
+        icon: <Table className="h-7 w-7 rounded border bg-white p-0.5 shadow-sm" />,
         command: (editor: Editor) =>
           editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
       },
@@ -89,7 +89,7 @@ const commands: CommandSection[] = [
         description: 'Search and embed an image.',
         icon: (
           <svg
-            className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm"
+            className="h-7 w-7 rounded border bg-white p-0.5 shadow-sm"
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -125,7 +125,7 @@ const commands: CommandSection[] = [
         title: 'Video Search',
         description: 'Embed a Youtube video by searching for it.',
         icon: (
-          <Youtube className="w-7 h-7 p-0.5 border rounded bg-white shadow-sm text-[#FF0000]" />
+          <Youtube className="h-7 w-7 rounded border bg-white p-0.5 text-[#FF0000] shadow-sm" />
         ),
         command: (editor: Editor) => {
           const modal = document.createElement('div');
@@ -177,23 +177,23 @@ export const CommandList: CommandListComponent = forwardRef<HTMLDivElement, Comm
     return (
       <div
         ref={ref}
-        className="relative bg-white rounded-lg shadow-lg border p-2 max-h-[240px] overflow-y-auto"
+        className="relative max-h-[240px] overflow-y-auto rounded-lg border bg-white p-2 shadow-lg"
       >
         {sections.map((section, sectionIndex) => (
           <div key={sectionIndex} className="mb-2 last:mb-0">
-            <div className="px-3 py-1.5 text-[11px] font-medium text-gray-500 uppercase">
+            <div className="px-3 py-1.5 text-[11px] font-medium uppercase text-gray-500">
               {section.title}
             </div>
             {section.items.map((item, index) => (
               <button
                 key={index}
                 onClick={() => command(item)}
-                className="w-full px-3 py-2 rounded-md hover:bg-gray-100 cursor-pointer text-left"
+                className="w-full cursor-pointer rounded-md px-3 py-2 text-left hover:bg-gray-100"
               >
                 <div className="flex items-center gap-2.5">
                   {item.icon}
                   <div className="flex flex-col">
-                    <span className="font-medium text-sm leading-tight">{item.title}</span>
+                    <span className="text-sm font-medium leading-tight">{item.title}</span>
                     <span className="text-xs leading-tight text-gray-500">{item.description}</span>
                   </div>
                 </div>

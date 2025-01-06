@@ -320,8 +320,8 @@ export default function ContentSettings() {
   const topicSuggestionsSection = (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium flex items-center gap-2">
-          <Pencil className="w-4 h-4 text-indigo-600" />
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <Pencil className="h-4 w-4 text-indigo-600" />
           Blog Title
         </label>
         <Button
@@ -332,7 +332,7 @@ export default function ContentSettings() {
           disabled={isLoadingTopics || !selectedKeyword}
           title={!selectedKeyword ? 'Please select a keyword first' : ''}
         >
-          <Lightbulb className="w-4 h-4 mr-2" />
+          <Lightbulb className="mr-2 h-4 w-4" />
           {isLoadingTopics ? 'Analyzing search trends...' : 'Get AI suggestions'}
         </Button>
       </div>
@@ -344,8 +344,8 @@ export default function ContentSettings() {
       />
 
       {isLoadingTopics && (
-        <div className="text-sm text-muted-foreground flex items-center gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" />
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" />
           Analyzing Google search trends for high-intent topics...
         </div>
       )}
@@ -413,10 +413,10 @@ export default function ContentSettings() {
   const hasEnoughCredits = remainingCredits >= requiredCredits;
 
   return (
-    <div className="w-full bg-gray-50/50 flex justify-center">
-      <div className="max-w-3xl w-full py-10">
+    <div className="flex w-full justify-center bg-gray-50/50">
+      <div className="w-full max-w-3xl py-10">
         <div className="mb-6">
-          <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 flex items-center gap-4">
             <div className="flex items-center gap-2 text-sm">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-white">
                 1
@@ -435,8 +435,8 @@ export default function ContentSettings() {
           <CardHeader className="text-lg font-semibold">Blog Settings</CardHeader>
 
           {!hasEnoughCredits && (
-            <div className="px-6 -mt-2 mb-4">
-              <div className="flex items-center gap-2 text-red-500 text-sm">
+            <div className="-mt-2 mb-4 px-6">
+              <div className="flex items-center gap-2 text-sm text-red-500">
                 <AlertTriangle className="h-4 w-4" />
                 <span>
                   You have {remainingCredits} credits remaining.
@@ -450,8 +450,8 @@ export default function ContentSettings() {
           )}
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label className="text-sm font-medium flex items-center gap-2">
-                <Layout className="w-4 h-4 text-indigo-600" />
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <Layout className="h-4 w-4 text-indigo-600" />
                 Content Type
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -461,11 +461,11 @@ export default function ContentSettings() {
                 defaultValue="normal"
                 value={contentType}
                 onValueChange={(value: 'NORMAL' | 'GLOSSARY') => setContentType(value)}
-                className="flex flex-col sm:flex-row gap-4"
+                className="flex flex-col gap-4 sm:flex-row"
               >
                 <Label
                   htmlFor="normal"
-                  className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
+                  className="flex flex-1 cursor-pointer items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600"
                 >
                   <RadioGroupItem value="NORMAL" id="normal" className="mt-1" />
                   <div>
@@ -476,14 +476,14 @@ export default function ContentSettings() {
                         3 Credits
                       </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1">
+                    <div className="mt-1 text-sm text-muted-foreground">
                       Standard SEO blog article
                     </div>
                   </div>
                 </Label>
                 <Label
                   htmlFor="glossary"
-                  className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
+                  className="flex flex-1 cursor-pointer items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600"
                 >
                   <RadioGroupItem value="GLOSSARY" id="glossary" className="mt-1" />
                   <div>
@@ -494,7 +494,7 @@ export default function ContentSettings() {
                         1 Credit
                       </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1">
+                    <div className="mt-1 text-sm text-muted-foreground">
                       SEO article defining and explaining industry-specific terms.
                     </div>
                   </div>
@@ -503,8 +503,8 @@ export default function ContentSettings() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Tag className="w-4 h-4 text-indigo-600" />
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <Tag className="h-4 w-4 text-indigo-600" />
                 Keyword
               </label>
               <KeywordSelector
@@ -522,10 +522,10 @@ export default function ContentSettings() {
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-lg mt-4">
+        <Card className="mt-4 border-none shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
-              <Settings2 className="w-5 h-5 text-muted-foreground" />
+              <Settings2 className="h-5 w-5 text-muted-foreground" />
               <span className="font-semibold">Advanced Settings</span>
               <Badge variant="secondary" className="text-xs font-normal text-muted-foreground">
                 Optional
@@ -538,7 +538,7 @@ export default function ContentSettings() {
               className="text-indigo-600"
             >
               <ChevronDown
-                className={`w-4 h-4 transition-transform duration-200 ${
+                className={`h-4 w-4 transition-transform duration-200 ${
                   isAdvancedOpen ? 'rotate-180' : ''
                 }`}
               />
@@ -548,8 +548,8 @@ export default function ContentSettings() {
             <CardContent className="space-y-6">
               {contentType === 'NORMAL' && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-indigo-600" />
+                  <Label className="flex items-center gap-2 text-sm font-medium">
+                    <FileText className="h-4 w-4 text-indigo-600" />
                     Post Length
                   </Label>
                   <p className="text-sm text-muted-foreground">
@@ -560,11 +560,11 @@ export default function ContentSettings() {
                     defaultValue="LONG"
                     value={postLength}
                     onValueChange={(value: 'SHORT' | 'LONG') => setPostLength(value)}
-                    className="flex flex-col sm:flex-row gap-4"
+                    className="flex flex-col gap-4 sm:flex-row"
                   >
                     <Label
                       htmlFor="long"
-                      className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
+                      className="flex flex-1 cursor-pointer items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600"
                     >
                       <RadioGroupItem value="LONG" id="long" className="mt-1" />
                       <div>
@@ -573,19 +573,19 @@ export default function ContentSettings() {
                           <span className="font-medium">Long</span>
                           <Badge
                             variant="secondary"
-                            className="bg-indigo-100 text-indigo-700 hover:bg-indigo-100 ml-2"
+                            className="ml-2 bg-indigo-100 text-indigo-700 hover:bg-indigo-100"
                           >
                             Recommended for SEO
                           </Badge>
                         </div>
-                        <div className="text-sm text-muted-foreground mt-1">
+                        <div className="mt-1 text-sm text-muted-foreground">
                           Covers the main topic and other related topics (2500+ words)
                         </div>
                       </div>
                     </Label>
                     <Label
                       htmlFor="short"
-                      className="flex flex-1 items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600 cursor-pointer"
+                      className="flex flex-1 cursor-pointer items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600"
                     >
                       <RadioGroupItem value="SHORT" id="short" className="mt-1" />
                       <div>
@@ -593,7 +593,7 @@ export default function ContentSettings() {
                           <FileText className="h-5 w-5" />
                           <span className="font-medium">Short</span>
                         </div>
-                        <div className="text-sm text-muted-foreground mt-1">
+                        <div className="mt-1 text-sm text-muted-foreground">
                           Only covers the main topic (1000-1500 words)
                         </div>
                       </div>
@@ -603,14 +603,14 @@ export default function ContentSettings() {
               )}
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-indigo-600" />
+                <Label className="flex items-center gap-2 text-sm font-medium">
+                  <FileText className="h-4 w-4 text-indigo-600" />
                   Instructions / Outline
                 </Label>
                 <Textarea
                   value={outline}
                   onChange={(e) => setOutline(e.target.value)}
-                  className="border-indigo-100 focus-visible:ring-indigo-600 min-h-[100px]"
+                  className="min-h-[100px] border-indigo-100 focus-visible:ring-indigo-600"
                   placeholder="Optional: Add specific instructions or outline for the content..."
                 />
                 <p className="text-sm text-muted-foreground">
@@ -622,7 +622,7 @@ export default function ContentSettings() {
         </Card>
 
         <div className="mt-6 flex flex-col gap-4">
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-center text-sm text-muted-foreground">
             ⚡ Content generation may take up to 5 minutes.
           </p>
           <div className="flex items-center justify-between">
@@ -631,7 +631,7 @@ export default function ContentSettings() {
               className="text-indigo-600"
               onClick={() => router.push(`/content?projectId=${projectId}`)}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Go back
             </Button>
             <Button
@@ -641,9 +641,9 @@ export default function ContentSettings() {
               title={!hasEnoughCredits ? 'Not enough credits available' : ''}
             >
               {isCreating ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Sparkles className="w-4 h-4 mr-2" />
+                <Sparkles className="mr-2 h-4 w-4" />
               )}
               {isCreating ? 'Generating...' : 'Generate Content'}
             </Button>
@@ -678,7 +678,7 @@ export default function ContentSettings() {
                     key={index}
                     className={cn(
                       'flex items-center gap-3 rounded-lg px-3 py-2 transition-colors',
-                      isActive && 'bg-indigo-50 animate-pulse'
+                      isActive && 'animate-pulse bg-indigo-50'
                     )}
                   >
                     <div
@@ -709,7 +709,7 @@ export default function ContentSettings() {
                     <div
                       className={cn(
                         'h-2 w-2 rounded-full transition-colors',
-                        isActive && 'bg-indigo-600 animate-[pulse_2s_ease-in-out_infinite]',
+                        isActive && 'animate-[pulse_2s_ease-in-out_infinite] bg-indigo-600',
                         isComplete && 'bg-indigo-600/50',
                         !isActive && !isComplete && 'bg-secondary-foreground/20'
                       )}

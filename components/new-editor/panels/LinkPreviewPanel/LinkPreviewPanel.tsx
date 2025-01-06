@@ -16,7 +16,7 @@ export const LinkPreviewPanel = ({ onClear, onEdit, url }: LinkPreviewPanelProps
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-sm underline break-all"
+        className="break-all text-sm underline"
       >
         {url}
       </a>

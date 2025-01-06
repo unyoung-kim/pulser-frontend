@@ -115,13 +115,13 @@ export const MenuList = React.forwardRef((props: MenuListProps, ref) => {
   return (
     <Surface
       ref={scrollContainer}
-      className="max-w-md p-4 pt-2 px-2 shadow-lg h-[400px] overflow-y-auto"
+      className="h-[400px] max-w-md overflow-y-auto p-4 px-2 pt-2 shadow-lg"
     >
       {props.items.map((group, groupIndex: number) => (
         <React.Fragment key={`${group.title}-wrapper`}>
-          {groupIndex > 0 && <div className="h-px bg-gray-200 mt-2 mb-2" />}
+          {groupIndex > 0 && <div className="mb-2 mt-2 h-px bg-gray-200" />}
 
-          <h2 className="text-sm font-medium mb-1 text-gray-500">{group.title}</h2>
+          <h2 className="mb-1 text-sm font-medium text-gray-500">{group.title}</h2>
           <div className="space-y-1">
             {group.commands.map((command: Command, commandIndex: number) => (
               <button
@@ -131,18 +131,18 @@ export const MenuList = React.forwardRef((props: MenuListProps, ref) => {
                     ? activeItem
                     : null
                 }
-                className={`w-full flex items-center gap-3 py-1 px-1 rounded-lg transition-colors ${
+                className={`flex w-full items-center gap-3 rounded-lg px-1 py-1 transition-colors ${
                   selectedGroupIndex === groupIndex && selectedCommandIndex === commandIndex
                     ? 'bg-gray-100'
                     : 'hover:bg-gray-50'
                 }`}
                 onClick={createCommandClickHandler(groupIndex, commandIndex)}
               >
-                <div className="flex items-center justify-center w-11 h-11 bg-white rounded-lg border">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg border bg-white">
                   <Icon name={command.iconName} />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-sm">{command.label}</div>
+                  <div className="text-sm font-medium">{command.label}</div>
                   {command.description && (
                     <div className="text-xs text-gray-500">{command.description}</div>
                   )}

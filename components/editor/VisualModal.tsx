@@ -61,10 +61,10 @@ export function VisualModal({ editor, onClose }: VisualModalProps) {
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Add Visual</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col h-[500px] space-y-4">
-          <div className="flex-grow relative border rounded-lg overflow-hidden bg-gray-100">
+        <div className="flex h-[500px] flex-col space-y-4">
+          <div className="relative flex-grow overflow-hidden rounded-lg border bg-gray-100">
             {isLoading ? (
-              <div className="w-full h-full flex justify-center items-center">
+              <div className="flex h-full w-full items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin accent-primary" />
               </div>
             ) : error ? (
@@ -78,26 +78,26 @@ export function VisualModal({ editor, onClose }: VisualModalProps) {
                 sizes="100%"
                 src={selectedIMG}
                 alt="Preview of selected visual"
-                className="w-full h-full object-cover transition-opacity duration-300 ease-in-out"
+                className="h-full w-full object-cover transition-opacity duration-300 ease-in-out"
                 onError={() => setSelectedIMG(null)}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
+              <div className="flex h-full w-full items-center justify-center text-gray-400">
                 Select a visual from the options below
               </div>
             )}
           </div>
-          <ScrollArea className="h-[120px] w-full shrink-0 mt-4">
-            <div className="flex space-x-4 p-1 overflow-auto">
+          <ScrollArea className="mt-4 h-[120px] w-full shrink-0">
+            <div className="flex space-x-4 overflow-auto p-1">
               {isLoading
                 ? Array(5)
                     .fill(0)
-                    .map((_, index) => <Skeleton key={index} className="w-24 h-24 rounded-md" />)
+                    .map((_, index) => <Skeleton key={index} className="h-24 w-24 rounded-md" />)
                 : visualData?.map((source, index) => (
                     <button
                       key={index}
                       onClick={() => handleImageClick(source)}
-                      className={`relative flex-shrink-0 rounded-md overflow-hidden hover:ring-2 hover:ring-blue-400 transition-all duration-200 ${
+                      className={`relative flex-shrink-0 overflow-hidden rounded-md transition-all duration-200 hover:ring-2 hover:ring-blue-400 ${
                         selectedIMG === source ? 'ring-2 ring-blue-500' : ''
                       }`}
                     >
@@ -105,11 +105,11 @@ export function VisualModal({ editor, onClose }: VisualModalProps) {
                         width={96}
                         height={96}
                         src={source}
-                        className="w-24 h-24 object-cover"
+                        className="h-24 w-24 object-cover"
                         alt={`Visual option ${index + 1}`}
                       />
                       {selectedIMG === source && (
-                        <div className="absolute inset-0 bg-blue-500 bg-opacity-30 flex items-center justify-center">
+                        <div className="absolute inset-0 flex items-center justify-center bg-blue-500 bg-opacity-30">
                           <Check className="text-white" size={24} />
                         </div>
                       )}
@@ -118,7 +118,7 @@ export function VisualModal({ editor, onClose }: VisualModalProps) {
             </div>
           </ScrollArea>
         </div>
-        <div className="flex justify-end mt-4 space-x-2">
+        <div className="mt-4 flex justify-end space-x-2">
           <Button onClick={onClose} variant="outline">
             Cancel
           </Button>

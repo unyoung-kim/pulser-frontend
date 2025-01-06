@@ -91,7 +91,7 @@ export default function LinkPanel({ onSelect }: LinkPanelProps) {
                 className="flex items-center gap-3 py-4"
               >
                 <LinkIcon className="h-4 w-4 flex-shrink-0" />
-                <div className="flex flex-col flex-1 overflow-hidden justify-center">
+                <div className="flex flex-1 flex-col justify-center overflow-hidden">
                   <a
                     href={link.url}
                     target="_blank"

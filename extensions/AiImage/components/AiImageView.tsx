@@ -143,12 +143,12 @@ export const AiImageView = ({ editor, node, getPos, deleteNode }: NodeViewWrappe
             <>
               <PanelHeadline>Preview</PanelHeadline>
               <div
-                className="w-full mb-4 bg-white bg-center bg-no-repeat bg-contain border border-black rounded dark:border-neutral-700 aspect-square"
+                className="mb-4 aspect-square w-full rounded border border-black bg-white bg-contain bg-center bg-no-repeat dark:border-neutral-700"
                 style={{ backgroundImage: `url(${previewImage})` }}
               />
             </>
           )}
-          <div className="flex items-center justify-between gap-2 row">
+          <div className="row flex items-center justify-between gap-2">
             <PanelHeadline asChild>
               <label htmlFor={textareaId}>Prompt</label>
             </PanelHeadline>
@@ -162,7 +162,7 @@ export const AiImageView = ({ editor, node, getPos, deleteNode }: NodeViewWrappe
             className="mb-2"
           />
           <div className="flex flex-row items-center justify-between gap-1">
-            <div className="flex justify-between w-auto gap-1">
+            <div className="flex w-auto justify-between gap-1">
               <Dropdown.Root>
                 <Dropdown.Trigger asChild>
                   <Button variant="tertiary">
@@ -173,7 +173,7 @@ export const AiImageView = ({ editor, node, getPos, deleteNode }: NodeViewWrappe
                 </Dropdown.Trigger>
                 <Dropdown.Portal>
                   <Dropdown.Content side="bottom" align="start" asChild>
-                    <Surface className="p-2 min-w-[12rem]">
+                    <Surface className="min-w-[12rem] p-2">
                       {!!data.imageStyle && (
                         <>
                           <DropdownButton

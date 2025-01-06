@@ -26,51 +26,51 @@
       }
     ],
     "import/first": "error",
-        "import/order": [
-          "error",
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          ["builtin", "external"],
+          "internal",
+          ["parent", "sibling", "index"],
+          "object",
+          "type"
+        ],
+        "pathGroups": [
           {
-            "groups": [
-              ["builtin", "external"],
-              "internal",
-              ["parent", "sibling", "index"],
-              "object",
-              "type"
-            ],
-            "pathGroups": [
-              {
-                "pattern": "react",
-                "group": "external",
-                "position": "before"
-              },
-              {
-                "pattern": "react-dom",
-                "group": "external",
-                "position": "before"
-              },
-              {
-                "pattern": "next",
-                "group": "external",
-                "position": "before"
-              },
-              {
-                "pattern": "next/**",
-                "group": "external",
-                "position": "before"
-              },
-              {
-                "pattern": "**/*.css",
-                "group": "index",
-                "position": "after"
-              }
-            ],
-            "pathGroupsExcludedImportTypes": ["react", "react-dom", "next", "next/**"],
-            "alphabetize": {
-              "order": "asc",
-              "caseInsensitive": true
-            },
-            "newlines-between": "never"
+            "pattern": "react",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "react-dom",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "next",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "next/**",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "**/*.css",
+            "group": "index",
+            "position": "after"
           }
         ],
+        "pathGroupsExcludedImportTypes": ["react", "react-dom", "next", "next/**"],
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        },
+        "newlines-between": "never"
+      }
+    ],
     "import/no-duplicates": "error"
   }
 }

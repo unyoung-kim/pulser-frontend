@@ -104,7 +104,7 @@ export const AiWriterView = ({ editor, node, getPos, deleteNode }: NodeViewProps
             <>
               <PanelHeadline>Preview</PanelHeadline>
               <div
-                className="bg-white dark:bg-black border-l-4 border-neutral-100 dark:border-neutral-700 text-black dark:text-white text-base max-h-[14rem] mb-4 ml-2.5 overflow-y-auto px-4 relative"
+                className="relative mb-4 ml-2.5 max-h-[14rem] overflow-y-auto border-l-4 border-neutral-100 bg-white px-4 text-base text-black dark:border-neutral-700 dark:bg-black dark:text-white"
                 dangerouslySetInnerHTML={{
                   __html: tryParseToTiptapHTML(generatedText, editor) ?? '',
                 }}
@@ -125,7 +125,7 @@ export const AiWriterView = ({ editor, node, getPos, deleteNode }: NodeViewProps
             className="mb-2"
           />
           <div className="flex flex-row items-center justify-between gap-1">
-            <div className="flex justify-between w-auto gap-1">
+            <div className="flex w-auto justify-between gap-1">
               <Dropdown.Root>
                 <Dropdown.Trigger asChild>
                   <Button variant="tertiary">
@@ -136,7 +136,7 @@ export const AiWriterView = ({ editor, node, getPos, deleteNode }: NodeViewProps
                 </Dropdown.Trigger>
                 <Dropdown.Portal>
                   <Dropdown.Content side="bottom" align="start" asChild>
-                    <Surface className="p-2 min-w-[12rem]">
+                    <Surface className="min-w-[12rem] p-2">
                       {!!data.tone && (
                         <>
                           <Dropdown.Item asChild>
@@ -166,7 +166,7 @@ export const AiWriterView = ({ editor, node, getPos, deleteNode }: NodeViewProps
                 </Dropdown.Portal>
               </Dropdown.Root>
             </div>
-            <div className="flex justify-between w-auto gap-1">
+            <div className="flex w-auto justify-between gap-1">
               {generatedText && (
                 <Button
                   variant="ghost"

@@ -35,11 +35,11 @@ export default function PaymentModal({ isOpen, onClose, selectedPlan }: PaymentM
         </DialogHeader>
 
         <div className="py-4">
-          <div className="flex justify-center mb-12">
-            <div className="inline-flex items-center bg-secondary rounded-lg p-1">
+          <div className="mb-12 flex justify-center">
+            <div className="inline-flex items-center rounded-lg bg-secondary p-1">
               <button
                 onClick={() => setBillingCycle('monthly')}
-                className={`px-4 py-2 rounded-md text-sm transition-colors ${
+                className={`rounded-md px-4 py-2 text-sm transition-colors ${
                   billingCycle === 'monthly' ? 'bg-background shadow-sm' : 'text-muted-foreground'
                 }`}
               >
@@ -47,7 +47,7 @@ export default function PaymentModal({ isOpen, onClose, selectedPlan }: PaymentM
               </button>
               <button
                 onClick={() => setBillingCycle('yearly')}
-                className={`px-4 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${
+                className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm transition-colors ${
                   billingCycle === 'yearly' ? 'bg-background shadow-sm' : 'text-muted-foreground'
                 }`}
               >
@@ -57,21 +57,21 @@ export default function PaymentModal({ isOpen, onClose, selectedPlan }: PaymentM
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
+          <div className="mb-12 grid gap-8 md:grid-cols-3">
             {plans.map((plan) => (
               <Card
                 key={plan.name}
                 className={`relative ${plan.popular ? 'border-indigo-600 shadow-md' : ''}`}
               >
                 {plan.popular && (
-                  <span className="absolute right-4 top-4 bg-indigo-600 text-white text-sm px-3 py-1 rounded-full">
+                  <span className="absolute right-4 top-4 rounded-full bg-indigo-600 px-3 py-1 text-sm text-white">
                     Most Popular
                   </span>
                 )}
-                <CardContent className="pt-6 pb-8 px-6">
+                <CardContent className="px-6 pb-8 pt-6">
                   <div className="mb-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <plan.icon className="w-5 h-5 text-indigo-600" />
+                    <div className="mb-4 flex items-center gap-2">
+                      <plan.icon className="h-5 w-5 text-indigo-600" />
                       <h3 className="text-xl font-semibold">{plan.name}</h3>
                     </div>
                     <div className="flex items-baseline gap-2">
@@ -80,25 +80,25 @@ export default function PaymentModal({ isOpen, onClose, selectedPlan }: PaymentM
                       </span>
                       <span className="text-muted-foreground">USD / mo</span>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1">
+                    <div className="mt-1 text-sm text-muted-foreground">
                       Billed {billingCycle === 'yearly' ? 'yearly' : 'monthly'}
                     </div>
                   </div>
 
-                  <Button variant={plan.popular ? 'default' : 'outline'} className="w-full mb-6">
+                  <Button variant={plan.popular ? 'default' : 'outline'} className="mb-6 w-full">
                     Choose Plan
                   </Button>
 
                   <div className="flex items-center gap-2 text-sm">
-                    <div className="w-4 h-4 rounded-full bg-indigo-600/10 flex items-center justify-center">
-                      <div className="w-2 h-2 rounded-full bg-indigo-600" />
+                    <div className="flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600/10">
+                      <div className="h-2 w-2 rounded-full bg-indigo-600" />
                     </div>
                     {plan.credits} credits per month
                   </div>
 
                   <Button variant="link" className="mt-6 w-full">
                     See Plan Details
-                    <ExternalLink className="w-4 h-4 ml-2" />
+                    <ExternalLink className="ml-2 h-4 w-4" />
                   </Button>
                 </CardContent>
               </Card>

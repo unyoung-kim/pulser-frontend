@@ -99,8 +99,8 @@ export default function YoutubeSearch({ onSelect, onClose, editor }: YoutubeSear
     <Card className="w-full">
       <CardHeader className="py-3">
         <CardTitle className="flex items-center justify-between text-lg">
-          <div className="flex items-center gap-2 mt-1">
-            <div className="text-red-600 w-6 h-6">
+          <div className="mt-1 flex items-center gap-2">
+            <div className="h-6 w-6 text-red-600">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" />
                 <path fill="white" d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
@@ -115,7 +115,7 @@ export default function YoutubeSearch({ onSelect, onClose, editor }: YoutubeSear
         </CardTitle>
       </CardHeader>
       <CardContent className="py-3">
-        <form onSubmit={handleSubmit} className="flex items-center space-x-2 mb-4 w-full">
+        <form onSubmit={handleSubmit} className="mb-4 flex w-full items-center space-x-2">
           <Input
             type="search"
             placeholder="Search YouTube videos..."
@@ -130,7 +130,7 @@ export default function YoutubeSearch({ onSelect, onClose, editor }: YoutubeSear
 
         <ScrollArea className="h-[400px] w-full rounded-md">
           {error ? (
-            <div className="min-h-[300px] w-full flex flex-col items-center justify-center text-red-500 text-center">
+            <div className="flex min-h-[300px] w-full flex-col items-center justify-center text-center text-red-500">
               <p>{error}</p>
             </div>
           ) : results.length > 0 ? (
@@ -138,7 +138,7 @@ export default function YoutubeSearch({ onSelect, onClose, editor }: YoutubeSear
               {results.map((video) => (
                 <div
                   key={video.id}
-                  className="flex gap-3 p-2 rounded-lg border hover:bg-accent transition-colors cursor-pointer"
+                  className="flex cursor-pointer gap-3 rounded-lg border p-2 transition-colors hover:bg-accent"
                   onClick={() => handleVideoSelect(video.id)}
                 >
                   <Image
@@ -146,18 +146,18 @@ export default function YoutubeSearch({ onSelect, onClose, editor }: YoutubeSear
                     alt={video.title}
                     width={128}
                     height={80}
-                    className="object-cover rounded-md"
+                    className="rounded-md object-cover"
                   />
                   <div className="flex flex-col gap-1">
-                    <h3 className="font-semibold line-clamp-2 text-sm">{video.title}</h3>
+                    <h3 className="line-clamp-2 text-sm font-semibold">{video.title}</h3>
                     <p className="text-xs text-muted-foreground">{video.channelTitle}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="min-h-[300px] w-full flex flex-col items-center justify-center text-muted-foreground text-center">
-              <Search className="h-12 w-12 mb-4 opacity-50" />
+            <div className="flex min-h-[300px] w-full flex-col items-center justify-center text-center text-muted-foreground">
+              <Search className="mb-4 h-12 w-12 opacity-50" />
               <p>Search for YouTube videos to get started</p>
             </div>
           )}

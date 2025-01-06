@@ -176,8 +176,8 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
   }, [editor]);
 
   return (
-    <div className="fixed left-32 right-[420px] bottom-3 z-[9999] p-4">
-      <div className="max-w-xl mx-auto flex flex-col gap-3">
+    <div className="fixed bottom-3 left-32 right-[420px] z-[9999] p-4">
+      <div className="mx-auto flex max-w-xl flex-col gap-3">
         {/* AI Response Panel */}
         <div
           className={cn(
@@ -191,8 +191,8 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
 
           <div className="prose prose-sm max-h-[14rem] overflow-y-auto">
             {isLoading ? (
-              <div className="overflow-hidden w-full">
-                <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+              <div className="w-full overflow-hidden">
+                <Loader2 className="mx-auto h-4 w-4 animate-spin" />
               </div>
             ) : (
               <div dangerouslySetInnerHTML={{ __html: generatedText || '' }} />
@@ -245,7 +245,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
             <span>
               <Button
                 variant="outline"
-                className="h-8 rounded-full bg-white hover:bg-gray-50 px-4"
+                className="h-8 rounded-full bg-white px-4 hover:bg-gray-50"
                 onClick={handleHumanize}
                 disabled={!isTextSelected}
               >
@@ -259,7 +259,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
             <span>
               <Button
                 variant="outline"
-                className="h-8 rounded-full bg-white hover:bg-gray-50 px-4"
+                className="h-8 rounded-full bg-white px-4 hover:bg-gray-50"
                 onClick={onVisualSelection}
                 disabled={!isTextSelected}
               >
@@ -273,7 +273,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
             <span>
               <Button
                 variant="outline"
-                className="h-8 rounded-full bg-white hover:bg-gray-50 px-4"
+                className="h-8 rounded-full bg-white px-4 hover:bg-gray-50"
                 onClick={() => editor.chain().focus().setAiImage().run()}
               >
                 <ImagePlus className="mr-2 h-4 w-4 text-green-500" />
@@ -295,20 +295,20 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="relative group w-full"
+                      className="group relative w-full"
                     >
                       <div className="flex flex-col">
                         <div className="relative w-full">
                           <div
                             className={cn(
-                              'w-full px-7 py-4 bg-gray-50 rounded-t-full rounded-b-full transition-all duration-200',
+                              'w-full rounded-b-full rounded-t-full bg-gray-50 px-7 py-4 transition-all duration-200',
                               'border border-gray-300'
                             )}
                           >
                             {selectedText && (
                               <div className="mb-2">
-                                <div className="inline-flex items-center w-fit max-w-[90%] bg-indigo-100 text-gray-700 text-xs px-2.5 py-1 rounded-full truncate">
-                                  <span className="text-gray-500 mr-1.5">Editing:</span>
+                                <div className="inline-flex w-fit max-w-[90%] items-center truncate rounded-full bg-indigo-100 px-2.5 py-1 text-xs text-gray-700">
+                                  <span className="mr-1.5 text-gray-500">Editing:</span>
                                   <span className="truncate">{selectedText}</span>
                                 </div>
                               </div>
@@ -325,7 +325,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                               {...field}
                             />
                           </div>
-                          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 rounded-full blur-lg" />
+                          <div className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 blur-lg" />
                         </div>
                         <motion.button
                           type="submit"
@@ -333,7 +333,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           className={cn(
-                            'absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center p-1.5 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
+                            'absolute right-2 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full p-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50',
                             field.value ? 'bg-gray-300 hover:bg-gray-400' : 'hover:bg-gray-50'
                           )}
                         >
