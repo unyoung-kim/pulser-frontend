@@ -178,3 +178,7 @@
   scroll-margin-top: 100px; /* This helps with the header offset */
   transition: background-color 0.3s ease;
 }
+
+[data-tippy-root] {
+  z-index: 1 !important;
+}
