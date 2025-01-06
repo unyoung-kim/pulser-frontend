@@ -42,3 +42,20 @@ Environment variables can be found here on Pulser Notion:
 ### Running the Application
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+### Workspace Configuration
+
+To set up consistent code formatting and linting, add the following to your VS Code workspace settings:
+
+Open .vscode/settings.json.
+Add this configuration:
+
+```json
+{
+  "editor.formatOnSave": true,
+  "prettier.configPath": ".prettierrc",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
+}
+```
