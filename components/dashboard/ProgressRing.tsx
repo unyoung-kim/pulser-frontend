@@ -16,8 +16,8 @@ const ProgressRing = React.forwardRef<SVGSVGElement, ProgressRingProps>(
   ) => {
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
-    const percentage = (used / total) * 100;
-    const offset = (percentage / 100) * circumference;
+    const offset = total > 0 ? (used / total) * circumference : circumference;
+    const remainingCredit = Math.max(total - used, 0); // ensure no negative credit
 
     return (
       <div className="relative inline-flex items-center justify-center">
@@ -52,7 +52,7 @@ const ProgressRing = React.forwardRef<SVGSVGElement, ProgressRingProps>(
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={cn('font-medium', labelClassName)}>{total - used}</span>
+          <span className={cn('font-medium', labelClassName)}>{remainingCredit}</span>
         </div>
       </div>
     );
