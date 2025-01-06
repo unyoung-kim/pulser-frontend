@@ -1,5 +1,10 @@
 'use client';
 
+import { useCallback, useEffect, useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import Case from 'case';
+import { AlertCircle, ExternalLink, Settings } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,11 +22,6 @@ import { useToast } from '@/hooks/use-toast';
 import { BACKEND_URL } from '@/lib/api/backend';
 import { plans } from '@/lib/pricing-plan';
 import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@clerk/nextjs';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import Case from 'case';
-import { AlertCircle, ExternalLink, Settings } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
 import { Badge } from '../ui/badge';
 
 interface Usage {

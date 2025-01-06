@@ -1,16 +1,16 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useQuery } from '@tanstack/react-query';
+import { Editor } from '@tiptap/core';
+import { Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Editor } from '@tiptap/core';
-import Image from 'next/image';
-import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Check, Loader2 } from 'lucide-react';
-import axios from '@/lib/axiosInstance';
 import { visualList } from '@/constants/urlConstant';
+import axios from '@/lib/axiosInstance';
 
 interface VisualModalProps {
   editor: Editor;

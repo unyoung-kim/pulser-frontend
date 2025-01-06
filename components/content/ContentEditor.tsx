@@ -1,6 +1,9 @@
 'use client';
 
-import '@/app/content/editor.css';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { CharacterCount } from '@tiptap/extension-character-count';
+import { AnyExtension, useEditor } from '@tiptap/react';
 import { AiImage, AiWriter } from '@/extensions';
 import { Ai } from '@/extensions/Ai';
 import ExtensionKit from '@/extensions/extension-kit';
@@ -12,12 +15,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useDebounceCallback } from '@/hooks/useDebounceCallback';
 import { supabase } from '@/lib/supabaseClient';
 import { getJwtToken } from '@/lib/token';
-import { useQuery } from '@tanstack/react-query';
-import { CharacterCount } from '@tiptap/extension-character-count';
-import { AnyExtension, useEditor } from '@tiptap/react';
-import React, { useCallback, useEffect, useState } from 'react';
-import { BlockEditor } from '../new-editor/BlockEditor';
 import { EditorSidebar } from './EditorSidebar';
+import { BlockEditor } from '../new-editor/BlockEditor';
+import '@/app/content/editor.css';
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 // const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;

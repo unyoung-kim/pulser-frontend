@@ -1,11 +1,11 @@
-import { Toaster } from '@/components/ui/toaster';
-import { ProjectProvider } from '@/contexts/ProjectContext';
-import { SidebarProvider } from '@/contexts/SidebarContext';
+import React from 'react';
+import type { Metadata } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
-import type { Metadata } from 'next';
-import React from 'react';
+import { Toaster } from '@/components/ui/toaster';
+import { ProjectProvider } from '@/contexts/ProjectContext';
+import { SidebarProvider } from '@/contexts/SidebarContext';
 import './globals.css';
 import { Providers } from './providers';
 

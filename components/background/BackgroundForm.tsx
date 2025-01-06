@@ -1,3 +1,8 @@
+import { useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Building2, CheckCircle, Loader2, MessageSquareText, Package2, Users } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -13,11 +18,6 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea2';
 import { useToast } from '@/hooks/use-toast';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, CheckCircle, Loader2, MessageSquareText, Package2, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 const BackgroundSchema = z.object({
   basic: z.object({

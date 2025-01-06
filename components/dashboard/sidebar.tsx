@@ -1,5 +1,21 @@
 'use client';
 
+import { useCallback, useEffect, useMemo } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth, UserButton, useUser } from '@clerk/nextjs';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Activity,
+  BrainCircuit,
+  ChevronsUpDown,
+  Folder,
+  GalleryVerticalEnd,
+  Mail,
+  Settings,
+  WholeWord,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,22 +29,6 @@ import { Project, useProjects } from '@/contexts/ProjectContext';
 import { useSidebarState } from '@/contexts/SidebarContext';
 import { supabase } from '@/lib/supabaseClient';
 import { cn } from '@/lib/utils';
-import { useAuth, UserButton, useUser } from '@clerk/nextjs';
-import { useQuery } from '@tanstack/react-query';
-import {
-  Activity,
-  BrainCircuit,
-  ChevronsUpDown,
-  Folder,
-  GalleryVerticalEnd,
-  Mail,
-  Settings,
-  WholeWord,
-} from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo } from 'react';
 import { NewContentButton } from './new-content-button';
 import ProgressRing from './ProgressRing';
 

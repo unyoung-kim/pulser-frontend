@@ -1,15 +1,10 @@
 'use client';
 
-import { useTextmenuCommands } from '@/components/new-editor/menus/TextMenu/hooks/useTextmenuCommands';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import Tooltip from '@/components/ui/tooltip';
-import { toast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { useCallback, useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AiStorage } from '@tiptap-pro/extension-ai';
 import { Editor } from '@tiptap/core';
 import { useEditorState } from '@tiptap/react';
+import { AiStorage } from '@tiptap-pro/extension-ai';
 import { motion } from 'framer-motion';
 import {
   ArrowRight,
@@ -21,9 +16,14 @@ import {
   Sparkles,
   Trash2,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { useTextmenuCommands } from '@/components/new-editor/menus/TextMenu/hooks/useTextmenuCommands';
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import Tooltip from '@/components/ui/tooltip';
+import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   prompt: z.string().min(1, {
@@ -34,6 +34,7 @@ const formSchema = z.object({
 interface AiPromptInputProps {
   editor: Editor;
 }
+
 const HUMANIZE_PROMPT = `You will be given a user query. Please generate text that avoids using formal
 or overly academic phrases such as 'it is worth noting,' 'furthermore,' 'consequently,' 'in terms of,' 'one may argue,'
 'it is imperative,' 'this suggests that,' 'thus,' 'it is evident that,' 'notwithstanding,' 'pertaining to,'

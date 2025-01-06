@@ -1,12 +1,12 @@
 'use client';
 
+import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useOrganization, useUser } from '@clerk/nextjs';
+import { DocumentTextIcon, FolderIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
 import { useProjects } from '@/contexts/ProjectContext';
-import { useOrganization, useUser } from '@clerk/nextjs';
-import { DocumentTextIcon, FolderIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
-import { useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
 // import { createClient } from '@supabase/supabase-js';
 import { getLastUpdatedText } from '@/lib/date';
 import { supabase } from '@/lib/supabaseClient';

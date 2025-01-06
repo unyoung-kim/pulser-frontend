@@ -1,12 +1,12 @@
 'use client';
 
+import { useParams, useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { ContentEditor } from '@/components/content/ContentEditor';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Loader } from '@/components/ui/loader';
 import { useSidebarState } from '@/contexts/SidebarContext';
 import { supabase } from '@/lib/supabaseClient';
-import { useQuery } from '@tanstack/react-query';
-import { useParams, useSearchParams } from 'next/navigation';
 
 export default function ContentPage() {
   const params = useParams();
