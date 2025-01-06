@@ -238,7 +238,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
           )}
         >
           <Tooltip
-            content={"Rewrite selected text in a more natural, conversational tone"}
+            content="Rewrite selected text in a more natural, conversational tone"
             side="top"
           >
             <span>
@@ -254,7 +254,7 @@ export function AiPromptInput({ editor }: AiPromptInputProps) {
             </span>
           </Tooltip>
 
-          <Tooltip content={"Transform selected text into a visual infographic"} side="top">
+          <Tooltip content="Transform selected text into a visual infographic" side="top">
             <span>
               <Button
                 variant="outline"

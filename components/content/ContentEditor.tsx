@@ -205,19 +205,19 @@ export function ContentEditor({
       CharacterCount,
       aiToken
         ? AiWriter.configure({
-            appId: "y9djg7p9",
-            token: aiToken,
-            authorId: undefined,
-            authorName: undefined,
-          })
+          appId: "y9djg7p9",
+          token: aiToken,
+          authorId: undefined,
+          authorName: undefined,
+        })
         : undefined,
       aiToken
         ? AiImage.configure({
-            appId: "y9djg7p9",
-            token: aiToken,
-            authorId: undefined,
-            authorName: undefined,
-          })
+          appId: "y9djg7p9",
+          token: aiToken,
+          authorId: undefined,
+          authorName: undefined,
+        })
         : undefined,
       aiToken ? Ai.configure({ appId: "y9djg7p9", token: aiToken }) : undefined,
       ImageSearch,
