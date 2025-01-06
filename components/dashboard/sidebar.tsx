@@ -304,7 +304,8 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                 <HoverCardTrigger asChild>
                   <div className="cursor-default">
                     <ProgressRing
-                      value={usedCredits}
+                      used={usedCredits}
+                      total={totalCredits}
                       className="text-blue-500"
                       size={isCollapsed ? 34 : 48}
                       labelClassName={isCollapsed ? "text-xs" : "text-sm"}
@@ -326,7 +327,8 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
               </HoverCard>
             ) : (
               <ProgressRing
-                value={usedCredits}
+                used={usedCredits}
+                total={totalCredits}
                 className="text-blue-500"
                 size={isCollapsed ? 34 : 48}
                 labelClassName={isCollapsed ? "text-xs" : "text-sm"}

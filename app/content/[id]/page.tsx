@@ -1,35 +1,35 @@
-'use client';
+"use client";
 
-import { useParams, useSearchParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { ContentEditor } from '@/components/content/ContentEditor';
-import { Sidebar } from '@/components/dashboard/sidebar';
-import { Loader } from '@/components/ui/loader';
-import { useSidebarState } from '@/contexts/SidebarContext';
-import { supabase } from '@/lib/supabaseClient';
-
+import { ContentEditor } from "@/components/content/ContentEditor";
+import { Sidebar } from "@/components/dashboard/sidebar";
+import { Loader } from "@/components/ui/loader";
+import { useSidebarState } from "@/contexts/SidebarContext";
+import { supabase } from "@/lib/supabaseClient";
+import { useQuery } from "@tanstack/react-query";
+import { useParams, useSearchParams } from "next/navigation";
 
 export default function ContentPage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
+  const projectId = searchParams.get("projectId");
   const contentId = params.id;
   const { isCollapsed } = useSidebarState();
 
   const { data: content, isLoading: isContentLoading } = useQuery({
-    queryKey: ['content', contentId],
+    queryKey: ["content", contentId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('Content')
-        .select(`
+        .from("Content")
+        .select(
+          `
           *,
           Keyword!keyword_id (keyword)
-        `)
-        .eq('id', contentId)
+        `,
+        )
+        .eq("id", contentId)
         .single();
 
       if (error) throw error;
-      console.log('Content query response:', data);
       return data;
     },
     enabled: !!contentId,
@@ -61,12 +61,10 @@ export default function ContentPage() {
   return (
     <div
       className={`grid min-h-screen w-full transition-[grid-template-columns] duration-300 ${
-        isCollapsed
-          ? 'grid-cols-[60px_1fr]'
-          : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
+        isCollapsed ? "grid-cols-[60px_1fr]" : "grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]"
       }`}
     >
-      <Sidebar projectId={projectId || ''} defaultCollapsed={true} />
+      <Sidebar projectId={projectId || ""} defaultCollapsed={true} />
       {/* {!contentBody ? (
         <div className="flex flex-col flex-1 items-center">
           <ContentSettings />
@@ -77,11 +75,11 @@ export default function ContentPage() {
           <ContentEditor
             initialContent=""
             contentId={contentId as string}
-            projectId={projectId || ''}
-            title={content?.title || ''}
-            status={content?.status || 'drafted'}
+            projectId={projectId || ""}
+            title={content?.title || ""}
+            status={content?.status || "drafted"}
             keyword={content?.Keyword?.keyword}
-            type={content?.type || 'NORMAL'}
+            type={content?.type || "NORMAL"}
           />
         </main>
       </div>
