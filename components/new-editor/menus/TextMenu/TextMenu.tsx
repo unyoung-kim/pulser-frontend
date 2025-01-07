@@ -110,6 +110,14 @@ export const TextMenu = ({ editor }: TextMenuProps) => {
           <Icon name="Strikethrough" />
         </MemoButton>
         <MemoButton
+          tooltip="Block Quote"
+          tooltipShortcut={['Mod', 'Shift', 'b']}
+          onClick={commands.onBlockquote}
+          active={states.isBlockQuote}
+        >
+          <Icon name="TextQuote" />
+        </MemoButton>
+        <MemoButton
           tooltip="Code"
           tooltipShortcut={['Mod', 'E']}
           onClick={commands.onCode}

@@ -12,6 +12,7 @@ export const useTextmenuStates = (editor: Editor) => {
         isBold: ctx.editor.isActive('bold'),
         isItalic: ctx.editor.isActive('italic'),
         isStrike: ctx.editor.isActive('strike'),
+        isBlockQuote: ctx.editor.isActive('blockquote'),
         isUnderline: ctx.editor.isActive('underline'),
         isCode: ctx.editor.isActive('code'),
         isSubscript: ctx.editor.isActive('subscript'),
