@@ -9,7 +9,9 @@ import { ColumnsMenu } from '@/extensions/MultiColumn/menus';
 import { ShowVisualEventProps } from '@/extensions/ShowVisual/ShowVisual';
 import { TableColumnMenu, TableRowMenu } from '@/extensions/Table/menus';
 import { YoutubeSearchEventProps } from '@/extensions/YoutubeSearch/YoutubeSearch';
+import { useDebounceCallback } from '@/hooks/useDebounceCallback';
 import { useSidebar } from '@/hooks/useSidebar';
+import { cn } from '@/lib/utils';
 import { LinkMenu } from '../menus';
 import { ContentItemMenu } from '../menus/ContentItemMenu';
 import { TextMenu } from '../menus/TextMenu';
@@ -17,7 +19,6 @@ import { Sidebar } from '../Sidebar';
 import { AiPromptInput } from './components/AiPromptInput';
 import { EditorHeader } from './components/EditorHeader';
 import '@/styles/index.css';
-import { cn } from '@/lib/utils';
 
 export const BlockEditor = ({
   aiToken,
@@ -41,18 +42,35 @@ export const BlockEditor = ({
   const [showYoutubeSearch, setShowYoutubeSearch] = useState(false);
   const [showVisualModal, setShowVisualModal] = useState(false);
 
-  useEffect(() => {
-    const checkChanges = () => {
-      const currentContent = editor.getHTML();
-      setHasChanges(currentContent !== lastSavedContent);
+  // Debounced save function
+  const debouncedSave = useDebounceCallback(() => {
+    onSave();
+    setLastSavedContent(editor.getHTML());
+    setHasChanges(false);
+    setShowSaved(true);
+
+    // Hide the "Saved" indicator after 3 seconds
+    setTimeout(() => {
       setShowSaved(false);
+    }, 3000);
+  }, 3000);
+
+  // Track content changes and trigger auto-save
+  useEffect(() => {
+    const handleUpdate = () => {
+      const currentContent = editor.getHTML();
+      const isContentChanged = currentContent !== lastSavedContent;
+      if (isContentChanged) {
+        setHasChanges(isContentChanged);
+        debouncedSave();
+      }
     };
 
-    editor.on('update', checkChanges);
+    editor.on('update', handleUpdate);
     return () => {
-      editor.off('update', checkChanges);
+      editor.off('update', handleUpdate);
     };
-  }, [editor, lastSavedContent]);
+  }, [editor, lastSavedContent, debouncedSave]);
 
   const handleSave = () => {
     onSave();
