@@ -27,6 +27,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import Tooltip from '@/components/ui/tooltip';
 import { Project, useProjects } from '@/contexts/ProjectContext';
 import { useSidebarState } from '@/contexts/SidebarContext';
+import { useGetKnowledgeBase } from '@/lib/apiHooks/useGetKnowledgeBase';
 import { supabase } from '@/lib/supabaseClient';
 import { cn } from '@/lib/utils';
 import { NewContentButton } from './new-content-button';
@@ -115,6 +116,12 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
     },
     [router]
   );
+
+  // Query to fetch basic background data
+  const { data: details } = useGetKnowledgeBase(projectId);
+  const isBackgroundPresent = useMemo(() => {
+    return details && Object.values(details?.background?.basic).every((value) => !Boolean(value));
+  }, [details]); //Returns true if all values are falsy
 
   const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
     queryKey: ['usage', orgId],
@@ -263,8 +270,21 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                       <NewContentButton disabled={true} />
                     </div>
                   </Tooltip>
+                ) : !isBackgroundPresent ? (
+                  <Tooltip content="You can proceed" side="right">
+                    <div>
+                      <NewContentButton disabled={false} />
+                    </div>
+                  </Tooltip>
                 ) : (
-                  <NewContentButton disabled={false} />
+                  <Tooltip
+                    content="Complete the background details first before proceeding"
+                    side="right"
+                  >
+                    <div>
+                      <NewContentButton disabled={true} />
+                    </div>
+                  </Tooltip>
                 )}
               </div>
             )}

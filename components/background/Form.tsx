@@ -28,6 +28,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea2';
 import { useToast } from '@/hooks/use-toast';
+import { useGetKnowledgeBase } from '@/lib/apiHooks/useGetKnowledgeBase';
 import { supabase } from '@/lib/supabaseClient';
 import { getPathFromURL } from '@/lib/url';
 import { cn } from '@/lib/utils';
@@ -102,19 +103,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     },
   ];
 
-  const { data: project, isLoading } = useQuery({
-    queryKey: ['project', projectId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('Project')
-        .select('background')
-        .eq('id', projectId)
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: project, isLoading } = useGetKnowledgeBase(projectId);
 
   const { data: internalLinks, isLoading: isLoadingLinks } = useQuery({
     queryKey: ['internalLinks', projectId],
