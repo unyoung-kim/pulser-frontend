@@ -1,15 +1,23 @@
 import { Briefcase, Building2, User } from 'lucide-react';
 
-export interface PricingPlan {
-  name: string;
-  icon: any; // You could make this more specific with LucideIcon type if you want
+// Plan names including all possible plans
+export type PlanName = 'FREE_CREDIT' | 'Basic' | 'Pro' | 'Agency';
+
+// Structure for card-specific plans
+interface PlanCard {
+  name: Exclude<PlanName, 'FREE_CREDIT'>; // Exclude FREE_CREDIT from cards
+  icon: any;
   monthlyPrice: number;
   yearlyPrice: number;
   credits: number;
   popular?: boolean;
 }
 
-export const plans: PricingPlan[] = [
+// Array of all plan names
+const planNames: PlanName[] = ['FREE_CREDIT', 'Basic', 'Pro', 'Agency'];
+
+// Data specifically for rendering cards
+export const planCards: PlanCard[] = [
   {
     name: 'Basic',
     icon: User,
@@ -33,3 +41,17 @@ export const plans: PricingPlan[] = [
     credits: 1000,
   },
 ];
+
+// Possible statuses for a plan
+type PlanAction = 'Choose Plan' | 'Current Plan' | 'Upgrade Plan' | 'Downgrade Plan';
+
+// Function to determine plan status
+export const getPlanAction = (currentPlan: PlanName, targetPlan: PlanName): PlanAction => {
+  if (currentPlan === 'FREE_CREDIT') return 'Choose Plan';
+
+  const currentIndex = planNames.findIndex((name) => name === currentPlan);
+  const targetIndex = planNames.findIndex((name) => name === targetPlan);
+
+  if (currentIndex === targetIndex) return 'Current Plan';
+  return targetIndex > currentIndex ? 'Upgrade Plan' : 'Downgrade Plan';
+};
