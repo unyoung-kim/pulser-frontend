@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { useQuery } from '@tanstack/react-query';
@@ -10,11 +10,12 @@ import { TableView } from '@/components/dashboard/table-view';
 import { Status, ViewToggle } from '@/components/dashboard/view-toggle';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import Tooltip from '@/components/ui/tooltip';
 import { useSidebarState } from '@/contexts/SidebarContext';
 import { useToast } from '@/hooks/use-toast';
+import { useGetKnowledgeBase } from '@/lib/apiHooks/useGetKnowledgeBase';
 import { supabase } from '@/lib/supabaseClient';
 import MainLayout from './layout/MainLayout';
-
 // Initialize Supabase client
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 // const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -61,6 +62,11 @@ const Dashboard02 = () => {
   //   const supabaseClient = createClient(supabaseUrl, supabaseKey);
   //   setSupabase(supabaseClient);
   // }, []);
+
+  const { data: details } = useGetKnowledgeBase(projectId);
+  const isBackgroundPresent = useMemo(() => {
+    return details && Object.values(details?.background?.basic).every((value) => !Boolean(value));
+  }, [details]); //Returns true if all values are falsy
 
   const getContent = useCallback(
     async (supabase: SupabaseClient, projectId: string, page: number): Promise<ContentItem[]> => {
@@ -217,6 +223,7 @@ const Dashboard02 = () => {
               status={status}
               setStatus={handleSetStatus}
               onNewContent={() => router.push(`/content/settings?projectId=${projectId}`)}
+              basicBackground={isBackgroundPresent}
             />
           </div>
           {items.length === 0 ? (
@@ -228,15 +235,27 @@ const Dashboard02 = () => {
                 <p className="mt-2 text-sm text-gray-500">
                   Get started by creating your first piece of content
                 </p>
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="mt-4 bg-indigo-600 text-sm text-white hover:bg-indigo-700"
-                  onClick={() => router.push(`/content/settings?projectId=${projectId}`)}
+                <Tooltip
+                  content={
+                    isBackgroundPresent
+                      ? 'Complete the background details first before proceeding'
+                      : 'Create new content'
+                  }
+                  side="top"
                 >
-                  <Plus className="mr-2 h-4 w-4" />
-                  New Content
-                </Button>
+                  <span>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="mt-4 bg-indigo-600 text-sm text-white hover:bg-indigo-700"
+                      onClick={() => router.push(`/content/settings?projectId=${projectId}`)}
+                      disabled={isBackgroundPresent} // Disable button if background data is not present
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      New Content
+                    </Button>
+                  </span>
+                </Tooltip>
               </div>
             </div>
           ) : (

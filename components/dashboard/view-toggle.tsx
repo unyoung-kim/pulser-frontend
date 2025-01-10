@@ -2,6 +2,7 @@ import Case from 'case';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Tooltip from '@/components/ui/tooltip';
 
 export enum Status {
   All = 'All',
@@ -17,6 +18,7 @@ interface ViewToggleProps {
   status: Status;
   setStatus: (status: string) => void;
   onNewContent: () => void;
+  basicBackground?: boolean;
 }
 
 export function ViewToggle({
@@ -25,9 +27,9 @@ export function ViewToggle({
   status,
   setStatus,
   onNewContent,
+  basicBackground,
 }: ViewToggleProps) {
   const statuses: Status[] = Object.values(Status);
-
   return (
     <div className="mb-4 flex h-6 items-center justify-between">
       <Tabs value={status} onValueChange={(value) => setStatus(value)} className="w-auto">
@@ -67,12 +69,25 @@ export function ViewToggle({
           Table
         </Button>
       </div> */}
-      <div className="ml-2 flex gap-2">
-        <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={onNewContent}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Content
-        </Button>
-      </div>
+      <Tooltip
+        content={
+          basicBackground
+            ? 'Complete the background details first before proceeding'
+            : 'Create new content'
+        }
+        side="bottom"
+      >
+        <div className="ml-2 flex gap-2">
+          <Button
+            className="bg-indigo-600 hover:bg-indigo-700"
+            onClick={onNewContent}
+            disabled={basicBackground} // Disable button if background data is not present
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            New Content
+          </Button>
+        </div>
+      </Tooltip>
     </div>
   );
 }
