@@ -206,7 +206,8 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                 alt="Logo"
                 width={120}
                 height={32}
-                className="mx-auto mb-4"
+                quality={100}
+                className="mx-auto mb-4 h-auto w-auto"
               />
             )}
             <DropdownMenu>

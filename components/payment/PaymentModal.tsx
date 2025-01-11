@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { plans } from '@/lib/pricing-plan';
+import { planCards } from '@/lib/pricing-plan';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -58,7 +58,7 @@ export default function PaymentModal({ isOpen, onClose, selectedPlan }: PaymentM
           </div>
 
           <div className="mb-12 grid gap-8 md:grid-cols-3">
-            {plans.map((plan) => (
+            {planCards.map((plan) => (
               <Card
                 key={plan.name}
                 className={`relative ${plan.popular ? 'border-indigo-600 shadow-md' : ''}`}

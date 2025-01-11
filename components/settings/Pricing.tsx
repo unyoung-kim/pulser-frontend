@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import Case from 'case';
 import { AlertCircle, ExternalLink, Settings } from 'lucide-react';
+import { ConfirmationPopup } from '@/components/settings/ConfirmationPopup';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,9 +20,10 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { BACKEND_URL } from '@/lib/api/backend';
-import { plans } from '@/lib/pricing-plan';
+import { getPlanAction, planCards, PlanName } from '@/lib/pricing-plan';
 import { supabase } from '@/lib/supabaseClient';
 import { Badge } from '../ui/badge';
 
@@ -28,14 +31,23 @@ interface Usage {
   credits_charged: number;
   additional_credits_charged: number;
   credits_used: number;
-  plan: string;
+  plan: PlanName;
   term: 'MONTHLY' | 'YEARLY';
+  is_cancelled: boolean;
 }
 
 export default function PricingPage() {
-  const { orgId } = useAuth();
   const [activeTab, setActiveTab] = useState<'plan' | 'subscription' | 'danger'>('subscription');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [confirmationDetails, setConfirmationDetails] = useState({
+    currentPlan: '',
+    newPlan: '',
+    leftoverCredits: 0,
+    newBillingDate: '',
+  });
+
+  const { orgId } = useAuth();
   const { toast } = useToast();
 
   const previousPurchases = [
@@ -43,7 +55,11 @@ export default function PricingPage() {
     // Add more purchase history as needed
   ];
 
-  const { data: usage, isPending: isLoadingUsage } = useQuery<Usage>({
+  const {
+    data: usage,
+    isLoading,
+    isSuccess,
+  } = useQuery<Usage>({
     queryKey: ['usage', orgId],
     queryFn: async () => {
       if (!orgId) throw new Error('No organization ID found');
@@ -83,6 +99,8 @@ export default function PricingPage() {
             credits_used: newData?.credits_used ?? 0,
             plan: newData?.plan ?? 'FREE_CREDIT',
             term: newData?.term ?? 'YEARLY',
+            is_cancelled: newData?.is_cancelled ?? false,
+            end_date: newData?.end_date ?? '',
           };
         }
         throw orgError;
@@ -91,7 +109,9 @@ export default function PricingPage() {
       // Then fetch the usage data using the current_usage_id
       const { data, error } = await supabase
         .from('Usage')
-        .select('plan, credits_charged, additional_credits_charged, credits_used, term')
+        .select(
+          'plan, credits_charged, additional_credits_charged, credits_used, term, is_cancelled'
+        )
         .eq('id', orgData.current_usage_id)
         .single();
 
@@ -105,6 +125,7 @@ export default function PricingPage() {
         credits_used: data?.credits_used ?? 0,
         plan: data?.plan ?? 'FREE_CREDIT',
         term: data?.term ?? 'YEARLY',
+        is_cancelled: data?.is_cancelled ?? false,
       };
     },
     enabled: !!orgId,
@@ -123,97 +144,79 @@ export default function PricingPage() {
   const remainingCredits = totalCredits - usedCredits;
 
   const handleChoosePlan = useCallback(
-    async (planName: string) => {
+    (planName: string) => {
       if (!orgId) {
-        console.log('No orgId found');
         return;
       }
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/create-stripe-session`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            orgId: orgId,
-            plan: planName as 'SOLO' | 'BUSINESS' | 'AGENCY',
-            term: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
-            mode: 'subscription',
-          }),
-        });
-
-        const data = await response.json();
-
-        if (!data.success) {
-          throw new Error(data.error);
-        }
-
-        window.location.href = data.data;
-      } catch (error) {
-        console.error('Error creating stripe session:', error);
-      }
+      setConfirmationDetails({
+        currentPlan: usage?.plan ?? 'FREE_CREDIT',
+        newPlan: planName,
+        leftoverCredits: remainingCredits,
+        newBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+      });
+      setIsConfirmationOpen(true);
     },
-    [orgId, billingCycle]
+    [orgId, usage, remainingCredits]
   );
 
   const handleUpdatePlan = useCallback(
-    async (planName: string) => {
+    (planName: string) => {
       if (!orgId) {
-        console.log('No orgId found');
         return;
       }
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/update-subscription`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            orgId: orgId,
-            plan: planName as 'BASIC' | 'PRO' | 'AGENCY',
-            term: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
-          }),
-        });
+      setConfirmationDetails({
+        currentPlan: usage?.plan ?? '',
+        newPlan: planName,
+        leftoverCredits: remainingCredits,
+        newBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+      });
+      setIsConfirmationOpen(true);
+    },
+    [orgId, usage, remainingCredits]
+  );
 
-        const data = await response.json();
+  const handleConfirmPlanChange = async () => {
+    setIsConfirmationOpen(false);
+    try {
+      const response = await axios.post(`${BACKEND_URL}/api/update-subscription`, {
+        orgId: orgId,
+        plan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
+        term: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+      });
 
-        if (!data.success) {
-          toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: data.error || 'Failed to update subscription',
-          });
-          return;
-        }
+      const data = response.data;
 
-        toast({
-          title: 'Success',
-          description: 'Your subscription has been updated successfully',
-        });
-
-        window.location.reload();
-      } catch (error) {
+      if (!data.success) {
         toast({
           variant: 'destructive',
           title: 'Error',
-          description: 'Failed to update subscription. Please try again later.',
+          description: data.error || 'Failed to update subscription',
         });
-        console.error('Error updating subscription:', error);
+        return;
       }
-    },
-    [orgId, billingCycle, toast]
-  );
+
+      toast({
+        title: 'Success',
+        description: 'Your subscription has been updated successfully',
+      });
+
+      window.location.reload();
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to update subscription. Please try again later.',
+      });
+    }
+  };
 
   const cancelSubscriptionMutation = useMutation({
     mutationFn: async (orgId: string) => {
-      const response = await fetch(`${BACKEND_URL}/api/delete-subscription`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ orgId }),
+      const response = await axios.post(`${BACKEND_URL}/api/delete-subscription`, {
+        orgId,
       });
-      const data = await response.json();
+      const data = response.data;
+
       if (!data.success) {
         throw new Error(data.error);
       }
@@ -221,8 +224,9 @@ export default function PricingPage() {
     },
     onSuccess: () => {
       toast({
-        title: 'Success',
-        description: 'Your subscription has been cancelled successfully',
+        title: 'Subscription Cancelled',
+        description:
+          'Your subscription has been cancelled. You can use your credits until the next billing date.',
       });
       window.location.reload();
     },
@@ -237,7 +241,6 @@ export default function PricingPage() {
 
   const handleCancelSubscription = async () => {
     if (!orgId) {
-      console.log('No orgId found');
       return;
     }
     cancelSubscriptionMutation.mutate(orgId);
@@ -299,17 +302,24 @@ export default function PricingPage() {
                     variant="secondary"
                     className="bg-secondary/100 text-sm font-medium capitalize text-secondary-foreground"
                   >
-                    {Case.capital(usage?.plan ?? '')}
+                    {usage?.is_cancelled ? 'Cancelled' : Case.capital(usage?.plan ?? '')}
                   </Badge>
                 </div>
-                <div className="mb-4 flex items-baseline justify-between">
+                <div className="mb-4 flex items-center justify-between">
                   <p className="text-5xl font-semibold">
                     {remainingCredits}
                     <span className="ml-2 text-2xl font-normal text-muted-foreground">
                       /{totalCredits}
                     </span>
                   </p>
-                  <p className="text-sm text-muted-foreground">Renews on Jan 1, 2025</p>
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground">Renews on Jan 1, 2025</p>
+                    <p className="text-sm text-muted-foreground">
+                      {usage?.is_cancelled
+                        ? 'Credits available until your next renewal'
+                        : 'Credits available until your plan ends'}
+                    </p>
+                  </div>
                 </div>
                 {/* Add subscription info section */}
                 {usage?.plan && (
@@ -319,6 +329,7 @@ export default function PricingPage() {
                         <h4 className="text-sm font-medium">Current Subscription</h4>
                         <p className="mt-1 text-sm text-muted-foreground">
                           {Case.capital(usage.plan)} Plan ({Case.capital(usage.term.toLowerCase())})
+                          {usage.is_cancelled && ' - Cancelled'}
                         </p>
                       </div>
                       <Button
@@ -381,7 +392,7 @@ export default function PricingPage() {
             </div>
 
             <div className="mb-12 grid gap-8 md:grid-cols-3">
-              {plans.map((plan) => (
+              {planCards.map((plan) => (
                 <Card
                   key={plan.name}
                   className={`relative ${
@@ -421,14 +432,13 @@ export default function PricingPage() {
                         </span>
                         <span className="text-muted-foreground">USD / mo</span>
                       </div>
-                      <div className="mt-1 text-sm text-muted-foreground">Billed yearly</div>
+                      <div className="mt-1 text-sm capitalize text-muted-foreground">
+                        Billed {billingCycle}
+                      </div>
                     </div>
 
-                    {!(
-                      usage?.plan === plan.name.toUpperCase() &&
-                      usage?.plan !== 'FREE_CREDIT' &&
-                      usage?.term.toLowerCase() === billingCycle
-                    ) && (
+                    {isLoading && <Skeleton className="mb-6 h-10 w-full" />}
+                    {isSuccess && (
                       <Button
                         variant={
                           usage?.plan !== 'FREE_CREDIT'
@@ -438,13 +448,17 @@ export default function PricingPage() {
                               : 'outline'
                         }
                         className={`mb-6 w-full ${usage?.plan !== 'FREE_CREDIT' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
-                        onClick={() =>
-                          usage?.plan !== 'FREE_CREDIT'
-                            ? handleUpdatePlan(plan.name.toUpperCase())
-                            : handleChoosePlan(plan.name.toUpperCase())
-                        }
+                        onClick={() => {
+                          const action = getPlanAction(usage.plan, plan.name);
+                          if (action === 'Choose Plan') {
+                            handleChoosePlan(plan.name.toUpperCase());
+                          } else if (action !== 'Current Plan') {
+                            handleUpdatePlan(plan.name.toUpperCase());
+                          }
+                        }}
+                        disabled={getPlanAction(usage.plan, plan.name) === 'Current Plan'}
                       >
-                        Choose Plan
+                        {getPlanAction(usage.plan, plan.name)}
                       </Button>
                     )}
 
@@ -463,6 +477,15 @@ export default function PricingPage() {
                 </Card>
               ))}
             </div>
+            <ConfirmationPopup
+              isOpen={isConfirmationOpen}
+              onClose={() => setIsConfirmationOpen(false)}
+              onConfirm={handleConfirmPlanChange}
+              currentPlan={confirmationDetails.currentPlan}
+              newPlan={confirmationDetails.newPlan}
+              leftoverCredits={confirmationDetails.leftoverCredits}
+              newBillingDate={confirmationDetails.newBillingDate}
+            />
           </>
         ) : (
           activeTab === 'danger' && (
@@ -477,18 +500,26 @@ export default function PricingPage() {
                         <p className="text-muted-foreground">
                           You don&apos;t have any active subscription to cancel.
                         </p>
+                      ) : usage?.is_cancelled ? (
+                        <p className="text-muted-foreground">
+                          Your subscription has been cancelled. You can use your credits until your
+                          plan ends.
+                        </p>
                       ) : (
                         <p className="text-muted-foreground">
-                          This action cannot be undone. Your subscription will be cancelled
-                          immediately.
+                          This action cannot be undone. Your subscription will be cancelled at the
+                          end of the current billing period.
                         </p>
                       )}
                     </div>
                   </div>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" disabled={usage?.plan === 'FREE_CREDIT'}>
-                        Cancel Subscription
+                      <Button
+                        variant="destructive"
+                        disabled={usage?.plan === 'FREE_CREDIT' || usage?.is_cancelled}
+                      >
+                        {usage?.is_cancelled ? 'Subscription Cancelled' : 'Cancel Subscription'}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -497,8 +528,8 @@ export default function PricingPage() {
                           Are you sure you want to cancel your subscription?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. You will lose access to your current plan
-                          benefits.
+                          You can continue to use your credits until the next billing date. After
+                          that, no further charges will occur.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

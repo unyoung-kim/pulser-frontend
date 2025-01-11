@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script type="module" src="https://assets.sandbox.cello.so/app/latest/cello.js" async />
       </head>
-      <body>
+      <body suppressHydrationWarning={true}>
         <SidebarProvider>
           <ClerkProvider>
             <ProjectProvider>
