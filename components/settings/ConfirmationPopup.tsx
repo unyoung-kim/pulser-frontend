@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle, CreditCard, Calendar } from 'lucide-react';
+import { AlertTriangle, CheckCircle, CreditCard, Calendar, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -36,7 +36,7 @@ export function ConfirmationPopup({
             Confirm Plan Change
           </DialogTitle>
           <DialogDescription>
-            Please review the details of your plan change carefully before confirming.
+            Please review the details of your plan carefully before confirming.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
@@ -75,13 +75,17 @@ export function ConfirmationPopup({
               <Calendar className="h-4 w-4 text-gray-400" />
               The new billing cycle will start from today.
             </li>
+            <li className="flex items-center gap-2">
+              <Info className="h-4 w-4 text-gray-400" />
+              Any leftover credits will roll over and expire on the next billing date.
+            </li>
           </ul>
         </div>
         <div className="mt-6 flex justify-end gap-3">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={onConfirm}>Confirm Change</Button>
+          <Button onClick={onConfirm}>Confirm Plan</Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,7 +1,7 @@
 import { Briefcase, Building2, User } from 'lucide-react';
 
 // Plan names including all possible plans
-export type PlanName = 'FREE_CREDIT' | 'Basic' | 'Pro' | 'Agency';
+export type PlanName = 'FREE_CREDIT' | 'BASIC' | 'PRO' | 'AGENCY';
 
 // Structure for card-specific plans
 interface PlanCard {
@@ -14,19 +14,19 @@ interface PlanCard {
 }
 
 // Array of all plan names
-const planNames: PlanName[] = ['FREE_CREDIT', 'Basic', 'Pro', 'Agency'];
+const planNames: PlanName[] = ['FREE_CREDIT', 'BASIC', 'PRO', 'AGENCY'];
 
 // Data specifically for rendering cards
 export const planCards: PlanCard[] = [
   {
-    name: 'Basic',
+    name: 'BASIC',
     icon: User,
     monthlyPrice: 49,
     yearlyPrice: 39,
     credits: 100,
   },
   {
-    name: 'Pro',
+    name: 'PRO',
     icon: Briefcase,
     monthlyPrice: 109,
     yearlyPrice: 99,
@@ -34,7 +34,7 @@ export const planCards: PlanCard[] = [
     popular: true,
   },
   {
-    name: 'Agency',
+    name: 'AGENCY',
     icon: Building2,
     monthlyPrice: 419,
     yearlyPrice: 379,
