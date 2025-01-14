@@ -65,9 +65,11 @@ const Dashboard02 = () => {
 
   const { isSuccess: isKnowledgeBaseSuccess, data: details } = useGetKnowledgeBase(projectId);
   const isBackgroundPresent = useMemo(() => {
-    if (!isKnowledgeBaseSuccess) return false;
-    return Object.values(details?.background?.basic).every((value) => !Boolean(value));
-  }, [details, isKnowledgeBaseSuccess]); //Returns true if all values are falsy
+    if (isKnowledgeBaseSuccess && details?.background?.basic) {
+      return Object.values(details?.background?.basic || {}).every((value) => !Boolean(value));
+    }
+    return false;
+  }, [details, isKnowledgeBaseSuccess]);
 
   const getContent = useCallback(
     async (supabase: SupabaseClient, projectId: string, page: number): Promise<ContentItem[]> => {
