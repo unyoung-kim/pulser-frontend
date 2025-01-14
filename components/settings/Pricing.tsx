@@ -469,10 +469,10 @@ export default function PricingPage() {
                       {plan.credits} credits per month
                     </div>
 
-                    <Button variant="link" className="mt-6 w-full">
-                      See Plan Details
-                      <ExternalLink className="ml-2 h-4 w-4" />
-                    </Button>
+                    {/*<Button variant="link" className="mt-6 w-full">*/}
+                    {/*  See Plan Details*/}
+                    {/*  <ExternalLink className="ml-2 h-4 w-4" />*/}
+                    {/*</Button>*/}
                   </CardContent>
                 </Card>
               ))}

@@ -122,9 +122,10 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
 
   const isBackgroundPresent = useMemo(() => {
     if (isKnowledgeBaseSuccess && details?.background?.basic) {
+      // Check if any field in background.basic is falsy
       return Object.values(details?.background?.basic || {}).every((value) => !Boolean(value));
     }
-    return false;
+    return true; // Default to incomplete if conditions are not met
   }, [details, isKnowledgeBaseSuccess]);
 
   const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
@@ -191,6 +192,17 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
     () => totalCredits > usedCredits,
     [totalCredits, usedCredits]
   );
+
+  // Helper to determine button state
+  const buttonState = useMemo(() => {
+    if (!hasCreditsAvailable) {
+      return { disabled: true, tooltip: 'No credits remaining' };
+    }
+    if (isBackgroundPresent) {
+      return { disabled: true, tooltip: 'Complete the background details first before proceeding' };
+    }
+    return { disabled: false, tooltip: null };
+  }, [hasCreditsAvailable, isBackgroundPresent]);
 
   return (
     <div
@@ -269,27 +281,14 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
           <nav className="grid items-start px-3 text-sm font-medium">
             {!isCollapsed && (
               <div className="mb-2">
-                {!hasCreditsAvailable ? (
-                  <Tooltip content="No credits remaining" side="right">
+                {buttonState.tooltip ? (
+                  <Tooltip content={buttonState.tooltip} side="right">
                     <div>
-                      <NewContentButton disabled={true} />
-                    </div>
-                  </Tooltip>
-                ) : !isBackgroundPresent ? (
-                  <Tooltip content="You can proceed" side="right">
-                    <div>
-                      <NewContentButton disabled={false} />
+                      <NewContentButton disabled={buttonState.disabled} />
                     </div>
                   </Tooltip>
                 ) : (
-                  <Tooltip
-                    content="Complete the background details first before proceeding"
-                    side="right"
-                  >
-                    <div>
-                      <NewContentButton disabled={true} />
-                    </div>
-                  </Tooltip>
+                  <NewContentButton disabled={buttonState.disabled} />
                 )}
               </div>
             )}

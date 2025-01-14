@@ -64,11 +64,12 @@ const Dashboard02 = () => {
   // }, []);
 
   const { isSuccess: isKnowledgeBaseSuccess, data: details } = useGetKnowledgeBase(projectId);
+
   const isBackgroundPresent = useMemo(() => {
     if (isKnowledgeBaseSuccess && details?.background?.basic) {
       return Object.values(details?.background?.basic || {}).every((value) => !Boolean(value));
     }
-    return false;
+    return true;
   }, [details, isKnowledgeBaseSuccess]);
 
   const getContent = useCallback(
@@ -238,27 +239,35 @@ const Dashboard02 = () => {
                 <p className="mt-2 text-sm text-gray-500">
                   Get started by creating your first piece of content
                 </p>
-                <Tooltip
-                  content={
-                    isBackgroundPresent
-                      ? 'Complete the background details first before proceeding'
-                      : 'Create new content'
-                  }
-                  side="top"
-                >
-                  <span>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className="mt-4 bg-indigo-600 text-sm text-white hover:bg-indigo-700"
-                      onClick={() => router.push(`/content/settings?projectId=${projectId}`)}
-                      disabled={isBackgroundPresent} // Disable button if background data is not present
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      New Content
-                    </Button>
-                  </span>
-                </Tooltip>
+                {isBackgroundPresent ? (
+                  <Tooltip
+                    content="Complete the background details first before proceeding"
+                    side="top"
+                  >
+                    <span>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="mt-4 bg-indigo-600 text-sm text-white hover:bg-indigo-700"
+                        onClick={() => router.push(`/content/settings?projectId=${projectId}`)}
+                        disabled={isBackgroundPresent} // Disable button if background data is not present
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        New Content
+                      </Button>
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="mt-4 bg-indigo-600 text-sm text-white hover:bg-indigo-700"
+                    onClick={() => router.push(`/content/settings?projectId=${projectId}`)}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    New Content
+                  </Button>
+                )}
               </div>
             </div>
           ) : (

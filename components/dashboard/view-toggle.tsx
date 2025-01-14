@@ -69,25 +69,28 @@ export function ViewToggle({
           Table
         </Button>
       </div> */}
-      <Tooltip
-        content={
-          basicBackground
-            ? 'Complete the background details first before proceeding'
-            : 'Create new content'
-        }
-        side="bottom"
-      >
-        <div className="ml-2 flex gap-2">
-          <Button
-            className="bg-indigo-600 hover:bg-indigo-700"
-            onClick={onNewContent}
-            disabled={basicBackground} // Disable button if background data is not present
-          >
+
+      <div className="ml-2 flex gap-2">
+        {basicBackground ? (
+          <Tooltip content="Complete the background details first before proceeding" side="top">
+            <span>
+              <Button
+                className="bg-indigo-600 hover:bg-indigo-700"
+                onClick={onNewContent}
+                disabled={basicBackground} // Disable button if background data is not present
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                New Content
+              </Button>
+            </span>
+          </Tooltip>
+        ) : (
+          <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={onNewContent}>
             <Plus className="mr-2 h-4 w-4" />
             New Content
           </Button>
-        </div>
-      </Tooltip>
+        )}
+      </div>
     </div>
   );
 }
