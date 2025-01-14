@@ -121,6 +121,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
   const { isSuccess: isKnowledgeBaseSuccess, data: details } = useGetKnowledgeBase(projectId);
   const isBackgroundPresent = useMemo(() => {
     if (!isKnowledgeBaseSuccess) return false;
+    console.log(details);
     return Object.values(details?.background?.basic).every((value) => !Boolean(value));
   }, [details, isKnowledgeBaseSuccess]); //Returns true if all values are falsy
 
