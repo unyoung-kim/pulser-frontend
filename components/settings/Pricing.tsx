@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
-import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import Case from 'case';
 import { AlertCircle, ExternalLink, Settings } from 'lucide-react';
@@ -23,18 +22,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { BACKEND_URL } from '@/lib/api/backend';
-import { getPlanAction, planCards, PlanName } from '@/lib/pricing-plan';
-import { supabase } from '@/lib/supabaseClient';
+import { useGetUsage } from '@/lib/apiHooks/settings/useGetUsage';
+import { useSubscriptionCancel } from '@/lib/apiHooks/settings/useSubscriptionCancel';
+import { getPlanAction, planCards } from '@/lib/pricing-plan';
 import { Badge } from '../ui/badge';
-
-interface Usage {
-  credits_charged: number;
-  additional_credits_charged: number;
-  credits_used: number;
-  plan: PlanName;
-  term: 'MONTHLY' | 'YEARLY';
-  is_cancelled: boolean;
-}
 
 export default function PricingPage() {
   const [activeTab, setActiveTab] = useState<'plan' | 'subscription' | 'danger'>('subscription');
@@ -50,86 +41,8 @@ export default function PricingPage() {
   const { orgId } = useAuth();
   const { toast } = useToast();
 
-  const previousPurchases = [
-    { date: '-', credits: '-', amount: '-' },
-    // Add more purchase history as needed
-  ];
-
-  const {
-    data: usage,
-    isLoading,
-    isSuccess,
-  } = useQuery<Usage>({
-    queryKey: ['usage', orgId],
-    queryFn: async () => {
-      if (!orgId) throw new Error('No organization ID found');
-
-      // First, get the organization and its current_usage_id
-      const { data: orgData, error: orgError } = await supabase
-        .from('Organization')
-        .select('current_usage_id')
-        .eq('org_id', orgId)
-        .single();
-
-      if (orgError) {
-        // If org doesn't exist, create new usage and org records
-        if (orgError.code === 'PGRST116') {
-          const { data: newData, error: insertError } = await supabase
-            .from('Usage')
-            .insert([
-              {
-                org_id: orgId,
-                start_date: new Date().toISOString().split('T')[0],
-                credits_used: 0,
-                credits_charged: 0,
-                additional_credits_charged: 0,
-                plan: 'FREE_CREDIT',
-                term: 'YEARLY',
-                end_date: null,
-              },
-            ])
-            .select()
-            .single();
-
-          if (insertError) throw insertError;
-
-          return {
-            credits_charged: newData?.credits_charged ?? 0,
-            additional_credits_charged: newData?.additional_credits_charged ?? 0,
-            credits_used: newData?.credits_used ?? 0,
-            plan: newData?.plan ?? 'FREE_CREDIT',
-            term: newData?.term ?? 'YEARLY',
-            is_cancelled: newData?.is_cancelled ?? false,
-            end_date: newData?.end_date ?? '',
-          };
-        }
-        throw orgError;
-      }
-
-      // Then fetch the usage data using the current_usage_id
-      const { data, error } = await supabase
-        .from('Usage')
-        .select(
-          'plan, credits_charged, additional_credits_charged, credits_used, term, is_cancelled'
-        )
-        .eq('id', orgData.current_usage_id)
-        .single();
-
-      if (error) throw error;
-
-      setBillingCycle(data?.term?.toLowerCase() as 'monthly' | 'yearly');
-
-      return {
-        credits_charged: data?.credits_charged ?? 0,
-        additional_credits_charged: data?.additional_credits_charged ?? 0,
-        credits_used: data?.credits_used ?? 0,
-        plan: data?.plan ?? 'FREE_CREDIT',
-        term: data?.term ?? 'YEARLY',
-        is_cancelled: data?.is_cancelled ?? false,
-      };
-    },
-    enabled: !!orgId,
-  });
+  const { data: usage, isLoading, isSuccess } = useGetUsage(orgId, setBillingCycle);
+  const cancelSubscriptionMutation = useSubscriptionCancel();
 
   useEffect(() => {
     if (usage?.plan && usage.plan !== 'FREE_CREDIT') {
@@ -143,6 +56,11 @@ export default function PricingPage() {
   const usedCredits = usage?.credits_used ?? 0;
   const remainingCredits = totalCredits - usedCredits;
 
+  const previousPurchases = [
+    { date: '-', credits: '-', amount: '-' },
+    // Add more purchase history as needed
+  ];
+
   const handleChoosePlan = useCallback(
     (planName: string) => {
       if (!orgId) {
@@ -152,11 +70,14 @@ export default function PricingPage() {
         currentPlan: usage?.plan ?? 'FREE_CREDIT',
         newPlan: planName,
         leftoverCredits: remainingCredits,
-        newBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        newBillingDate:
+          billingCycle === 'monthly'
+            ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
+            : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString(),
       });
       setIsConfirmationOpen(true);
     },
-    [orgId, usage, remainingCredits]
+    [orgId, usage, remainingCredits, billingCycle]
   );
 
   const handleUpdatePlan = useCallback(
@@ -168,11 +89,14 @@ export default function PricingPage() {
         currentPlan: usage?.plan ?? '',
         newPlan: planName,
         leftoverCredits: remainingCredits,
-        newBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        newBillingDate:
+          billingCycle === 'monthly'
+            ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
+            : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString(),
       });
       setIsConfirmationOpen(true);
     },
-    [orgId, usage, remainingCredits]
+    [orgId, usage?.plan, remainingCredits, billingCycle]
   );
 
   const handleConfirmPlanChange = async () => {
@@ -209,35 +133,6 @@ export default function PricingPage() {
       });
     }
   };
-
-  const cancelSubscriptionMutation = useMutation({
-    mutationFn: async (orgId: string) => {
-      const response = await axios.post(`${BACKEND_URL}/api/delete-subscription`, {
-        orgId,
-      });
-      const data = response.data;
-
-      if (!data.success) {
-        throw new Error(data.error);
-      }
-      return data;
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Subscription Cancelled',
-        description:
-          'Your subscription has been cancelled. You can use your credits until the next billing date.',
-      });
-      window.location.reload();
-    },
-    onError: (error) => {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to cancel subscription',
-      });
-    },
-  });
 
   const handleCancelSubscription = async () => {
     if (!orgId) {
