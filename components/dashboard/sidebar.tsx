@@ -118,10 +118,11 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
   );
 
   // Query to fetch basic background data
-  const { data: details } = useGetKnowledgeBase(projectId);
+  const { isSuccess: isKnowledgeBaseSuccess, data: details } = useGetKnowledgeBase(projectId);
   const isBackgroundPresent = useMemo(() => {
-    return details && Object.values(details?.background?.basic).every((value) => !Boolean(value));
-  }, [details]); //Returns true if all values are falsy
+    if (!isKnowledgeBaseSuccess) return false;
+    return Object.values(details?.background?.basic).every((value) => !Boolean(value));
+  }, [details, isKnowledgeBaseSuccess]); //Returns true if all values are falsy
 
   const { data: usage, isLoading: isLoadingUsage } = useQuery<Usage>({
     queryKey: ['usage', orgId],
