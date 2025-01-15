@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
-import axios from 'axios';
 import Case from 'case';
 import { AlertCircle, ExternalLink, Settings } from 'lucide-react';
 import { ConfirmationPopup } from '@/components/settings/ConfirmationPopup';
@@ -20,10 +19,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { BACKEND_URL } from '@/lib/api/backend';
+import { useCreateSubscripstion } from '@/lib/apiHooks/settings/useCreateSubscription';
 import { useGetUsage } from '@/lib/apiHooks/settings/useGetUsage';
 import { useSubscriptionCancel } from '@/lib/apiHooks/settings/useSubscriptionCancel';
+import { useUpdateSubscription } from '@/lib/apiHooks/settings/useUpdateSubscription';
 import { getPlanAction, planCards } from '@/lib/pricing-plan';
 import { Badge } from '../ui/badge';
 
@@ -39,9 +38,10 @@ export default function PricingPage() {
   });
 
   const { orgId } = useAuth();
-  const { toast } = useToast();
 
   const { data: usage, isLoading, isSuccess } = useGetUsage(orgId, setBillingCycle);
+  const createSubscriptionMutation = useCreateSubscripstion();
+  const updateSubscriptionMutation = useUpdateSubscription();
   const cancelSubscriptionMutation = useSubscriptionCancel();
 
   useEffect(() => {
@@ -101,37 +101,24 @@ export default function PricingPage() {
 
   const handleConfirmPlanChange = async () => {
     setIsConfirmationOpen(false);
-    try {
-      const response = await axios.post(`${BACKEND_URL}/api/update-subscription`, {
-        orgId: orgId,
-        plan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
-        term: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
-      });
-
-      const data = response.data;
-
-      if (!data.success) {
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: data.error || 'Failed to update subscription',
-        });
-        return;
-      }
-
-      toast({
-        title: 'Success',
-        description: 'Your subscription has been updated successfully',
-      });
-
-      window.location.reload();
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to update subscription. Please try again later.',
-      });
+    if (!orgId) {
+      return;
     }
+
+  if (usage?.plan && usage.plan !== 'FREE_CREDIT') {
+    updateSubscriptionMutation.mutate({
+      orgId: orgId,
+      newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
+      planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+    });
+  } else {
+    createSubscriptionMutation.mutate({
+      orgId: orgId,
+      newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
+      planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+      mode: 'subscription',
+    });
+  }
   };
 
   const handleCancelSubscription = async () => {
