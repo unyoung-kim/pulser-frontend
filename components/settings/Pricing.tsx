@@ -189,7 +189,7 @@ export default function PricingPage() {
                     </span>
                   </p>
                   <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Renews on Jan 1, 2025</p>
+                    <p className="text-sm text-muted-foreground">Renews on {usage?.end_date}</p>
                     <p className="text-sm text-muted-foreground">
                       {usage?.is_cancelled
                         ? 'Credits available until your next renewal'
@@ -204,7 +204,9 @@ export default function PricingPage() {
                       <div>
                         <h4 className="text-sm font-medium">Current Subscription</h4>
                         <p className="mt-1 text-sm text-muted-foreground">
-                          {Case.capital(usage.plan)} Plan ({Case.capital(usage.term.toLowerCase())})
+                          {Case.capital(usage.plan)} Plan{' '}
+                          {usage.plan !== 'FREE_CREDIT' &&
+                            Case.capital(`(${usage.term.toLowerCase()})`)}
                           {usage.is_cancelled && ' - Cancelled'}
                         </p>
                       </div>
@@ -325,14 +327,22 @@ export default function PricingPage() {
                         }
                         className={`mb-6 w-full capitalize ${usage?.plan !== 'FREE_CREDIT' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
                         onClick={() => {
-                          const action = getPlanAction(usage.plan, plan.name, billingCycle, usage.term);
+                          const action = getPlanAction(
+                            usage.plan,
+                            plan.name,
+                            billingCycle,
+                            usage.term
+                          );
                           if (action === 'Choose Plan') {
                             handleChoosePlan(plan.name.toUpperCase());
                           } else if (action !== 'Current Plan') {
                             handleUpdatePlan(plan.name.toUpperCase());
                           }
                         }}
-                        disabled={getPlanAction(usage.plan, plan.name, billingCycle, usage.term) === 'Current Plan'}
+                        disabled={
+                          getPlanAction(usage.plan, plan.name, billingCycle, usage.term) ===
+                          'Current Plan'
+                        }
                       >
                         {getPlanAction(usage.plan, plan.name, billingCycle, usage.term)}
                       </Button>
