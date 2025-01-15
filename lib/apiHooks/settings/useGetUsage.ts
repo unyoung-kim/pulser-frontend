@@ -10,6 +10,7 @@ interface Usage {
   plan: PlanName;
   term: 'MONTHLY' | 'YEARLY';
   is_cancelled: boolean;
+  end_date: string | null; // Add end_date to the interface
 }
 
 export const useGetUsage = (
@@ -67,7 +68,7 @@ export const useGetUsage = (
       const { data, error } = await supabase
         .from('Usage')
         .select(
-          'plan, credits_charged, additional_credits_charged, credits_used, term, is_cancelled'
+          'plan, credits_charged, additional_credits_charged, credits_used, term, is_cancelled, end_date'
         )
         .eq('id', orgData.current_usage_id)
         .single();
@@ -83,6 +84,7 @@ export const useGetUsage = (
         plan: data?.plan ?? 'FREE_CREDIT',
         term: data?.term ?? 'YEARLY',
         is_cancelled: data?.is_cancelled ?? false,
+        end_date: data?.end_date ?? '', // Ensure end_date is returned
       };
     },
     enabled: !!orgId,

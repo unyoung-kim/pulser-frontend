@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
-import axios from 'axios';
 import Case from 'case';
-import { AlertCircle, ExternalLink, Settings } from 'lucide-react';
+import { AlertCircle, Settings } from 'lucide-react';
 import { ConfirmationPopup } from '@/components/settings/ConfirmationPopup';
 import {
   AlertDialog,
@@ -20,10 +19,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { BACKEND_URL } from '@/lib/api/backend';
+import { useCreateSubscription } from '@/lib/apiHooks/settings/useCreateSubscription';
 import { useGetUsage } from '@/lib/apiHooks/settings/useGetUsage';
 import { useSubscriptionCancel } from '@/lib/apiHooks/settings/useSubscriptionCancel';
+import { useUpdateSubscription } from '@/lib/apiHooks/settings/useUpdateSubscription';
 import { getPlanAction, planCards } from '@/lib/pricing-plan';
 import { Badge } from '../ui/badge';
 
@@ -39,9 +38,10 @@ export default function PricingPage() {
   });
 
   const { orgId } = useAuth();
-  const { toast } = useToast();
 
   const { data: usage, isLoading, isSuccess } = useGetUsage(orgId, setBillingCycle);
+  const createSubscriptionMutation = useCreateSubscription();
+  const updateSubscriptionMutation = useUpdateSubscription();
   const cancelSubscriptionMutation = useSubscriptionCancel();
 
   useEffect(() => {
@@ -70,14 +70,11 @@ export default function PricingPage() {
         currentPlan: usage?.plan ?? 'FREE_CREDIT',
         newPlan: planName,
         leftoverCredits: remainingCredits,
-        newBillingDate:
-          billingCycle === 'monthly'
-            ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
-            : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        newBillingDate: usage?.end_date ?? '',
       });
       setIsConfirmationOpen(true);
     },
-    [orgId, usage, remainingCredits, billingCycle]
+    [orgId, usage, remainingCredits]
   );
 
   const handleUpdatePlan = useCallback(
@@ -89,47 +86,31 @@ export default function PricingPage() {
         currentPlan: usage?.plan ?? '',
         newPlan: planName,
         leftoverCredits: remainingCredits,
-        newBillingDate:
-          billingCycle === 'monthly'
-            ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
-            : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        newBillingDate: usage?.end_date ?? '',
       });
       setIsConfirmationOpen(true);
     },
-    [orgId, usage?.plan, remainingCredits, billingCycle]
+    [orgId, usage?.plan, remainingCredits, usage?.end_date]
   );
 
   const handleConfirmPlanChange = async () => {
     setIsConfirmationOpen(false);
-    try {
-      const response = await axios.post(`${BACKEND_URL}/api/update-subscription`, {
+    if (!orgId) {
+      return;
+    }
+
+    if (usage?.plan && usage.plan !== 'FREE_CREDIT') {
+      updateSubscriptionMutation.mutate({
         orgId: orgId,
-        plan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
-        term: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+        newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
+        planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
       });
-
-      const data = response.data;
-
-      if (!data.success) {
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: data.error || 'Failed to update subscription',
-        });
-        return;
-      }
-
-      toast({
-        title: 'Success',
-        description: 'Your subscription has been updated successfully',
-      });
-
-      window.location.reload();
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to update subscription. Please try again later.',
+    } else {
+      createSubscriptionMutation.mutate({
+        orgId: orgId,
+        newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
+        planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+        mode: 'subscription',
       });
     }
   };
@@ -342,18 +323,18 @@ export default function PricingPage() {
                               ? 'default'
                               : 'outline'
                         }
-                        className={`mb-6 w-full ${usage?.plan !== 'FREE_CREDIT' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
+                        className={`mb-6 w-full capitalize ${usage?.plan !== 'FREE_CREDIT' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
                         onClick={() => {
-                          const action = getPlanAction(usage.plan, plan.name);
+                          const action = getPlanAction(usage.plan, plan.name, billingCycle, usage.term);
                           if (action === 'Choose Plan') {
                             handleChoosePlan(plan.name.toUpperCase());
                           } else if (action !== 'Current Plan') {
                             handleUpdatePlan(plan.name.toUpperCase());
                           }
                         }}
-                        disabled={getPlanAction(usage.plan, plan.name) === 'Current Plan'}
+                        disabled={getPlanAction(usage.plan, plan.name, billingCycle, usage.term) === 'Current Plan'}
                       >
-                        {getPlanAction(usage.plan, plan.name)}
+                        {getPlanAction(usage.plan, plan.name, billingCycle, usage.term)}
                       </Button>
                     )}
 
