@@ -24,7 +24,8 @@ export const useCreateSubscription = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      const url = data?.result?.data?.data; // Extract the URL from the response
+      console.log(data);
+      const url = data?.data; // Extract the URL from the response
 
       if (url) {
         window.location.href = url; // Redirect to the URL
