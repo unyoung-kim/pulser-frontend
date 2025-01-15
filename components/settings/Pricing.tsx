@@ -70,14 +70,11 @@ export default function PricingPage() {
         currentPlan: usage?.plan ?? 'FREE_CREDIT',
         newPlan: planName,
         leftoverCredits: remainingCredits,
-        newBillingDate:
-          billingCycle === 'monthly'
-            ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
-            : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        newBillingDate: usage?.end_date ?? '',
       });
       setIsConfirmationOpen(true);
     },
-    [orgId, usage, remainingCredits, billingCycle]
+    [orgId, usage, remainingCredits]
   );
 
   const handleUpdatePlan = useCallback(
@@ -89,14 +86,11 @@ export default function PricingPage() {
         currentPlan: usage?.plan ?? '',
         newPlan: planName,
         leftoverCredits: remainingCredits,
-        newBillingDate:
-          billingCycle === 'monthly'
-            ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
-            : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        newBillingDate: usage?.end_date ?? '',
       });
       setIsConfirmationOpen(true);
     },
-    [orgId, usage?.plan, remainingCredits, billingCycle]
+    [orgId, usage?.plan, remainingCredits, usage?.end_date]
   );
 
   const handleConfirmPlanChange = async () => {
@@ -105,20 +99,20 @@ export default function PricingPage() {
       return;
     }
 
-  if (usage?.plan && usage.plan !== 'FREE_CREDIT') {
-    updateSubscriptionMutation.mutate({
-      orgId: orgId,
-      newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
-      planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
-    });
-  } else {
-    createSubscriptionMutation.mutate({
-      orgId: orgId,
-      newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
-      planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
-      mode: 'subscription',
-    });
-  }
+    if (usage?.plan && usage.plan !== 'FREE_CREDIT') {
+      updateSubscriptionMutation.mutate({
+        orgId: orgId,
+        newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
+        planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+      });
+    } else {
+      createSubscriptionMutation.mutate({
+        orgId: orgId,
+        newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
+        planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+        mode: 'subscription',
+      });
+    }
   };
 
   const handleCancelSubscription = async () => {
