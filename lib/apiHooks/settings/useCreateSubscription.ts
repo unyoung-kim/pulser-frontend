@@ -10,7 +10,7 @@ interface CreateSubscriptionParams {
   mode: string;
 }
 
-export const useCreateSubscripstion = () => {
+export const useCreateSubscription = () => {
   const { toast } = useToast();
 
   return useMutation({

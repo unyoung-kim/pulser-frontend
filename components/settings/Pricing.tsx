@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import Case from 'case';
-import { AlertCircle, ExternalLink, Settings } from 'lucide-react';
+import { AlertCircle, Settings } from 'lucide-react';
 import { ConfirmationPopup } from '@/components/settings/ConfirmationPopup';
 import {
   AlertDialog,
@@ -19,7 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useCreateSubscripstion } from '@/lib/apiHooks/settings/useCreateSubscription';
+import { useCreateSubscription } from '@/lib/apiHooks/settings/useCreateSubscription';
 import { useGetUsage } from '@/lib/apiHooks/settings/useGetUsage';
 import { useSubscriptionCancel } from '@/lib/apiHooks/settings/useSubscriptionCancel';
 import { useUpdateSubscription } from '@/lib/apiHooks/settings/useUpdateSubscription';
@@ -40,7 +40,7 @@ export default function PricingPage() {
   const { orgId } = useAuth();
 
   const { data: usage, isLoading, isSuccess } = useGetUsage(orgId, setBillingCycle);
-  const createSubscriptionMutation = useCreateSubscripstion();
+  const createSubscriptionMutation = useCreateSubscription();
   const updateSubscriptionMutation = useUpdateSubscription();
   const cancelSubscriptionMutation = useSubscriptionCancel();
 
@@ -323,18 +323,18 @@ export default function PricingPage() {
                               ? 'default'
                               : 'outline'
                         }
-                        className={`mb-6 w-full ${usage?.plan !== 'FREE_CREDIT' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
+                        className={`mb-6 w-full capitalize ${usage?.plan !== 'FREE_CREDIT' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
                         onClick={() => {
-                          const action = getPlanAction(usage.plan, plan.name);
+                          const action = getPlanAction(usage.plan, plan.name, billingCycle, usage.term);
                           if (action === 'Choose Plan') {
                             handleChoosePlan(plan.name.toUpperCase());
                           } else if (action !== 'Current Plan') {
                             handleUpdatePlan(plan.name.toUpperCase());
                           }
                         }}
-                        disabled={getPlanAction(usage.plan, plan.name) === 'Current Plan'}
+                        disabled={getPlanAction(usage.plan, plan.name, billingCycle, usage.term) === 'Current Plan'}
                       >
-                        {getPlanAction(usage.plan, plan.name)}
+                        {getPlanAction(usage.plan, plan.name, billingCycle, usage.term)}
                       </Button>
                     )}
 
