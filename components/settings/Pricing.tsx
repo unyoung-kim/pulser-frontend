@@ -17,7 +17,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCreateSubscription } from '@/lib/apiHooks/settings/useCreateSubscription';
 import { useGetUsage } from '@/lib/apiHooks/settings/useGetUsage';
@@ -27,7 +27,7 @@ import { getPlanAction, planCards } from '@/lib/pricing-plan';
 import { Badge } from '../ui/badge';
 
 export default function PricingPage() {
-  const [activeTab, setActiveTab] = useState<'plan' | 'subscription' | 'danger'>('subscription');
+  const [activeTab, setActiveTab] = useState<'plan' | 'subscription'>('subscription');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [confirmationDetails, setConfirmationDetails] = useState({
@@ -39,7 +39,7 @@ export default function PricingPage() {
 
   const { orgId } = useAuth();
 
-  const { data: usage, isLoading, isSuccess } = useGetUsage(orgId, setBillingCycle);
+  const { data: usage, isLoading, isSuccess } = useGetUsage(orgId);
   const createSubscriptionMutation = useCreateSubscription();
   const updateSubscriptionMutation = useUpdateSubscription();
   const cancelSubscriptionMutation = useSubscriptionCancel();
@@ -52,14 +52,13 @@ export default function PricingPage() {
     }
   }, [usage?.plan]);
 
+  useEffect(() => {
+    setBillingCycle(usage?.term?.toLowerCase() as 'monthly' | 'yearly');
+  }, [usage?.term]);
+
   const totalCredits = usage ? usage.credits_charged + usage.additional_credits_charged : 0;
   const usedCredits = usage?.credits_used ?? 0;
   const remainingCredits = totalCredits - usedCredits;
-
-  const previousPurchases = [
-    { date: '-', credits: '-', amount: '-' },
-    // Add more purchase history as needed
-  ];
 
   const handleChoosePlan = useCallback(
     (planName: string) => {
@@ -93,7 +92,7 @@ export default function PricingPage() {
     [orgId, usage?.plan, remainingCredits, usage?.end_date]
   );
 
-  const handleConfirmPlanChange = async () => {
+  const handleConfirmPlanChange = () => {
     setIsConfirmationOpen(false);
     if (!orgId) {
       return;
@@ -115,7 +114,7 @@ export default function PricingPage() {
     }
   };
 
-  const handleCancelSubscription = async () => {
+  const handleCancelSubscription = () => {
     if (!orgId) {
       return;
     }
@@ -155,20 +154,9 @@ export default function PricingPage() {
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
             )}
           </button>
-          <button
-            onClick={() => setActiveTab('danger')}
-            className={`relative px-1 pb-4 text-sm font-semibold transition-colors ${
-              activeTab === 'danger' ? 'text-destructive' : 'text-muted-foreground'
-            }`}
-          >
-            Danger
-            {activeTab === 'danger' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-destructive" />
-            )}
-          </button>
         </div>
 
-        {activeTab === 'plan' ? (
+        {activeTab === 'plan' && (
           <div className="space-y-6">
             <Card>
               <CardContent className="p-6">
@@ -188,25 +176,26 @@ export default function PricingPage() {
                       /{totalCredits}
                     </span>
                   </p>
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Renews on {usage?.end_date}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {usage?.is_cancelled
-                        ? 'Credits available until your next renewal'
-                        : 'Credits available until your plan ends'}
-                    </p>
-                  </div>
+                  {usage?.plan !== 'FREE_CREDIT' && (
+                    <div className="text-right">
+                      <p className="text-sm text-muted-foreground">Renews on {usage?.end_date}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {usage?.is_cancelled
+                          ? 'Credits available until your next renewal'
+                          : 'Credits available until your plan ends'}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 {/* Add subscription info section */}
-                {usage?.plan && (
+                {isSuccess && usage?.plan !== 'FREE_CREDIT' && (
                   <div className="mt-6 border-t pt-6">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="text-sm font-medium">Current Subscription</h4>
                         <p className="mt-1 text-sm text-muted-foreground">
                           {Case.capital(usage.plan)} Plan{' '}
-                          {usage.plan !== 'FREE_CREDIT' &&
-                            Case.capital(`(${usage.term.toLowerCase()})`)}
+                          {Case.capital(`(${usage.term.toLowerCase()})`)}
                           {usage.is_cancelled && ' - Cancelled'}
                         </p>
                       </div>
@@ -222,30 +211,52 @@ export default function PricingPage() {
                 )}
               </CardContent>
             </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Previous Purchases</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {previousPurchases.map((purchase, index) => (
-                    <li
-                      key={index}
-                      className="flex justify-between border-b py-2 text-sm last:border-b-0"
-                    >
-                      <span>{purchase.date}</span>
-                      <span>{purchase.credits === '-' ? '-' : `${purchase.credits} credits`}</span>
-                      <span className="font-medium">
-                        {purchase.amount === '-' ? '-' : `$${purchase.amount}`}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            {usage?.plan !== 'FREE_CREDIT' && !usage?.is_cancelled && (
+              <Card className="border-destructive">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-start gap-4">
+                      <AlertCircle className="mt-1 h-8 w-8 text-destructive" />
+                      <div>
+                        <h3 className="text-lg font-semibold">Cancel Subscription</h3>
+                        <p className="text-muted-foreground">
+                          This action cannot be undone. Your subscription will be cancelled at the
+                          end of the current billing period.
+                        </p>
+                      </div>
+                    </div>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive">Cancel Subscription</Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Cancel Subscription?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            You will be able to use your credits until the next billing date, after
+                            plan cancellation.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleCancelSubscription}
+                            disabled={cancelSubscriptionMutation.isPending}
+                          >
+                            {cancelSubscriptionMutation.isPending
+                              ? 'Cancelling...'
+                              : 'Yes, Cancel Subscription'}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
-        ) : activeTab === 'subscription' ? (
+        )}
+        {activeTab === 'subscription' && (
           <>
             <div className="mb-12 flex justify-center">
               <div className="inline-flex items-center rounded-lg bg-secondary p-1">
@@ -372,88 +383,24 @@ export default function PricingPage() {
               leftoverCredits={confirmationDetails.leftoverCredits}
               newBillingDate={confirmationDetails.newBillingDate}
             />
-          </>
-        ) : (
-          activeTab === 'danger' && (
-            <Card className="border-destructive">
+
+            <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-start gap-4">
-                    <AlertCircle className="mt-1 h-8 w-8 text-destructive" />
+                    <Settings className="mt-1 h-8 w-8 text-indigo-600" />
                     <div>
-                      <h3 className="text-lg font-semibold">Cancel Subscription</h3>
-                      {usage?.plan === 'FREE_CREDIT' ? (
-                        <p className="text-muted-foreground">
-                          You don&apos;t have any active subscription to cancel.
-                        </p>
-                      ) : usage?.is_cancelled ? (
-                        <p className="text-muted-foreground">
-                          Your subscription has been cancelled. You can use your credits until your
-                          plan ends.
-                        </p>
-                      ) : (
-                        <p className="text-muted-foreground">
-                          This action cannot be undone. Your subscription will be cancelled at the
-                          end of the current billing period.
-                        </p>
-                      )}
+                      <h3 className="mb-1 text-lg font-semibold">Need a Custom Plan?</h3>
+                      <p className="text-muted-foreground">
+                        Have specific needs or special requests? Contact us for a tailored solution.
+                      </p>
                     </div>
                   </div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                        disabled={usage?.plan === 'FREE_CREDIT' || usage?.is_cancelled}
-                      >
-                        {usage?.is_cancelled ? 'Subscription Cancelled' : 'Cancel Subscription'}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Are you sure you want to cancel your subscription?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          You can continue to use your credits until the next billing date. After
-                          that, no further charges will occur.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleCancelSubscription}
-                          disabled={cancelSubscriptionMutation.isPending}
-                        >
-                          {cancelSubscriptionMutation.isPending
-                            ? 'Cancelling...'
-                            : 'Yes, Cancel Subscription'}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <Button variant="outline">Get a Quote</Button>
                 </div>
               </CardContent>
             </Card>
-          )
-        )}
-
-        {activeTab !== 'danger' && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-start gap-4">
-                  <Settings className="mt-1 h-8 w-8 text-indigo-600" />
-                  <div>
-                    <h3 className="mb-1 text-lg font-semibold">Need a Custom Plan?</h3>
-                    <p className="text-muted-foreground">
-                      Have specific needs or special requests? Contact us for a tailored solution.
-                    </p>
-                  </div>
-                </div>
-                <Button variant="outline">Get a Quote</Button>
-              </div>
-            </CardContent>
-          </Card>
+          </>
         )}
       </div>
     </div>

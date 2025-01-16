@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PlanName } from '@/lib/pricing-plan';
 import { supabase } from '@/lib/supabaseClient';
@@ -10,19 +9,16 @@ interface Usage {
   plan: PlanName;
   term: 'MONTHLY' | 'YEARLY';
   is_cancelled: boolean;
-  end_date: string | null; // Add end_date to the interface
+  end_date: string | null;
 }
 
-export const useGetUsage = (
-  orgId: undefined | null | string,
-  setBillingCycle: Dispatch<SetStateAction<'monthly' | 'yearly'>>
-) => {
+export const useGetUsage = (orgId: string | null | undefined) => {
   return useQuery<Usage>({
-    queryKey: ['usage', orgId],
+    queryKey: ['getUsage', orgId],
     queryFn: async () => {
       if (!orgId) throw new Error('No organization ID found');
 
-      // First, get the organization and its current_usage_id
+      // Fetch organization's current_usage_id
       const { data: orgData, error: orgError } = await supabase
         .from('Organization')
         .select('current_usage_id')
@@ -30,8 +26,8 @@ export const useGetUsage = (
         .single();
 
       if (orgError) {
-        // If org doesn't exist, create new usage and org records
         if (orgError.code === 'PGRST116') {
+          // If organization doesn't exist, create new usage record
           const { data: newData, error: insertError } = await supabase
             .from('Usage')
             .insert([
@@ -50,22 +46,12 @@ export const useGetUsage = (
             .single();
 
           if (insertError) throw insertError;
-
-          return {
-            credits_charged: newData?.credits_charged ?? 0,
-            additional_credits_charged: newData?.additional_credits_charged ?? 0,
-            credits_used: newData?.credits_used ?? 0,
-            plan: newData?.plan ?? 'FREE_CREDIT',
-            term: newData?.term ?? 'YEARLY',
-            is_cancelled: newData?.is_cancelled ?? false,
-            end_date: newData?.end_date ?? '',
-          };
+          return mapUsageData(newData);
         }
         throw orgError;
       }
 
-      // Then fetch the usage data using the current_usage_id
-      const { data, error } = await supabase
+      const { data: usageData, error: usageError } = await supabase
         .from('Usage')
         .select(
           'plan, credits_charged, additional_credits_charged, credits_used, term, is_cancelled, end_date'
@@ -73,20 +59,21 @@ export const useGetUsage = (
         .eq('id', orgData.current_usage_id)
         .single();
 
-      if (error) throw error;
+      if (usageError) throw usageError;
 
-      setBillingCycle(data?.term?.toLowerCase() as 'monthly' | 'yearly');
-
-      return {
-        credits_charged: data?.credits_charged ?? 0,
-        additional_credits_charged: data?.additional_credits_charged ?? 0,
-        credits_used: data?.credits_used ?? 0,
-        plan: data?.plan ?? 'FREE_CREDIT',
-        term: data?.term ?? 'YEARLY',
-        is_cancelled: data?.is_cancelled ?? false,
-        end_date: data?.end_date ?? '', // Ensure end_date is returned
-      };
+      return mapUsageData(usageData);
     },
-    enabled: !!orgId,
+    enabled: Boolean(orgId),
   });
 };
+
+// Helper function to map and normalize usage data
+const mapUsageData = (data: Partial<Usage> | null): Usage => ({
+  credits_charged: data?.credits_charged ?? 0,
+  additional_credits_charged: data?.additional_credits_charged ?? 0,
+  credits_used: data?.credits_used ?? 0,
+  plan: data?.plan ?? 'FREE_CREDIT',
+  term: data?.term ?? 'YEARLY',
+  is_cancelled: data?.is_cancelled ?? false,
+  end_date: data?.end_date ?? null,
+});

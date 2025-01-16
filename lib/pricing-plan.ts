@@ -43,15 +43,28 @@ export const planCards: PlanCard[] = [
 ];
 
 // Possible statuses for a plan
-type PlanAction = 'Choose Plan' | 'Current Plan' | 'Upgrade Plan' | 'Downgrade Plan' | `Update With ${string} Plan`;
+type PlanAction =
+  | 'Choose Plan'
+  | 'Current Plan'
+  | 'Upgrade Plan'
+  | 'Downgrade Plan'
+  | `Update With ${string} Plan`;
 
 // Function to determine plan status
-export const getPlanAction = (currentPlan: PlanName, targetPlan: PlanName, billingCycle: string, term: string ): PlanAction => {
+export const getPlanAction = (
+  currentPlan: PlanName,
+  targetPlan: PlanName,
+  billingCycle: string,
+  term: string
+): PlanAction => {
   if (currentPlan === 'FREE_CREDIT') return 'Choose Plan';
-
   const currentIndex = planNames.findIndex((name) => name === currentPlan);
   const targetIndex = planNames.findIndex((name) => name === targetPlan);
 
-  if (currentIndex === targetIndex && term === billingCycle) return 'Current Plan';
-  return currentIndex === targetIndex ? `Update With ${billingCycle} Plan` as PlanAction : targetIndex > currentIndex ? 'Upgrade Plan' : 'Downgrade Plan';
+  if (currentIndex === targetIndex && term === billingCycle?.toUpperCase()) return 'Current Plan';
+  return currentIndex === targetIndex
+    ? (`Update With ${billingCycle} Plan` as PlanAction)
+    : targetIndex > currentIndex
+      ? 'Upgrade Plan'
+      : 'Downgrade Plan';
 };
