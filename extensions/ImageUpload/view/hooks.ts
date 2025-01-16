@@ -1,6 +1,6 @@
-import API from '@/lib/editor/api';
 import { DragEvent, useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import API from '@/lib/editor/api';
 
 export const useUploader = ({ onUpload }: { onUpload: (url: string) => void }) => {
   const [loading, setLoading] = useState(false);
