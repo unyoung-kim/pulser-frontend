@@ -1,7 +1,12 @@
 'use client';
 
 import { HocuspocusProvider } from '@hocuspocus/provider';
-
+import { isChangeOrigin } from '@tiptap/extension-collaboration';
+import { Image } from '@tiptap/extension-image';
+import Youtube from '@tiptap/extension-youtube';
+import Export from '@tiptap-pro/extension-export';
+import API from '@/lib/editor/api';
+import { getJwtToken } from '@/lib/token';
 import {
   BlockquoteFigure,
   CharacterCount,
@@ -46,13 +51,6 @@ import {
   Underline,
   UniqueID,
 } from '.';
-
-import API from '@/lib/editor/api';
-import { getJwtToken } from '@/lib/token';
-import Export from '@tiptap-pro/extension-export';
-import { isChangeOrigin } from '@tiptap/extension-collaboration';
-import { Image } from '@tiptap/extension-image';
-import Youtube from '@tiptap/extension-youtube';
 import { ImageUpload } from './ImageUpload';
 import { TableOfContentsNode } from './TableOfContentsNode';
 
@@ -128,20 +126,20 @@ export const ExtensionKit = ({ provider }: ExtensionKitProps) => [
     allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
     onDrop: (currentEditor, files, pos) => {
       files.forEach(async (file) => {
-        const url = await API.uploadImage(file);
+        const base64String = await API.uploadImage(file);
 
-        currentEditor.chain().setImageBlockAt({ pos, src: url }).focus().run();
+        currentEditor.chain().setImageBlockAt({ pos, src: base64String }).focus().run();
       });
     },
     onPaste: (currentEditor, files) => {
       files.forEach(async (file) => {
-        const url = await API.uploadImage(file);
+        const base64String = await API.uploadImage(file);
 
         return currentEditor
           .chain()
           .setImageBlockAt({
             pos: currentEditor.state.selection.anchor,
-            src: url,
+            src: base64String,
           })
           .focus()
           .run();
