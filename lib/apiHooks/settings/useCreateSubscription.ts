@@ -8,19 +8,29 @@ interface CreateSubscriptionParams {
   newPlan: 'BASIC' | 'PRO' | 'AGENCY';
   planTerm: string;
   mode: string;
+  couponCode?: string;
 }
 
 export const useCreateSubscription = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ orgId, newPlan, planTerm, mode }: CreateSubscriptionParams) => {
-      const response = await axios.post(`${BACKEND_URL}/api/create-stripe-session`, {
+    mutationFn: async ({
+      orgId,
+      newPlan,
+      planTerm,
+      mode,
+      couponCode,
+    }: CreateSubscriptionParams) => {
+      const payload = {
         orgId: orgId,
         plan: newPlan,
         term: planTerm,
         mode: mode,
-      });
+        ...(couponCode && couponCode.trim() !== '' && { couponCode }),
+      };
+
+      const response = await axios.post(`${BACKEND_URL}/api/create-stripe-session`, payload);
       return response.data;
     },
     onSuccess: (data) => {

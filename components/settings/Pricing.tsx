@@ -92,7 +92,7 @@ export default function PricingPage() {
     [orgId, usage?.plan, remainingCredits, usage?.end_date]
   );
 
-  const handleConfirmPlanChange = () => {
+  const handleConfirmPlanChange = (couponCode?: string) => {
     setIsConfirmationOpen(false);
     if (!orgId) {
       return;
@@ -103,6 +103,7 @@ export default function PricingPage() {
         orgId: orgId,
         newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
         planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+        couponCode: couponCode,
       });
     } else {
       createSubscriptionMutation.mutate({
@@ -110,6 +111,7 @@ export default function PricingPage() {
         newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
         planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
         mode: 'subscription',
+        couponCode: couponCode,
       });
     }
   };

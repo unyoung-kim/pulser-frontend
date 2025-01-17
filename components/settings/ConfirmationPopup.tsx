@@ -1,6 +1,7 @@
 'use client';
 
-import { Info, Gift } from 'lucide-react';
+import { useState } from 'react';
+import { Gift, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,7 +16,7 @@ import { Label } from '@/components/ui/label';
 interface ConfirmationPopupProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (couponCode?: string) => void;
   currentPlan: string;
   newPlan: string;
   leftoverCredits: number;
@@ -31,6 +32,12 @@ export function ConfirmationPopup({
   leftoverCredits,
   newBillingDate,
 }: ConfirmationPopupProps) {
+  const [referralCode, setReferralCode] = useState<string>('');
+
+  const handleConfirm = () => {
+    onConfirm(referralCode || undefined);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -88,6 +95,8 @@ export function ConfirmationPopup({
               placeholder="Enter Code"
               className="pr-20 uppercase"
               maxLength={6}
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
             />
           </div>
         </div>
@@ -95,7 +104,7 @@ export function ConfirmationPopup({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={onConfirm}>Confirm</Button>
+          <Button onClick={handleConfirm}>Confirm</Button>
         </div>
       </DialogContent>
     </Dialog>

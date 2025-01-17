@@ -7,17 +7,21 @@ interface UpdateSubscriptionParams {
   orgId: string;
   newPlan: 'BASIC' | 'PRO' | 'AGENCY';
   planTerm: string;
+  couponCode?: string;
 }
 
 export const useUpdateSubscription = () => {
   const { toast } = useToast();
   return useMutation({
-    mutationFn: async ({ orgId, newPlan, planTerm }: UpdateSubscriptionParams) => {
-      const response = await axios.post(`${BACKEND_URL}/api/update-subscription`, {
+    mutationFn: async ({ orgId, newPlan, planTerm, couponCode }: UpdateSubscriptionParams) => {
+      const payload = {
         orgId: orgId,
         plan: newPlan,
         term: planTerm,
-      });
+        ...(couponCode && couponCode.trim() !== '' && { couponCode }),
+      };
+
+      const response = await axios.post(`${BACKEND_URL}/api/update-subscription`, payload);
       return response.data;
     },
     onSuccess: () => {
