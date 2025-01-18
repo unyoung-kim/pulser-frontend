@@ -15,6 +15,7 @@ import {
   Mail,
   Settings,
   WholeWord,
+  Play,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -319,6 +320,27 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
               );
             })}
           </nav>
+        </div>
+        {/* Video Guide */}
+        <div className="px-3">
+          <Link
+            href={`/tutorial${selectedProject ? `?projectId=${selectedProject.id}` : ''}`}
+            className="mb-2 flex items-center rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-red-600 text-white">
+                <Play className="size-4" />
+              </div>
+              {!isCollapsed && (
+                <div className="flex items-center gap-2">
+                  <div>
+                    <div className="font-medium">Video Guide</div>
+                    <div className="text-xs text-gray-500">Learn how to use Pulser in 5 min</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Link>
         </div>
         {/* Remaining Credit */}
         <div className="mt-auto">

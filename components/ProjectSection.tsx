@@ -61,7 +61,7 @@ export default function ProjectSection() {
         setNewProjectDescription('');
 
         if (data?.[0]) {
-          navigateToBackground(data[0].id.toString());
+          router.push(`/tutorial?projectId=${data[0].id}`);
         }
       } catch (error) {
         console.error('Error creating project:', error);
