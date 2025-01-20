@@ -13,9 +13,9 @@ import {
   Folder,
   GalleryVerticalEnd,
   Mail,
+  Play,
   Settings,
   WholeWord,
-  Play,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -325,10 +325,16 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
         <div className="px-3">
           <Link
             href={`/tutorial${selectedProject ? `?projectId=${selectedProject.id}` : ''}`}
-            className="mb-2 flex items-center rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            className={`mb-2 flex items-center rounded-md bg-gray-50 ${
+              isCollapsed ? 'px-0' : 'px-3'
+            } py-2 text-sm text-gray-700 hover:bg-gray-100`}
           >
             <div className="flex items-center gap-2">
-              <div className="flex size-8 items-center justify-center rounded-lg bg-red-600 text-white">
+              <div
+                className={`flex size-8 items-center justify-center rounded-lg bg-red-600 text-white ${
+                  isCollapsed ? 'mx-auto' : ''
+                }`}
+              >
                 <Play className="size-4" />
               </div>
               {!isCollapsed && (
@@ -366,7 +372,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
                   <div className={cn('flex flex-1 flex-col')}>
                     <h6 className="text-md font-semibold">Remaining Credit</h6>
                     <p className="text-xs text-gray-400">
-                      You’ve used {usedCredits} of your {totalCredits} credits.
+                      You&apos;ve used {usedCredits} of your {totalCredits} credits.
                     </p>
                   </div>
                 </HoverCardContent>
@@ -383,7 +389,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
             <div className={cn('flex flex-1 flex-col', isCollapsed && 'hidden')}>
               <h6 className="text-md font-semibold">Remaining Credit</h6>
               <p className="text-xs text-gray-400">
-                You’ve used {usedCredits} of your {totalCredits} credits.
+                You&apos;ve used {usedCredits} of your {totalCredits} credits.
               </p>
             </div>
           </div>

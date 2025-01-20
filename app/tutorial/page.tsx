@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
+import { CalendarDays, Users2, Rocket, LifeBuoy } from 'lucide-react';
 import BackgroundForm2 from '@/components/background/Form';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import MainLayout from '@/components/layout/MainLayout';
-import { useSidebarState } from '@/contexts/SidebarContext';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, Users2, Rocket, LifeBuoy } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { useSidebarState } from '@/contexts/SidebarContext';
 
 export default function TutorialPage() {
   const { isSignedIn, isLoaded } = useAuth();

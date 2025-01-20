@@ -834,6 +834,7 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
               ...data[activeTab],
             },
           }));
+          queryClient.invalidateQueries({ queryKey: ['project', projectId] });
         }}
         toast={toast}
         internalLinksCount={internalLinks?.length || 0}

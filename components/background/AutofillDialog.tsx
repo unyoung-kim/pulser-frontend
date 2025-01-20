@@ -10,8 +10,10 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 
 const isValidUrl = (string: string) => {
+  // Add https:// if no protocol is specified
+  const urlString = string.match(/^https?:\/\//) ? string : `https://${string}`;
   try {
-    new URL(string);
+    new URL(urlString);
     return true;
   } catch (_) {
     return false;
