@@ -62,8 +62,6 @@ export const useTextmenuCommands = (editor: Editor) => {
     editor.chain().focus().setVisualModal(selectedText).run();
     const { from, to } = editor.state.selection;
     editor.chain().focus().setSavedSelection({ from, to }).run();
-    editor.commands.setTextSelection(0);
-    editor.commands.blur();
   }, [editor]);
 
   const onEmojify = useCallback(
