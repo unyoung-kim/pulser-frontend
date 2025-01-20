@@ -10,10 +10,8 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 
 const isValidUrl = (string: string) => {
-  // Add https:// if no protocol is specified
-  const urlString = string.match(/^https?:\/\//) ? string : `https://${string}`;
   try {
-    new URL(urlString);
+    new URL(string);
     return true;
   } catch (_) {
     return false;
@@ -109,7 +107,7 @@ export const AutofillDialog = ({
     if (!isValidUrl(autofillUrl)) {
       toast({
         title: 'Invalid URL',
-        description: 'Please enter a valid URL',
+        description: 'Please enter a valid URL that starts with https://..',
         variant: 'destructive',
       });
       return;
@@ -181,12 +179,14 @@ export const AutofillDialog = ({
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="url">Company URL</Label>
+
               <Input
                 id="url"
                 placeholder="https://example.com"
                 value={autofillUrl}
                 onChange={(e) => setAutofillUrl(e.target.value)}
               />
+              <p className="text-sm text-muted-foreground">URL must include https:// prefix</p>
             </div>
           </div>
           <div className="flex justify-end gap-3">
