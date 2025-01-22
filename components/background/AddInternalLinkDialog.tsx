@@ -47,6 +47,7 @@ export function AddInternalLinkDialog({ isOpen, onClose, onAdd }: AddInternalLin
               <Textarea
                 id="summary"
                 value={summary}
+                className="min-h-36"
                 onChange={(e) => setSummary(e.target.value)}
                 placeholder="Brief description of the page content"
               />
