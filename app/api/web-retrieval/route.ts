@@ -1,16 +1,14 @@
 import { NextResponse } from 'next/server';
-
-// Use environment variable with fallback
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+import { webRetrieval } from '@/constants/urlConstant';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
     // Log the request for debugging
-    console.log('Forwarding request to backend:', `${BACKEND_URL}/api/web-retrieval`);
+    console.log('Forwarding request to backend:', webRetrieval);
 
-    const response = await fetch(`${BACKEND_URL}/api/web-retrieval`, {
+    const response = await fetch(webRetrieval, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

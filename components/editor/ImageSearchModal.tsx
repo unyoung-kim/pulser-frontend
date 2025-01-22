@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { BACKEND_URL } from '@/lib/url';
+import { imageSearch } from '@/constants/urlConstant';
 
 interface ImageSearchModalProps {
   onSelect: (imageUrl: string) => void;
@@ -34,7 +34,7 @@ export function ImageSearchModal({ onSelect, onClose }: ImageSearchModalProps) {
     setError(null);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/image-search`, {
+      const response = await fetch(imageSearch, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

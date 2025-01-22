@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Loader2, Sparkles } from 'lucide-react';
 import { z } from 'zod';
 import { ToastActionElement } from '@/components/ui/toast';
-import { BACKEND_URL } from '@/lib/api/backend';
+import { autofillBackgroundUrl } from '@/constants/urlConstant';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
@@ -115,7 +115,7 @@ export const AutofillDialog = ({
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${BACKEND_URL}/autofill-background`, {
+      const response = await fetch(autofillBackgroundUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

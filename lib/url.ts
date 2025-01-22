@@ -1,11 +1,11 @@
 /**
- * 
- * 
+ *
+ *
  * // Usage examples:
-'https://www.example.com/path'           // → '/path'
-'https://subdomain.example.co.uk/path'  // → '/path'
- * @param url 
- * @returns 
+ 'https://www.example.com/path'           // → '/path'
+ 'https://subdomain.example.co.uk/path'  // → '/path'
+ * @param url
+ * @returns
  */
 export function getPathFromURL(url: string): string {
   try {
@@ -23,6 +23,3 @@ export function getPathFromURL(url: string): string {
     return url; // Return the original URL if it's invalid
   }
 }
-
-export const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || 'https://pulser-backend.onrender.com';
