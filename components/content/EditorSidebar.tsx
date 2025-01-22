@@ -7,6 +7,8 @@ import {
   Download,
   ExternalLink,
   FileCheck,
+  FileText,
+  FileCode2,
   Globe,
   Hash,
   Link as LinkIcon,
@@ -15,6 +17,12 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Tooltip from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
@@ -211,7 +219,7 @@ export function EditorSidebar({
     }
   };
 
-  const handleDownload = async () => {
+  const downloadDocFile = () => {
     setIsDownloading(true);
     try {
       // Use the Export extension to create a Word document
@@ -237,6 +245,31 @@ export function EditorSidebar({
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const downloadHtmlFile = () => {
+    setIsDownloading(true);
+    if (editor) {
+      const htmlContent = editor.getHTML();
+
+      // Create a Blob from the HTML content
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+
+      // Generate a URL for the Blob
+      const url = URL.createObjectURL(blob);
+
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'document.html'; // File name
+      document.body.appendChild(link);
+      link.click(); // Trigger download
+      document.body.removeChild(link); // Clean up
+
+      // Revoke the URL to free up memory
+      URL.revokeObjectURL(url);
+    }
+    setIsDownloading(false);
   };
 
   const handleStatusChange = async (newStatus: 'published' | 'draft') => {
@@ -446,35 +479,38 @@ export function EditorSidebar({
 
       {/* Action Buttons - Updated spacing */}
       <div className="mt-6 space-y-3 border-t pt-6">
-        <div className="flex gap-2">
-          <Tooltip content="Download as Word document">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={handleDownload}
-              disabled={isDownloading}
-            >
-              {isDownloading ? (
-                <>
-                  <Loader className="mr-2 h-4 w-4 animate-spin" />
-                  Downloading...
-                </>
-              ) : (
-                <>
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </>
-              )}
-            </Button>
-          </Tooltip>
-          <StatusButton />
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="w-full" disabled={isDownloading}>
+                {isDownloading ? (
+                  <>
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </>
+                )}
+              </Button>
+              <StatusButton />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem onClick={downloadDocFile}>
+              <FileText className="mr-2 h-4 w-4" />
+              DOCX
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={downloadHtmlFile}>
+              <FileCode2 className="mr-2 h-4 w-4" />
+              HTML
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        <Tooltip
-          content="Go to integration section to publish this article to your
-                website"
-        >
+        <Tooltip content="Go to integration section to publish this article to your website">
           <Button variant="default" size="sm" className="w-full" disabled>
             <Globe className="mr-2 h-4 w-4" />
             Publish to Website
