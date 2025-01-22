@@ -28,7 +28,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import Tooltip from '@/components/ui/tooltip';
 import { Project, useProjects } from '@/contexts/ProjectContext';
 import { useSidebarState } from '@/contexts/SidebarContext';
-import { useGetKnowledgeBase } from '@/lib/apiHooks/useGetKnowledgeBase';
+import { useGetKnowledgeBase } from '@/lib/apiHooks/background/useGetKnowledgeBase';
 import { supabase } from '@/lib/supabaseClient';
 import { cn } from '@/lib/utils';
 import { NewContentButton } from './new-content-button';

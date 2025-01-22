@@ -34,6 +34,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
+import { generateTopic, webRetrieval } from '@/constants/urlConstant';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 import { cn } from '@/lib/utils';
@@ -157,9 +158,7 @@ export default function ContentSettings() {
 
       setIsLoadingTopics(true);
       try {
-        const backendUrl = 'https://pulser-backend.onrender.com';
-        // const backendUrl = "http://localhost:8000";
-        const response = await fetch(`${backendUrl}/api/generate-topic`, {
+        const response = await fetch(generateTopic, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -267,10 +266,7 @@ export default function ContentSettings() {
       }
 
       // Start the content creation process
-      const backendUrl = 'https://pulser-backend.onrender.com';
-      // const backendUrl = 'http://localhost:8000';
-
-      const response = await fetch(`${backendUrl}/api/web-retrieval`, {
+      const response = await fetch(webRetrieval, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import Tooltip from '@/components/ui/tooltip';
 import { useSidebarState } from '@/contexts/SidebarContext';
 import { useToast } from '@/hooks/use-toast';
-import { useGetKnowledgeBase } from '@/lib/apiHooks/useGetKnowledgeBase';
+import { useGetKnowledgeBase } from '@/lib/apiHooks/background/useGetKnowledgeBase';
 import { supabase } from '@/lib/supabaseClient';
 import MainLayout from './layout/MainLayout';
 // Initialize Supabase client
