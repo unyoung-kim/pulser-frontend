@@ -13,6 +13,7 @@ import {
   Folder,
   GalleryVerticalEnd,
   Mail,
+  Newspaper,
   Play,
   Settings,
   WholeWord,
@@ -69,7 +70,8 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
 
   const links = [
     { name: 'Knowledge Base', href: '/background', icon: BrainCircuit },
-    { name: 'Content', href: '/content', icon: WholeWord },
+    { name: 'Content', href: '/content', icon: Newspaper },
+    { name: 'Keyword', href: '/keyword', icon: WholeWord },
   ];
 
   const bottomLinks = [
