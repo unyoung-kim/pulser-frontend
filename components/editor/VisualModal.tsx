@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
-import { Editor } from '@tiptap/core';
+import { Editor, generateHTML } from '@tiptap/core';
+import { useEditorState } from '@tiptap/react';
 import { Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -20,8 +21,19 @@ interface VisualModalProps {
 export function VisualModal({ editor, onClose }: VisualModalProps) {
   const [selectedIMG, setSelectedIMG] = useState<string | null>(null);
 
-  const text = editor.storage.showVisualEvent.text;
-  const savedSelection = editor.storage.showVisualEvent.savedSelection;
+  const { text, to } = useEditorState({
+    editor,
+    selector: (ctx) => {
+      const { from, to } = ctx.editor.state.selection;
+      const selectedNode = ctx.editor.state.doc.cut(from, to).toJSON();
+      const selectedHTML = generateHTML(selectedNode, editor.extensionManager.extensions);
+
+      return {
+        text: selectedHTML,
+        to,
+      };
+    },
+  });
 
   const {
     data: visualData = [],
@@ -48,12 +60,11 @@ export function VisualModal({ editor, onClose }: VisualModalProps) {
   }, []);
 
   const handleInsert = useCallback(() => {
-    if (selectedIMG && savedSelection) {
-      editor.commands.setImageBlockAt({ src: selectedIMG, pos: savedSelection.to });
-      editor.chain().focus().setSavedSelection({ from: 0, to: 0 }).run();
+    if (selectedIMG && to) {
+      editor.commands.setImageBlockAt({ src: selectedIMG, pos: to });
       onClose();
     }
-  }, [editor, onClose, savedSelection, selectedIMG]);
+  }, [editor, onClose, to, selectedIMG]);
 
   return (
     <Dialog defaultOpen onOpenChange={(open) => !open && onClose()}>
