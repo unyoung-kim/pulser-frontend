@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { BACKEND_URL } from '@/lib/url';
+import { youtubeSearch } from '@/constants/urlConstant';
 
 interface VideoResult {
   id: string;
@@ -35,7 +35,7 @@ export default function YoutubeSearch({ onSelect, onClose, editor }: YoutubeSear
     setError(null);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/video-search`, {
+      const response = await fetch(youtubeSearch, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

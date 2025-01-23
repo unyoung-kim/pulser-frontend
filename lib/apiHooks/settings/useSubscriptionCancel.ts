@@ -1,13 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { deleteSubscriptionUrl } from '@/constants/urlConstant';
 import { useToast } from '@/hooks/use-toast';
-import { BACKEND_URL } from '@/lib/api/backend';
 
 export const useSubscriptionCancel = () => {
   const { toast } = useToast();
   return useMutation({
     mutationFn: async (orgId: string) => {
-      const response = await axios.post(`${BACKEND_URL}/api/delete-subscription`, {
+      const response = await axios.post(deleteSubscriptionUrl, {
         orgId,
       });
       const data = response.data;

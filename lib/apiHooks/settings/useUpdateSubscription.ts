@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { updateSubscriptionUrl } from '@/constants/urlConstant';
 import { useToast } from '@/hooks/use-toast';
-import { BACKEND_URL } from '@/lib/api/backend';
 
 interface UpdateSubscriptionParams {
   orgId: string;
@@ -21,7 +21,7 @@ export const useUpdateSubscription = () => {
         ...(couponCode && couponCode.trim() !== '' && { couponCode }),
       };
 
-      const response = await axios.post(`${BACKEND_URL}/api/update-subscription`, payload);
+      const response = await axios.post(updateSubscriptionUrl, payload);
       return response.data;
     },
     onSuccess: () => {

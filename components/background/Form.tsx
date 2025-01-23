@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Building2,
-  Check,
   ChevronRight,
   FileText,
   Globe,
@@ -13,14 +12,29 @@ import {
   Loader2,
   MessageSquare,
   Package,
+  Pencil,
+  PlusCircle,
   Sparkles,
   Star,
   Tags,
   Target,
+  Trash2,
   Trophy,
   Users,
 } from 'lucide-react';
 import { z } from 'zod';
+import { AddInternalLinkDialog } from '@/components/background/AddInternalLinkDialog';
+import { EditInternalLinkDialog } from '@/components/background/EditInternalLinkDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,7 +42,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea2';
 import { useToast } from '@/hooks/use-toast';
-import { useGetKnowledgeBase } from '@/lib/apiHooks/useGetKnowledgeBase';
+import { useAddInternalLink } from '@/lib/apiHooks/background/useAddInternalLink';
+import { useDeleteInternalLink } from '@/lib/apiHooks/background/useDeleteInternalLink';
+import { useFindInternalLinks } from '@/lib/apiHooks/background/useFindInternalLinks';
+import { useGetInternalLinks } from '@/lib/apiHooks/background/useGetInternalLinks';
+import { useGetKnowledgeBase } from '@/lib/apiHooks/background/useGetKnowledgeBase';
+import { useUpdateBackground } from '@/lib/apiHooks/background/useUpdateBackground';
+import { useUpdateInternalLink } from '@/lib/apiHooks/background/useUpdateInternalLink';
 import { supabase } from '@/lib/supabaseClient';
 import { getPathFromURL } from '@/lib/url';
 import { cn } from '@/lib/utils';
@@ -64,9 +84,25 @@ export const BackgroundSchema2 = z.object({
   }),
 });
 
+const tabs = [
+  {
+    id: 'basic',
+    icon: Building2,
+    label: 'Basic Information',
+    required: true,
+  },
+  { id: 'product', icon: Package, label: 'Product Details' },
+  { id: 'audience', icon: Users, label: 'Audience' },
+  { id: 'socialProof', icon: Star, label: 'Social Proof' },
+  {
+    id: 'internalLinks',
+    icon: Globe,
+    label: 'Internal Links',
+    required: true,
+  },
+];
+
 export default function BackgroundForm2({ projectId }: { projectId: string }) {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState<z.infer<typeof BackgroundSchema2>>({
     basic: {
@@ -84,40 +120,26 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
   const [domain, setDomain] = useState('');
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isAutofillDialogOpen, setIsAutofillDialogOpen] = useState(false);
+  const [isAddLinkDialogOpen, setIsAddLinkDialogOpen] = useState(false);
+  const [isEditLinkDialogOpen, setIsEditLinkDialogOpen] = useState(false);
+  const [editingLink, setEditingLink] = useState<{
+    id: string;
+    url: string;
+    summary?: string;
+  } | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deletingLinkId, setDeletingLinkId] = useState<string | null>(null);
 
-  const tabs = [
-    {
-      id: 'basic',
-      icon: Building2,
-      label: 'Basic Information',
-      required: true,
-    },
-    { id: 'product', icon: Package, label: 'Product Details' },
-    { id: 'audience', icon: Users, label: 'Audience' },
-    { id: 'socialProof', icon: Star, label: 'Social Proof' },
-    {
-      id: 'internalLinks',
-      icon: Globe,
-      label: 'Internal Links',
-      required: true,
-    },
-  ];
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: project, isLoading } = useGetKnowledgeBase(projectId);
-
-  const { data: internalLinks, isLoading: isLoadingLinks } = useQuery({
-    queryKey: ['internalLinks', projectId],
-    queryFn: async () => {
-      if (!projectId) return [];
-      const { data, error } = await supabase
-        .from('InternalLink')
-        .select('*')
-        .eq('project_id', projectId);
-      if (error) throw error;
-      return data ?? [];
-    },
-    enabled: !!projectId,
-  });
+  const { data: internalLinks, isLoading: isLoadingLinks } = useGetInternalLinks(projectId);
+  const { mutate: updateBackground } = useUpdateBackground(projectId);
+  const { mutate: findInternalLinks, isPending: isFindingLinks } = useFindInternalLinks(projectId);
+  const addInternalLinkMutation = useAddInternalLink(projectId);
+  const updateInternalLinkMutation = useUpdateInternalLink(projectId);
+  const deleteInternalLinkMutation = useDeleteInternalLink(projectId);
 
   useEffect(() => {
     if (project?.background) {
@@ -168,80 +190,16 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     }));
   };
 
-  const { mutate: updateBackground } = useMutation({
-    mutationFn: async (newData: Partial<z.infer<typeof BackgroundSchema2>>) => {
-      const updatedBackground = {
-        ...(project?.background || {}),
-        [activeTab]: {
-          ...(project?.background?.[activeTab as keyof typeof formData] || {}),
-          ...newData[activeTab as keyof typeof formData],
-        },
-      };
-
-      const { error } = await supabase
-        .from('Project')
-        .update({ background: updatedBackground })
-        .eq('id', projectId);
-
-      if (error) throw error;
-      return updatedBackground;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project', projectId] });
-      toast({
-        title: '🎉 Success',
-        description: 'Background information saved successfully',
-        icon: <Check className="h-6 w-6 text-green-500" />,
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: 'Failed to save background information',
-        variant: 'destructive',
-      });
-      console.error(error);
-    },
-  });
-
   const handleSave = () => {
-    updateBackground({
-      [activeTab]: formData[activeTab as keyof typeof formData],
-    });
+    const updatedDetails = {
+      ...(project?.background || {}),
+      [activeTab]: {
+        ...(project?.background?.[activeTab as keyof typeof formData] || {}),
+        ...formData[activeTab as keyof typeof formData],
+      },
+    };
+    updateBackground(updatedDetails);
   };
-
-  const { mutate: findInternalLinks, isPending: isFindingLinks } = useMutation({
-    mutationFn: async () => {
-      const backendUrl = 'https://pulser-backend.onrender.com';
-      // const backendUrl = "http://localhost:8000";
-      const response = await fetch(`${backendUrl}/api/internal-links-handler`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId }),
-      });
-      if (!response.ok) throw new Error('Failed to find internal links');
-
-      const data = await response.json();
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['internalLinks', projectId] });
-      toast({
-        title: '🎉 Success',
-        description: 'Internal links found successfully',
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: 'Failed to find internal links',
-        variant: 'destructive',
-      });
-    },
-    onSettled: () => {
-      // setIsFindingLinks(false);
-    },
-  });
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -307,6 +265,18 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
     setTimeout(() => {
       findInternalLinks();
     }, 100);
+  };
+
+  const handleAddLink = (url: string, summary: string) => {
+    addInternalLinkMutation.mutate({ url, summary });
+  };
+
+  const handleEditLink = (id: string, url: string, summary: string) => {
+    updateInternalLinkMutation.mutate({ id, url, summary });
+  };
+
+  const handleDeleteLink = (id: string) => {
+    deleteInternalLinkMutation.mutate(id);
   };
 
   const renderContent = () => {
@@ -725,10 +695,20 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                   <Globe className="h-4 w-4" />
                   <span className="font-semibold">Found Internal Links</span>
                 </Label>
-                <p className="text-sm text-muted-foreground">
-                  These links will be strategically incorporated into your generated articles to
-                  improve internal linking and SEO performance of your website.
-                </p>
+                <div className="flex justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    These links will be strategically incorporated into your generated articles to
+                    improve internal linking and SEO performance of your website.
+                  </p>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setIsAddLinkDialogOpen(true)}
+                    className="gap-2"
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                    Add Link
+                  </Button>
+                </div>
                 <div className="rounded-lg border">
                   {isLoadingLinks ? (
                     <p className="p-4">Loading links...</p>
@@ -757,13 +737,35 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                               </span>
                             )}
                           </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setEditingLink(link);
+                                setIsEditLinkDialogOpen(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-red-500 hover:text-red-600"
+                              onClick={() => {
+                                setDeletingLinkId(link.id);
+                                setIsDeleteDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
               </div>
-
               {isFindingLinks && (
                 <div className="mt-4 rounded-lg bg-muted p-4">
                   <p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -774,6 +776,42 @@ export default function BackgroundForm2({ projectId }: { projectId: string }) {
                 </div>
               )}
             </CardContent>
+            <AddInternalLinkDialog
+              isOpen={isAddLinkDialogOpen}
+              onClose={() => setIsAddLinkDialogOpen(false)}
+              onAdd={handleAddLink}
+            />
+
+            <EditInternalLinkDialog
+              isOpen={isEditLinkDialogOpen}
+              onClose={() => setIsEditLinkDialogOpen(false)}
+              onEdit={handleEditLink}
+              link={editingLink}
+            />
+
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the internal link.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      if (deletingLinkId) {
+                        handleDeleteLink(deletingLinkId);
+                      }
+                      setIsDeleteDialogOpen(false);
+                    }}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </Card>
         );
     }

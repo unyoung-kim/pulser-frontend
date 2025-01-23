@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { createSubscriptionUrl } from '@/constants/urlConstant';
 import { useToast } from '@/hooks/use-toast';
-import { BACKEND_URL } from '@/lib/api/backend';
 
 interface CreateSubscriptionParams {
   orgId: string;
@@ -30,11 +30,10 @@ export const useCreateSubscription = () => {
         ...(couponCode && couponCode.trim() !== '' && { couponCode }),
       };
 
-      const response = await axios.post(`${BACKEND_URL}/api/create-stripe-session`, payload);
+      const response = await axios.post(createSubscriptionUrl, payload);
       return response.data;
     },
     onSuccess: (data) => {
-      console.log(data);
       const url = data?.data; // Extract the URL from the response
 
       if (url) {
