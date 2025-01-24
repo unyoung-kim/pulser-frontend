@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import BackgroundForm2 from '@/components/background/Form';
 import { Sidebar } from '@/components/dashboard/sidebar';
@@ -12,8 +12,7 @@ export default function BackgroundPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const { isCollapsed } = useSidebarState();
-  const searchParams = useSearchParams();
-  const projectId = searchParams?.get('projectId') || '';
+  const { projectId } = useParams();
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -31,9 +30,9 @@ export default function BackgroundPage() {
         isCollapsed ? 'grid-cols-[60px_1fr]' : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
       }`}
     >
-      <Sidebar projectId={projectId} defaultCollapsed={false} />
+      <Sidebar projectId={projectId.toString()} defaultCollapsed={false} />
       <MainLayout>
-        <BackgroundForm2 projectId={projectId} />
+        <BackgroundForm2 projectId={projectId.toString()} />
       </MainLayout>
     </div>
   );

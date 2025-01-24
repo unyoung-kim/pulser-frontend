@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useParams } from 'next/navigation';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
@@ -50,20 +50,16 @@ const Dashboard02 = () => {
   const [keywords, setKeywords] = useState<string[]>([]);
   const [topic, setTopic] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+
   const { toast } = useToast();
   const { isCollapsed } = useSidebarState();
   const router = useRouter();
-
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const projectId = searchParams?.get('projectId') || '';
+  const { projectId } = useParams();
 
-  // useEffect(() => {
-  //   const supabaseClient = createClient(supabaseUrl, supabaseKey);
-  //   setSupabase(supabaseClient);
-  // }, []);
-
-  const { isSuccess: isKnowledgeBaseSuccess, data: details } = useGetKnowledgeBase(projectId);
+  const { isSuccess: isKnowledgeBaseSuccess, data: details } = useGetKnowledgeBase(
+    projectId.toString()
+  );
 
   const isBackgroundPresent = useMemo(() => {
     if (isKnowledgeBaseSuccess && details?.background?.basic) {
@@ -110,7 +106,7 @@ const Dashboard02 = () => {
 
     setIsLoading(true);
     try {
-      const newItems = await getContent(supabase, projectId, page + 1);
+      const newItems = await getContent(supabase, projectId.toString(), page + 1);
       if (newItems.length < ITEMS_PER_PAGE) {
         setHasNextPage(false);
       }
@@ -126,7 +122,7 @@ const Dashboard02 = () => {
 
   const fetchContent = async () => {
     if (!projectId || !supabase) return [];
-    const contentData = await getContent(supabase, projectId, 1);
+    const contentData = await getContent(supabase, projectId.toString(), 1);
     return contentData;
   };
 
@@ -208,7 +204,7 @@ const Dashboard02 = () => {
       );
     }
 
-    if (pathname === '/content') {
+    if (pathname.includes('/content')) {
       return (
         <>
           <div className="">
@@ -226,7 +222,7 @@ const Dashboard02 = () => {
               // setView={setView}
               status={status}
               setStatus={handleSetStatus}
-              onNewContent={() => router.push(`/content/settings?projectId=${projectId}`)}
+              onNewContent={() => router.push(`/projects/${projectId}/content/settings`)}
               basicBackground={isBackgroundPresent}
             />
           </div>
@@ -249,8 +245,8 @@ const Dashboard02 = () => {
                         variant="default"
                         size="sm"
                         className="mt-4 bg-indigo-600 text-sm text-white hover:bg-indigo-700"
-                        onClick={() => router.push(`/content/settings?projectId=${projectId}`)}
-                        disabled={isBackgroundPresent} // Disable button if background data is not present
+                        onClick={() => router.push(`/projects/${projectId}/content/settings`)}
+                        disabled={isBackgroundPresent}
                       >
                         <Plus className="mr-2 h-4 w-4" />
                         New Content
@@ -262,7 +258,7 @@ const Dashboard02 = () => {
                     variant="default"
                     size="sm"
                     className="mt-4 bg-indigo-600 text-sm text-white hover:bg-indigo-700"
-                    onClick={() => router.push(`/content/settings?projectId=${projectId}`)}
+                    onClick={() => router.push(`/projects/${projectId}/content/settings`)}
                   >
                     <Plus className="mr-2 h-4 w-4" />
                     New Content
@@ -289,19 +285,19 @@ const Dashboard02 = () => {
         </>
       );
     } else {
-      const title = pathname ? pathname.slice(1).charAt(0).toUpperCase() + pathname.slice(2) : '';
+      const title = pathname ? pathname.split('/')?.pop() : '';
       return (
         <>
           <div className="flex items-center">
-            <h1 className="text-lg font-semibold md:text-2xl">{title}</h1>
+            <h1 className="text-lg font-semibold capitalize md:text-2xl">{title}</h1>
           </div>
-          <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-gray-300 shadow-sm">
+          <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-gray-300 p-6 shadow-sm">
             <div className="flex flex-col items-center gap-1 text-center">
               <h3 className="text-2xl font-bold tracking-tight text-gray-900">
-                No {title.toLowerCase()} data available
+                No {title} data available
               </h3>
               <p className="text-sm text-gray-500">
-                You can start by adding some {title.toLowerCase()} information.
+                You can start by adding some {title} information.
               </p>
               <Button className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700">
                 Add {title}
@@ -323,7 +319,7 @@ const Dashboard02 = () => {
         isCollapsed ? 'grid-cols-[60px_1fr]' : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
       }`}
     >
-      <Sidebar projectId={projectId} />
+      <Sidebar projectId={projectId.toString()} />
       <MainLayout>{renderContent()}</MainLayout>
     </div>
   );

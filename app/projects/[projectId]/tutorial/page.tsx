@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { CalendarDays, Users2, Rocket, LifeBuoy } from 'lucide-react';
 import BackgroundForm2 from '@/components/background/Form';
@@ -12,12 +12,12 @@ import { Separator } from '@/components/ui/separator';
 import { useSidebarState } from '@/contexts/SidebarContext';
 
 export default function TutorialPage() {
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
+
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const { isCollapsed } = useSidebarState();
-  const searchParams = useSearchParams();
-  const projectId = searchParams?.get('projectId') || '';
-  const [isVideoLoading, setIsVideoLoading] = useState(true);
+  const { projectId } = useParams();
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -35,7 +35,7 @@ export default function TutorialPage() {
         isCollapsed ? 'grid-cols-[60px_1fr]' : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
       }`}
     >
-      <Sidebar projectId={projectId} defaultCollapsed={false} />
+      <Sidebar projectId={projectId.toString()} defaultCollapsed={false} />
       <MainLayout>
         <div className="container mx-auto max-w-6xl">
           <div className="space-y-6">
@@ -85,8 +85,8 @@ export default function TutorialPage() {
 
                   <div className="space-y-8">
                     <p className="text-lg text-slate-700">
-                      We're excited to help you grow your organic traffic. Watch a quick onboarding
-                      video to get started.
+                      We&#39;re excited to help you grow your organic traffic. Watch a quick
+                      onboarding video to get started.
                     </p>
 
                     {/* <div className="space-y-4">
@@ -134,7 +134,7 @@ export default function TutorialPage() {
                       <Button
                         variant="outline"
                         size="lg"
-                        onClick={() => router.push(`/background?projectId=${projectId}`)}
+                        onClick={() => router.push(`/projects/${projectId}/background`)}
                       >
                         <Rocket className="mr-2 h-4 w-4" />
                         Get started

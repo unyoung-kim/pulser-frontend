@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -65,8 +65,7 @@ const glossaryLoadingStages: LoadingStage[] = [
 ];
 
 export default function ContentSettings() {
-  const searchParams = useSearchParams();
-  const projectId = searchParams?.get('projectId') || '';
+  const { projectId } = useParams();
   const queryClient = useQueryClient();
   const router = useRouter();
   const { toast } = useToast();
@@ -299,7 +298,7 @@ export default function ContentSettings() {
         }))
       );
 
-      router.push(`/content?projectId=${projectId}`);
+      router.push(`/projects${projectId}/content`);
     } catch (error) {
       console.error('Error creating content:', error);
       toast({
@@ -436,7 +435,10 @@ export default function ContentSettings() {
                 <AlertTriangle className="h-4 w-4" />
                 <span>
                   You have {remainingCredits} credits remaining.
-                  <Link href="/settings" className="text-indigo-600 hover:underline">
+                  <Link
+                    href={`/projects/${projectId}/settings`}
+                    className="text-indigo-600 hover:underline"
+                  >
                     {' '}
                     Add more credits
                   </Link>
@@ -625,7 +627,7 @@ export default function ContentSettings() {
             <Button
               variant="ghost"
               className="text-indigo-600"
-              onClick={() => router.push(`/content?projectId=${projectId}`)}
+              onClick={() => router.push(`/projects/${projectId}/content`)}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Go back

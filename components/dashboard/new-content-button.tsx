@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { Plus, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -11,10 +11,9 @@ interface NewContentButtonProps {
 }
 
 export function NewContentButton({ disabled }: NewContentButtonProps) {
-  const [isHovered, setIsHovered] = React.useState(false);
-  const searchParams = useSearchParams();
+  const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
-  const projectId = searchParams?.get('projectId') || '';
+  const { projectId } = useParams();
 
   return (
     <Button
@@ -32,7 +31,7 @@ export function NewContentButton({ disabled }: NewContentButtonProps) {
       )}
       onMouseEnter={() => !disabled && setIsHovered(true)}
       onMouseLeave={() => !disabled && setIsHovered(false)}
-      onClick={() => !disabled && router.push(`/content/settings?projectId=${projectId}`)}
+      onClick={() => !disabled && router.push(`/projects/${projectId}/content/settings`)}
       disabled={disabled}
     >
       <div className="flex w-full items-center justify-between">

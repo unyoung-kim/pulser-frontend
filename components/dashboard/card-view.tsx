@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Case from 'case';
 import { CheckCircle, FileText, MoreVertical } from 'lucide-react';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
@@ -26,8 +26,7 @@ interface CardViewProps {
 
 export function CardView({ items, loading, hasNextPage, onLoadMore, onDelete }: CardViewProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
+  const { projectId } = useParams();
 
   const [sentryRef] = useInfiniteScroll({
     loading,
@@ -66,7 +65,7 @@ export function CardView({ items, loading, hasNextPage, onLoadMore, onDelete }: 
   };
 
   const handleCardClick = (contentId: number) => {
-    router.push(`/content/${contentId}?projectId=${projectId}`);
+    router.push(`/projects/${projectId}/content/${contentId}`);
   };
 
   const sortedItems = [...items].sort(

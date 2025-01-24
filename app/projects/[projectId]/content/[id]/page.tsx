@@ -1,20 +1,17 @@
 'use client';
 
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { ContentEditor } from '@/components/content/ContentEditor';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Loader } from '@/components/ui/loader';
 import { useSidebarState } from '@/contexts/SidebarContext';
 import { supabase } from '@/lib/supabaseClient';
+import '../editor.css';
 
 export default function ContentPage() {
-  const params = useParams();
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
-  const contentId = params.id;
+  const { id: contentId, projectId } = useParams();
   const { isCollapsed } = useSidebarState();
-
   const { data: content, isLoading: isContentLoading } = useQuery({
     queryKey: ['content', contentId],
     queryFn: async () => {
@@ -64,7 +61,7 @@ export default function ContentPage() {
         isCollapsed ? 'grid-cols-[60px_1fr]' : 'grid-cols-[220px_1fr] lg:grid-cols-[270px_1fr]'
       }`}
     >
-      <Sidebar projectId={projectId || ''} defaultCollapsed={true} />
+      <Sidebar projectId={projectId.toString() || ''} defaultCollapsed={true} />
       {/* {!contentBody ? (
         <div className="flex flex-col flex-1 items-center">
           <ContentSettings />
@@ -75,7 +72,7 @@ export default function ContentPage() {
           <ContentEditor
             initialContent=""
             contentId={contentId as string}
-            projectId={projectId || ''}
+            projectId={projectId.toString() || ''}
             title={content?.title || ''}
             status={content?.status || 'drafted'}
             keyword={content?.Keyword?.keyword}
