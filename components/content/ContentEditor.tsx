@@ -17,7 +17,6 @@ import { supabase } from '@/lib/supabaseClient';
 import { getJwtToken } from '@/lib/token';
 import { EditorSidebar } from './EditorSidebar';
 import { BlockEditor } from '../new-editor/BlockEditor';
-import '@/app/content/editor.css';
 
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 // const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;

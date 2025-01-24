@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Case from 'case';
 import { format } from 'date-fns';
 import {
@@ -75,8 +75,7 @@ const getValidImageUrl = (url?: string) => {
 
 export function TableView({ items, loading, hasNextPage, onLoadMore, onDelete }: TableViewProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
+  const { projectId } = useParams();
 
   const [sentryRef] = useInfiniteScroll({
     loading,
@@ -88,7 +87,7 @@ export function TableView({ items, loading, hasNextPage, onLoadMore, onDelete }:
 
   const handleRowClick = useCallback(
     (contentId: number) => {
-      router.push(`/content/${contentId}?projectId=${projectId}`);
+      router.push(`/projects/${projectId}/content/${contentId}`);
     },
     [router, projectId]
   );

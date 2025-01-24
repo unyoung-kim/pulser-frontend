@@ -68,13 +68,13 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
   );
 
   const links = [
-    { name: 'Knowledge Base', href: '/background', icon: BrainCircuit },
-    { name: 'Content', href: '/content', icon: WholeWord },
+    { name: 'Knowledge Base', href: `/projects/${projectId}/background`, icon: BrainCircuit },
+    { name: 'Content', href: `/projects/${projectId}/content`, icon: WholeWord },
   ];
 
   const bottomLinks = [
-    // { name: "Integration", href: "/integration", icon: Plug },
-    { name: 'Settings', href: '/settings', icon: Settings },
+    // { name: 'Integration', href: `/projects/${projectId}/integration`, icon: Plug },
+    { name: 'Settings', href: `/projects/${projectId}/settings`, icon: Settings },
   ];
 
   const ContactLink = () => {
@@ -113,7 +113,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
 
   const handleProjectSelect = useCallback(
     (project: Project) => {
-      router.push(`/content?projectId=${project.id}`);
+      router.push(`/projects/${project.id}/content`);
     },
     [router]
   );
@@ -176,12 +176,6 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
   );
 
   const usedCredits = useMemo(() => usage?.credits_used || 0, [usage]);
-
-  // Memoize the width calculation for the progress bar
-  const progressBarWidth = useMemo(
-    () => `${totalCredits > 0 ? (usedCredits / totalCredits) * 100 : 0}%`,
-    [totalCredits, usedCredits]
-  );
 
   // Add useCallback for the UserButton click handler
   const handleUserButtonClick = useCallback(() => {
@@ -299,7 +293,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
               const linkContent = (
                 <Link
                   key={link.name}
-                  href={`${link.href}${projectId ? `?projectId=${projectId}` : ''}`}
+                  href={link.href}
                   className={`mb-1 flex items-center rounded-md px-2 py-2.5 ${
                     isActive
                       ? 'bg-gray-100 text-gray-900'
@@ -324,7 +318,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
         {/* Video Guide */}
         <div className="px-3">
           <Link
-            href={`/tutorial${selectedProject ? `?projectId=${selectedProject.id}` : ''}`}
+            href={`/projects/${selectedProject ? `${selectedProject.id}` : ''}/tutorial`}
             className={`mb-2 flex items-center rounded-md bg-gray-50 ${
               isCollapsed ? 'px-0' : 'px-3'
             } py-2 text-sm text-gray-700 hover:bg-gray-100`}
@@ -400,7 +394,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
               return (
                 <Link
                   key={link.name}
-                  href={`${link.href}${selectedProject ? `?projectId=${selectedProject.id}` : ''}`}
+                  href={link.href}
                   className={`flex items-center rounded-md px-2 py-2.5 ${
                     isActive
                       ? 'bg-gray-100 text-gray-900'

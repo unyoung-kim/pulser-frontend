@@ -7,7 +7,6 @@ import { DocumentTextIcon, FolderIcon, PlusCircleIcon } from '@heroicons/react/2
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
 import { useProjects } from '@/contexts/ProjectContext';
-// import { createClient } from '@supabase/supabase-js';
 import { getLastUpdatedText } from '@/lib/date';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -20,16 +19,9 @@ export default function ProjectSection() {
   const { organization } = useOrganization();
   const router = useRouter();
 
-  const navigateToContent = useCallback(
-    (projectId: string) => {
-      router.push(`/content?projectId=${projectId}`);
-    },
-    [router]
-  );
-
   const navigateToBackground = useCallback(
     (projectId: string) => {
-      router.push(`/background?projectId=${projectId}`);
+      router.push(`/projects/${projectId}/background`);
     },
     [router]
   );
@@ -61,13 +53,13 @@ export default function ProjectSection() {
         setNewProjectDescription('');
 
         if (data?.[0]) {
-          router.push(`/tutorial?projectId=${data[0].id}`);
+          router.push(`/projects/${data[0].id}/tutorial`);
         }
       } catch (error) {
         console.error('Error creating project:', error);
       }
     },
-    [newProjectName, newProjectDescription, fetchProjects, navigateToBackground, user, organization]
+    [newProjectName, user, organization, newProjectDescription, fetchProjects, router]
   );
 
   return (

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Check, Link as LinkIcon } from 'lucide-react';
 import {
@@ -22,8 +22,7 @@ export default function LinkPanel({ onSelect }: LinkPanelProps) {
   const [inputValue, setInputValue] = React.useState('');
   const [isExternalLink, setIsExternalLink] = React.useState(false);
 
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
+  const { projectId } = useParams();
 
   const { data: internalLinks } = useQuery({
     queryKey: ['internalLinks', projectId],

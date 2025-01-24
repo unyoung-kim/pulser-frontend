@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/Button-editor';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,9 +25,7 @@ export const useLinkEditorState = ({
   const [url, setUrl] = useState(initialUrl || '');
   const [openInNewTab, setOpenInNewTab] = useState(initialOpenInNewTab || false);
   const [searchTerm, setSearchTerm] = useState('');
-
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
+  const { projectId } = useParams();
 
   const { data: internalLinks } = useQuery({
     queryKey: ['internalLinks', projectId],
