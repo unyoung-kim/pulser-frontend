@@ -298,7 +298,7 @@ export default function ContentSettings() {
         }))
       );
 
-      router.push(`/projects${projectId}/content`);
+      router.push(`/projects/${projectId}/content`);
     } catch (error) {
       console.error('Error creating content:', error);
       toast({
