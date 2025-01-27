@@ -13,6 +13,9 @@ export const autofillBackgroundUrl = `${BACKEND_URL}/autofill-background`;
 export const generateTopic = `${BACKEND_URL}/api/generate-topic`;
 export const webRetrieval = `${BACKEND_URL}/api/web-retrieval`;
 
+// Keyword api urls
+export const keywordApiUrl = `${BACKEND_URL}/semrush-keyword-broad-match-and-overview`;
+
 // Editor api urls
 export const youtubeSearch = `${BACKEND_URL}/api/video-search`;
 export const imageSearch = `${BACKEND_URL}/api/image-search`;
