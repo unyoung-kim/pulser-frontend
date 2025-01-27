@@ -10,11 +10,11 @@ import {
   Activity,
   BrainCircuit,
   ChevronsUpDown,
+  CreditCard,
   Folder,
   GalleryVerticalEnd,
   Mail,
   Play,
-  Settings,
   WholeWord,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -74,7 +74,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
 
   const bottomLinks = [
     // { name: 'Integration', href: `/projects/${projectId}/integration`, icon: Plug },
-    { name: 'Settings', href: `/projects/${projectId}/settings`, icon: Settings },
+    { name: 'Billing', href: `/projects/${projectId}/settings`, icon: CreditCard },
   ];
 
   const ContactLink = () => {
