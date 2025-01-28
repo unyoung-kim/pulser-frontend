@@ -1,36 +1,17 @@
 'use client';
 
+import React, { useEffect, useState } from 'react';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
-import {
-  ArrowDownUp,
-  ArrowLeft,
-  BarChart2,
-  Download,
-  HelpCircle,
-  RefreshCw,
-  Search,
-} from 'lucide-react';
-import { Bar, BarChart } from 'recharts';
+import { ArrowLeft, BarChart2, HelpCircle, Search } from 'lucide-react';
+import CostPerClickSEO from '@/components/keyword/CostPerClickSEO';
+import KeywordDifficultyBadge from '@/components/keyword/KeywordDifficultyBadge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer } from '@/components/ui/chart';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { cpcCaption, keywordDifficultyCaption, searchVolumeCaption } from '@/lib/utils/keyword';
+import { columns } from './columns';
+import { DataTable } from './data-table';
 import Tooltip from '../ui/tooltip';
 
 type KeywordData = {
@@ -41,21 +22,36 @@ type KeywordData = {
   trends: string;
 };
 
-// Mock data for trends
-const trendData = Array.from({ length: 12 }, (_, i) => ({
-  month: i + 1,
-  value: Math.floor(Math.random() * 100),
-}));
-
-export default function KeywordResearchResult({
-  keywordOverview,
-  reset,
-}: {
+interface KeywordResearchResultProps {
+  region: string;
+  intent: string[];
   keywordOverview: any;
   reset: () => void;
-}) {
+}
+
+export default function KeywordResearchResult({
+  region,
+  intent,
+  keywordOverview,
+  reset,
+}: KeywordResearchResultProps) {
+  const [listData, setListData] = useState<KeywordData[]>(keywordOverview.broadMatches);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    const filteredData = keywordOverview.broadMatches.filter((item: KeywordData) =>
+      item.keyword.toLowerCase().includes(search.toLowerCase().trim())
+    );
+    setListData(filteredData);
+  }, [search, keywordOverview.broadMatches]);
+
   const handleBack = () => reset();
-  const overview = JSON.parse(keywordOverview.inputKeywordOverview);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+  };
+
+  const overview = keywordOverview.inputKeywordOverview;
 
   return (
     <div className="container mx-auto space-y-8 p-6">
@@ -67,22 +63,11 @@ export default function KeywordResearchResult({
           <div>
             <h1 className="text-3xl font-bold capitalize">{overview.keyword}</h1>
             <div className="mt-2 flex items-center gap-2">
-              <span className="text-muted-foreground">United States</span>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-muted-foreground">143 keyword ideas</span>
-              <Badge variant="secondary" className="ml-2">
-                Informational
-              </Badge>
+              <span className="text-muted-foreground">{region}</span>
+              {intent.length > 0 && <span className="text-muted-foreground">•</span>}
+              <p className="text-xs font-semibold capitalize">{intent.join(', ')}</p>
             </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="icon">
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon">
-            <Download className="h-4 w-4" />
-          </Button>
         </div>
       </div>
 
@@ -94,7 +79,9 @@ export default function KeywordResearchResult({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{overview.searchVolume}</div>
-            <p className="text-xs text-muted-foreground">Good demand, competitive keywords</p>
+            <p className="text-xs text-muted-foreground">
+              {searchVolumeCaption(overview.searchVolume)}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -109,11 +96,11 @@ export default function KeywordResearchResult({
           <CardContent>
             <div className="flex items-center gap-2">
               <div className="text-2xl font-bold">{overview.keywordDifficultyIndex}</div>
-              <Badge variant="secondary" className="bg-green-100 text-green-700">
-                Low
-              </Badge>
+              <KeywordDifficultyBadge difficulty={overview.keywordDifficulty} />
             </div>
-            <p className="text-xs text-muted-foreground">Easy to rank for, less competition</p>
+            <p className="text-xs text-muted-foreground">
+              {keywordDifficultyCaption(overview.keywordDifficulty)}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -124,11 +111,9 @@ export default function KeywordResearchResult({
           <CardContent>
             <div className="flex items-center gap-2">
               <div className="text-2xl font-bold">${overview.CPC}</div>
-              <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">
-                Medium
-              </Badge>
+              <CostPerClickSEO cpc={overview.CPC} />
             </div>
-            <p className="text-xs text-muted-foreground">Medium CPC, reasonable investment</p>
+            <p className="text-xs text-muted-foreground">{cpcCaption(overview.CPC)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -155,86 +140,15 @@ export default function KeywordResearchResult({
           <div className="mb-4 flex items-center justify-between">
             <div className="relative w-96">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search keywords..." className="pl-8" />
-            </div>
-            <div className="flex gap-2">
-              <Select defaultValue="volume">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="volume">Volume</SelectItem>
-                  <SelectItem value="difficulty">Difficulty</SelectItem>
-                  <SelectItem value="cpc">CPC</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                placeholder="Search keywords..."
+                value={search}
+                onChange={handleSearch}
+                className="pl-8"
+              />
             </div>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[400px]">Keywords</TableHead>
-                <TableHead className="cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    Volume
-                    <ArrowDownUp className="h-4 w-4" />
-                  </div>
-                </TableHead>
-                <TableHead>Competition</TableHead>
-                <TableHead>Intent</TableHead>
-                <TableHead>Trend</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {keywordOverview.broadMatches.map((row: KeywordData) => (
-                <TableRow key={row.keyword}>
-                  <TableCell className="font-medium capitalize">{row.keyword}</TableCell>
-                  <TableCell>{row.searchVolume}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={`rounded-full ${
-                        Number.parseInt(row.competition) === 0
-                          ? 'bg-green-100 text-green-700'
-                          : Number.parseInt(row.competition) <= 33
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-red-100 text-red-700'
-                      }`}
-                    >
-                      {row.competition}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={`rounded-full ${
-                        row.intent === 'Commercial'
-                          ? 'bg-blue-100 text-blue-800 hover:bg-blue-100 hover:text-blue-800'
-                          : 'bg-green-100 text-green-800 hover:bg-green-100 hover:text-green-800'
-                      }`}
-                    >
-                      {row.intent}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <ChartContainer
-                      config={{
-                        value: {
-                          label: 'Trend',
-                          color: 'hsl(252, 100%, 68%)',
-                        },
-                      }}
-                      className="h-[30px]"
-                    >
-                      <BarChart data={trendData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                        <Bar dataKey="value" fill="hsl(252, 100%, 68%)" radius={[2, 2, 0, 0]} />
-                      </BarChart>
-                    </ChartContainer>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DataTable columns={columns} data={listData} />
         </CardContent>
       </Card>
     </div>

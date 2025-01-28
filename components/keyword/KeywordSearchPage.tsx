@@ -16,7 +16,7 @@ export default function KeywordSearchPage() {
     >
       <Sidebar projectId={projectId.toString()} />
       <MainLayout>
-        <div className="container mx-auto flex h-full items-center justify-center px-4">
+        <div className="container mx-auto flex h-full items-center justify-center">
           <KeywordSearchCard />
         </div>
       </MainLayout>

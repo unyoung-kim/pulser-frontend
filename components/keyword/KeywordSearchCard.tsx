@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { Command, Info, Loader2, SlidersHorizontal, Sparkles } from 'lucide-react';
@@ -57,8 +57,12 @@ export default function KeywordMagicTool() {
     }
   };
 
+  const region = countries.find((country) => country.code === database)?.name || '';
+
   if (data && !isPending) {
-    return <KeywordSearchResult keywordOverview={data} reset={reset} />;
+    return (
+      <KeywordSearchResult region={region} intent={intent} keywordOverview={data} reset={reset} />
+    );
   }
 
   return (
