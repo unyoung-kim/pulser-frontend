@@ -5,13 +5,9 @@ import { Bar, BarChart } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChartContainer } from '@/components/ui/chart';
+import { cn } from '@/lib/utils';
+import { competitionBadgeClass, intentBadgeClass, trendData } from '@/lib/utils/keyword';
 import type { ColumnDef } from '@tanstack/react-table';
-
-// Mock data for trends
-const trendData = Array.from({ length: 12 }, (_, i) => ({
-  month: i + 1,
-  value: Math.floor(Math.random() * 100),
-}));
 
 export type KeywordData = {
   keyword: string;
@@ -52,13 +48,7 @@ export const columns: ColumnDef<KeywordData>[] = [
       return (
         <Badge
           variant="secondary"
-          className={`rounded-full ${
-            Number.parseInt(competition) === 0
-              ? 'bg-green-100 text-green-700'
-              : Number.parseInt(competition) <= 33
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'bg-red-100 text-red-700'
-          }`}
+          className={cn('rounded-full', competitionBadgeClass(Number(competition)))}
         >
           {competition}
         </Badge>
@@ -71,14 +61,7 @@ export const columns: ColumnDef<KeywordData>[] = [
     cell: ({ row }) => {
       const intent = row.getValue('intent') as string;
       return (
-        <Badge
-          variant="secondary"
-          className={`rounded-full ${
-            intent === 'Commercial'
-              ? 'bg-blue-100 text-blue-800 hover:bg-blue-100 hover:text-blue-800'
-              : 'bg-green-100 text-green-800 hover:bg-green-100 hover:text-green-800'
-          }`}
-        >
+        <Badge variant="secondary" className={cn('rounded-full', intentBadgeClass(intent))}>
           {intent}
         </Badge>
       );
@@ -87,20 +70,26 @@ export const columns: ColumnDef<KeywordData>[] = [
   {
     accessorKey: 'trends',
     header: 'Trend',
-    cell: () => (
-      <ChartContainer
-        config={{
-          value: {
-            label: 'Trend',
-            color: 'hsl(252, 100%, 68%)',
-          },
-        }}
-        className="h-[30px]"
-      >
-        <BarChart data={trendData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-          <Bar dataKey="value" fill="hsl(252, 100%, 68%)" radius={[2, 2, 0, 0]} />
-        </BarChart>
-      </ChartContainer>
-    ),
+    cell: ({ row }) => {
+      const trend = row.getValue('trends') as string;
+      return (
+        <ChartContainer
+          config={{
+            value: {
+              label: 'Trend',
+              color: 'hsl(252, 100%, 68%)',
+            },
+          }}
+          className="h-[30px]"
+        >
+          <BarChart
+            data={trendData(trend.split(','))}
+            margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+          >
+            <Bar dataKey="value" fill="hsl(252, 100%, 68%)" radius={[2, 2, 0, 0]} />
+          </BarChart>
+        </ChartContainer>
+      );
+    },
   },
 ];

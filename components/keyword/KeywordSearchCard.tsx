@@ -42,7 +42,7 @@ export default function KeywordMagicTool() {
   const [database, setDatabase] = useState('us');
 
   const { orgId } = useAuth();
-  const { mutate, data, isPending, reset } = useGetKeywordOverview();
+  const { mutate, data, isPending, isSuccess, reset } = useGetKeywordOverview();
 
   const handleSearch = () => {
     if (keyword.trim() !== '' && orgId) {
@@ -59,7 +59,7 @@ export default function KeywordMagicTool() {
 
   const region = countries.find((country) => country.code === database)?.name || '';
 
-  if (data && !isPending) {
+  if (data && !isPending && isSuccess) {
     return (
       <KeywordSearchResult region={region} intent={intent} keywordOverview={data} reset={reset} />
     );
