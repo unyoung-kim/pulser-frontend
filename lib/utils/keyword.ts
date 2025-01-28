@@ -27,3 +27,33 @@ export const cpcCaption = (cpc: number) => {
     return 'High CPC, expensive to advertise';
   }
 };
+
+export const competitionBadgeClass = (competition: number): string => {
+  return competition <= 0.3
+    ? 'bg-green-100 text-green-700'
+    : competition <= 0.6
+      ? 'bg-yellow-100 text-yellow-700'
+      : 'bg-red-100 text-red-700';
+};
+
+export const intentBadgeClass = (intent: string): string => {
+  switch (intent) {
+    case 'Commercial':
+      return 'bg-blue-100 text-blue-700';
+    case 'Informational':
+      return 'bg-green-100 text-green-700';
+    case 'Transactional':
+      return 'bg-yellow-100 text-yellow-700';
+    case 'Navigational':
+      return 'bg-purple-100 text-purple-600';
+    default:
+      return 'bg-gray-100 text-gray-600';
+  }
+};
+
+export const trendData = (data: string[]) => {
+  return Array.from({ length: 12 }, (_, i) => ({
+    month: i + 1,
+    value: Number(data[i]) * 100,
+  }));
+};

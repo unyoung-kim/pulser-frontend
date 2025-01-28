@@ -2,14 +2,20 @@
 
 import React, { useEffect, useState } from 'react';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
-import { ArrowLeft, BarChart2, HelpCircle, Search } from 'lucide-react';
+import { ArrowLeft, DollarSign, Gauge, Search, TrendingUp } from 'lucide-react';
+import { Bar, BarChart } from 'recharts';
 import CostPerClickSEO from '@/components/keyword/CostPerClickSEO';
 import KeywordDifficultyBadge from '@/components/keyword/KeywordDifficultyBadge';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChartContainer } from '@/components/ui/chart';
 import { Input } from '@/components/ui/input';
-import { cpcCaption, keywordDifficultyCaption, searchVolumeCaption } from '@/lib/utils/keyword';
+import {
+  cpcCaption,
+  keywordDifficultyCaption,
+  searchVolumeCaption,
+  trendData,
+} from '@/lib/utils/keyword';
 import { columns } from './columns';
 import { DataTable } from './data-table';
 import Tooltip from '../ui/tooltip';
@@ -40,7 +46,7 @@ export default function KeywordResearchResult({
 
   useEffect(() => {
     const filteredData = keywordOverview.broadMatches.filter((item: KeywordData) =>
-      item.keyword.toLowerCase().includes(search.toLowerCase().trim())
+      item.keyword?.toLowerCase().includes(search.toLowerCase().trim())
     );
     setListData(filteredData);
   }, [search, keywordOverview.broadMatches]);
@@ -52,11 +58,10 @@ export default function KeywordResearchResult({
   };
 
   const overview = keywordOverview.inputKeywordOverview;
-
   return (
-    <div className="container mx-auto space-y-8 p-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-start gap-4">
           <Button variant="ghost" size="icon" onClick={handleBack} className="hover:bg-muted">
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -75,7 +80,9 @@ export default function KeywordResearchResult({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Search volume</CardTitle>
-            <Search className="h-4 w-4 text-muted-foreground" />
+            <Tooltip content="The total number of times this keyword is searched per month">
+              <Search className="h-4 w-4 text-muted-foreground" />
+            </Tooltip>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{overview.searchVolume}</div>
@@ -88,25 +95,27 @@ export default function KeywordResearchResult({
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Difficulty</CardTitle>
             <TooltipProvider>
-              <Tooltip content="How difficult it is to rank for this keyword">
-                <HelpCircle className="h-4 w-4 text-muted-foreground" />
+              <Tooltip content="The level of competition to rank for this keyword">
+                <Gauge className="h-4 w-4 text-muted-foreground" />
               </Tooltip>
             </TooltipProvider>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <div className="text-2xl font-bold">{overview.keywordDifficultyIndex}</div>
-              <KeywordDifficultyBadge difficulty={overview.keywordDifficulty} />
+              <KeywordDifficultyBadge difficulty={overview.keywordDifficultyIndex} />
             </div>
             <p className="text-xs text-muted-foreground">
-              {keywordDifficultyCaption(overview.keywordDifficulty)}
+              {keywordDifficultyCaption(overview.keywordDifficultyIndex)}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Cost per click</CardTitle>
-            <BarChart2 className="h-4 w-4 text-muted-foreground" />
+            <Tooltip content="The average cost per click for this keyword in paid ads">
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </Tooltip>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -118,16 +127,30 @@ export default function KeywordResearchResult({
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Traffic potential</CardTitle>
+            <CardTitle className="text-sm font-medium">Trend</CardTitle>
             <TooltipProvider>
-              <Tooltip content="Estimated monthly traffic if ranked in top 10">
-                <HelpCircle className="h-4 w-4 text-muted-foreground" />
+              <Tooltip content="Shows the keyword's popularity trend over time">
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </Tooltip>
             </TooltipProvider>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">500</div>
-            <p className="text-xs text-muted-foreground">Monthly visits</p>
+          <CardContent className="pb-2">
+            <ChartContainer
+              config={{
+                value: {
+                  label: 'Trend',
+                  color: 'hsl(252, 100%, 68%)',
+                },
+              }}
+              className="h-12"
+            >
+              <BarChart
+                data={trendData(keywordOverview.inputKeywordOverview.trends.split(','))}
+                margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+              >
+                <Bar dataKey="value" fill="hsl(252, 100%, 68%)" radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
