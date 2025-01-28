@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { ColumnDef } from '@tanstack/react-table';
@@ -22,7 +21,7 @@ import { columns } from './columns';
 import { DataTable } from './data-table';
 import Tooltip from '../ui/tooltip';
 
-type KeywordData = {
+export type KeywordData = {
   CPC: string;
   keyword: string;
   keywordDifficultyIndex: string;
@@ -45,19 +44,10 @@ export default function KeywordResearchResult({
   keywordOverview,
   reset,
 }: KeywordResearchResultProps) {
-  const [listData, setListData] = useState<KeywordData[]>(keywordOverview.broadMatches);
-
-  //   useEffect(() => {
-  //     const filteredData = keywordOverview.broadMatches.filter((item: KeywordData) =>
-  //       item.keyword?.toLowerCase().includes(search.toLowerCase().trim())
-  //     );
-  //     setListData(filteredData);
-  //   }, [search, keywordOverview.broadMatches]);
-
   const handleBack = () => reset();
   const { projectId } = useParams() as { projectId: string };
 
-  const { mutate: createKeywords } = useCreateKeywords(projectId);
+  const { mutate: createKeywords, isSuccess: isSaved } = useCreateKeywords(projectId);
 
   const handleSaveSelected = (selectedRows: KeywordData[]) => {
     const formattedKeywords = selectedRows.map((row: KeywordData) => ({
@@ -183,8 +173,9 @@ export default function KeywordResearchResult({
         <CardContent>
           <DataTable
             columns={columns as ColumnDef<KeywordData, unknown>[]}
-            data={listData}
+            data={keywordOverview.broadMatches}
             onSaveSelected={handleSaveSelected}
+            isSaved={isSaved}
           />
         </CardContent>
       </Card>

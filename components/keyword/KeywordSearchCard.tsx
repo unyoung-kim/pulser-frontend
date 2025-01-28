@@ -1,5 +1,8 @@
 'use client';
 
+import { useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
+import { Command, Info, Loader2, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,15 +17,13 @@ import {
 } from '@/components/ui/select';
 import Tooltip from '@/components/ui/tooltip';
 import { useGetKeywordOverview } from '@/lib/apiHooks/keyword/useGetKeywordOverview';
-import { useAuth } from '@clerk/nextjs';
-import { Command, Info, Loader2, SlidersHorizontal, Sparkles } from 'lucide-react';
-import { useState } from 'react';
 import KeywordSearchResult from './KeywordSearchResult';
 
 const countries = [
   { code: 'us', name: 'United States', sign: '🇺🇸' },
   { code: 'gb', name: 'United Kingdom', sign: '🇬🇧' },
   { code: 'ca', name: 'Canada', sign: '🇨🇦' },
+  { code: 'in', name: 'India', sign: '🇮🇳' },
 ];
 
 export default function KeywordMagicTool() {
@@ -71,12 +72,27 @@ export default function KeywordMagicTool() {
       <CardContent className="space-y-6">
         <div className="space-y-4">
           <div className="space-y-2">
+            <div className="flex justify-end">
+              <Tooltip
+                content="Each keyword search will consume 1 credit from your account"
+                side="top"
+              >
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  1 credit per search <Info className="h-4 w-4" />
+                </div>
+              </Tooltip>
+            </div>
             <div className="relative">
               <Input
                 type="text"
                 placeholder="Enter keyword"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch();
+                  }
+                }}
                 className="h-12 w-full pl-10 pr-24 text-base"
               />
               <Command className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -96,16 +112,6 @@ export default function KeywordMagicTool() {
                 )}
               </Button>
             </div>
-            <div className="flex justify-end">
-              <Tooltip
-                content="Each keyword search will consume 1 credit from your account"
-                side="right"
-              >
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  1 credit per search <Info className="h-4 w-4" />
-                </div>
-              </Tooltip>
-            </div>
           </div>
 
           <div className="space-y-4 pt-4">
@@ -116,17 +122,18 @@ export default function KeywordMagicTool() {
                     Keyword Difficulty <span className="text-xs font-normal"> (Default: 0-40)</span>
                   </Label>
                   <Tooltip
+                    className="max-w-sm"
                     content="Keyword Difficulty indicates how hard it would be to rank for a specific keyword in organic search results. Lower values suggest easier ranking opportunities."
                     side="top"
                   >
-                    <Info className="h-4 w-4 cursor-help text-muted-foreground" />
+                    <Info className="h-4 w-4 text-muted-foreground" />
                   </Tooltip>
                 </div>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full justify-start text-left font-normal"
+                      className="h-12 w-full justify-start text-left font-normal"
                     >
                       {difficultyMin} - {difficultyMax}
                       <SlidersHorizontal className="ml-auto h-4 w-4 opacity-50" />
@@ -186,56 +193,9 @@ export default function KeywordMagicTool() {
                     ))}
                   </SelectContent>
                 </Select>
-
-                {/* <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      {intent.length > 0 ? `${intent.length} selected` : 'Select intent'}
-                      <SlidersHorizontal className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <div className="grid gap-4">
-                      {intentOptions.map((item) => (
-                        <div key={item.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={item.id}
-                            checked={intent.includes(item.id)}
-                            onCheckedChange={(checked) => {
-                              setIntent(
-                                checked ? [...intent, item.id] : intent.filter((i) => i !== item.id)
-                              );
-                            }}
-                          />
-                          <Label htmlFor={item.id}>{item.label}</Label>
-                        </div>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover> */}
               </div>
             </div>
           </div>
-
-          {/* <div className="pt-4">
-            <Select defaultValue="us">
-              <SelectTrigger className="h-12 w-full">
-                <SelectValue placeholder="Select country" />
-              </SelectTrigger>
-              <SelectContent>
-                {countries.map((db) => (
-                  <SelectItem key={db.code} value={db.code} onClick={() => setDatabase(db.code)}>
-                    <span className="flex items-center gap-2">
-                      <span className="text-lg">{db.sign}</span> {db.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div> */}
         </div>
       </CardContent>
     </Card>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   type ColumnDef,
   flexRender,
@@ -11,6 +11,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { Save, Search } from 'lucide-react';
+import { KeywordData } from '@/components/keyword/KeywordSearchResult';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -30,10 +31,11 @@ import {
 import { PaginationControls } from './pagination-controls';
 import { Input } from '../ui/input';
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends KeywordData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onSaveSelected?: (selectedRows: TData[]) => void;
+  isSaved: boolean;
   // intentOptions: { id: string; label: string }[];
 }
 
@@ -44,10 +46,11 @@ interface DataTableProps<TData, TValue> {
 //   { id: 'commercial', label: 'Commercial' },
 // ];
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends KeywordData, TValue>({
   columns,
   data,
   onSaveSelected,
+  isSaved,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -58,8 +61,12 @@ export function DataTable<TData, TValue>({
   const [search, setSearch] = useState('');
   const [intent, setIntent] = useState<string[]>([]);
 
+  const tableData = useMemo(() => {
+    return data.filter((item) => item.keyword?.toLowerCase().includes(search.toLowerCase().trim()));
+  }, [data, search]);
+
   const table = useReactTable({
-    data,
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -75,8 +82,15 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  useEffect(() => {
+    if (isSaved) {
+      table.setRowSelection({});
+    }
+  }, [isSaved, table]);
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
+    const searchValue = e.target.value;
+    setSearch(searchValue);
   };
 
   return (
