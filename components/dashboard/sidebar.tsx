@@ -16,6 +16,7 @@ import {
   Mail,
   Play,
   WholeWord,
+  Newspaper,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -69,7 +70,8 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
 
   const links = [
     { name: 'Knowledge Base', href: `/projects/${projectId}/background`, icon: BrainCircuit },
-    { name: 'Content', href: `/projects/${projectId}/content`, icon: WholeWord },
+    { name: 'Content', href: `/projects/${projectId}/content`, icon: Newspaper },
+    { name: 'Keyword', href: `/projects/${projectId}/keyword`, icon: WholeWord },
   ];
 
   const bottomLinks = [
