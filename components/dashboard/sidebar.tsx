@@ -1,23 +1,5 @@
 'use client';
 
-import { useCallback, useEffect, useMemo } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useAuth, UserButton, useUser } from '@clerk/nextjs';
-import { useQuery } from '@tanstack/react-query';
-import {
-  Activity,
-  BrainCircuit,
-  ChevronsUpDown,
-  CreditCard,
-  Folder,
-  GalleryVerticalEnd,
-  Mail,
-  Play,
-  WholeWord,
-  Newspaper,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -32,6 +14,24 @@ import { useSidebarState } from '@/contexts/SidebarContext';
 import { useGetKnowledgeBase } from '@/lib/apiHooks/background/useGetKnowledgeBase';
 import { supabase } from '@/lib/supabaseClient';
 import { cn } from '@/lib/utils';
+import { useAuth, UserButton, useUser } from '@clerk/nextjs';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Activity,
+  BrainCircuit,
+  ChevronsUpDown,
+  CreditCard,
+  Folder,
+  GalleryVerticalEnd,
+  Mail,
+  Newspaper,
+  Play,
+  WholeWord,
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo } from 'react';
 import { NewContentButton } from './new-content-button';
 import ProgressRing from './ProgressRing';
 
@@ -71,7 +71,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
   const links = [
     { name: 'Knowledge Base', href: `/projects/${projectId}/background`, icon: BrainCircuit },
     { name: 'Content', href: `/projects/${projectId}/content`, icon: Newspaper },
-    { name: 'Keyword', href: `/projects/${projectId}/keyword`, icon: WholeWord },
+    { name: 'Keyword Search', href: `/projects/${projectId}/keyword`, icon: WholeWord },
   ];
 
   const bottomLinks = [

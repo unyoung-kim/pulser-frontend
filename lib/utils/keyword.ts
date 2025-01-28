@@ -28,10 +28,10 @@ export const cpcCaption = (cpc: number) => {
   }
 };
 
-export const competitionBadgeClass = (competition: number): string => {
-  return competition <= 0.3
+export const keywordDifficultyBadgeClass = (competition: number): string => {
+  return competition <= 30
     ? 'bg-green-100 text-green-700'
-    : competition <= 0.6
+    : competition <= 60
       ? 'bg-yellow-100 text-yellow-700'
       : 'bg-red-100 text-red-700';
 };

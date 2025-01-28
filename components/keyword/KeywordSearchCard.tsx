@@ -1,12 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
-import { TooltipProvider } from '@radix-ui/react-tooltip';
-import { Command, Info, Loader2, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -17,21 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import Tooltip from '@/components/ui/tooltip';
 import { useGetKeywordOverview } from '@/lib/apiHooks/keyword/useGetKeywordOverview';
+import { useAuth } from '@clerk/nextjs';
+import { Command, Info, Loader2, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { useState } from 'react';
 import KeywordSearchResult from './KeywordSearchResult';
-import Tooltip from '../ui/tooltip';
 
 const countries = [
   { code: 'us', name: 'United States', sign: '🇺🇸' },
   { code: 'gb', name: 'United Kingdom', sign: '🇬🇧' },
   { code: 'ca', name: 'Canada', sign: '🇨🇦' },
-];
-
-const intentOptions = [
-  { id: 'informational', label: 'Informational' },
-  { id: 'transactional', label: 'Transactional' },
-  { id: 'navigational', label: 'Navigational' },
-  { id: 'commercial', label: 'Commercial' },
 ];
 
 export default function KeywordMagicTool() {
@@ -51,7 +42,7 @@ export default function KeywordMagicTool() {
         phrase: keyword, // Replace with the target keyword
         database, // Database (e.g., 'us' for United States)
         displayOffset: 0, // Starting offset for results
-        kdFilter: 50,
+        kdFilter: Number(difficultyMax),
         intent,
       });
     }
@@ -105,6 +96,16 @@ export default function KeywordMagicTool() {
                 )}
               </Button>
             </div>
+            <div className="flex justify-end">
+              <Tooltip
+                content="Each keyword search will consume 1 credit from your account"
+                side="right"
+              >
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  1 credit per search <Info className="h-4 w-4" />
+                </div>
+              </Tooltip>
+            </div>
           </div>
 
           <div className="space-y-4 pt-4">
@@ -114,19 +115,12 @@ export default function KeywordMagicTool() {
                   <Label>
                     Keyword Difficulty <span className="text-xs font-normal"> (Default: 0-40)</span>
                   </Label>
-                  <TooltipProvider>
-                    <Tooltip
-                      content={
-                        <p className="max-w-xs">
-                          Keyword Difficulty indicates how hard it would be to rank for a specific
-                          keyword in organic search results. Lower values suggest easier ranking
-                          opportunities.
-                        </p>
-                      }
-                    >
-                      <Info className="h-4 w-4 cursor-help text-muted-foreground" />
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Tooltip
+                    content="Keyword Difficulty indicates how hard it would be to rank for a specific keyword in organic search results. Lower values suggest easier ranking opportunities."
+                    side="top"
+                  >
+                    <Info className="h-4 w-4 cursor-help text-muted-foreground" />
+                  </Tooltip>
                 </div>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -172,22 +166,28 @@ export default function KeywordMagicTool() {
               </div>
               <div className="w-full space-y-2 sm:w-1/2">
                 <div className="flex items-center gap-2">
-                  <Label>Intent</Label>
-                  <TooltipProvider>
-                    <Tooltip
-                      content={
-                        <p className="max-w-xs">
-                          Search Intent refers to the purpose behind a user&apos;s search query.
-                          Understanding intent helps create content that meets user needs and
-                          improves SEO performance.
-                        </p>
-                      }
-                    >
-                      <Info className="h-4 w-4 cursor-help text-muted-foreground" />
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Label>Region </Label>
                 </div>
-                <Popover>
+                <Select defaultValue="us">
+                  <SelectTrigger className="h-12 w-full">
+                    <SelectValue placeholder="Select country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((db) => (
+                      <SelectItem
+                        key={db.code}
+                        value={db.code}
+                        onClick={() => setDatabase(db.code)}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="text-lg">{db.sign}</span> {db.name}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -215,12 +215,12 @@ export default function KeywordMagicTool() {
                       ))}
                     </div>
                   </PopoverContent>
-                </Popover>
+                </Popover> */}
               </div>
             </div>
           </div>
 
-          <div className="pt-4">
+          {/* <div className="pt-4">
             <Select defaultValue="us">
               <SelectTrigger className="h-12 w-full">
                 <SelectValue placeholder="Select country" />
@@ -235,7 +235,7 @@ export default function KeywordMagicTool() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
         </div>
       </CardContent>
     </Card>

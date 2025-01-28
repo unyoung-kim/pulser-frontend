@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
+import { ColumnDef } from '@tanstack/react-table';
 import { ArrowLeft, DollarSign, Gauge, Search, TrendingUp } from 'lucide-react';
 import { Bar, BarChart } from 'recharts';
 import CostPerClickSEO from '@/components/keyword/CostPerClickSEO';
@@ -9,7 +11,7 @@ import KeywordDifficultyBadge from '@/components/keyword/KeywordDifficultyBadge'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer } from '@/components/ui/chart';
-import { Input } from '@/components/ui/input';
+import { useCreateKeywords } from '@/lib/apiHooks/keyword/useCreateKeywords';
 import {
   cpcCaption,
   keywordDifficultyCaption,
@@ -21,7 +23,9 @@ import { DataTable } from './data-table';
 import Tooltip from '../ui/tooltip';
 
 type KeywordData = {
+  CPC: string;
   keyword: string;
+  keywordDifficultyIndex: string;
   searchVolume: number;
   competition: string;
   intent: string;
@@ -42,19 +46,34 @@ export default function KeywordResearchResult({
   reset,
 }: KeywordResearchResultProps) {
   const [listData, setListData] = useState<KeywordData[]>(keywordOverview.broadMatches);
-  const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    const filteredData = keywordOverview.broadMatches.filter((item: KeywordData) =>
-      item.keyword?.toLowerCase().includes(search.toLowerCase().trim())
-    );
-    setListData(filteredData);
-  }, [search, keywordOverview.broadMatches]);
+  //   useEffect(() => {
+  //     const filteredData = keywordOverview.broadMatches.filter((item: KeywordData) =>
+  //       item.keyword?.toLowerCase().includes(search.toLowerCase().trim())
+  //     );
+  //     setListData(filteredData);
+  //   }, [search, keywordOverview.broadMatches]);
 
   const handleBack = () => reset();
+  const { projectId } = useParams() as { projectId: string };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
+  const { mutate: createKeywords } = useCreateKeywords(projectId);
+
+  const handleSaveSelected = (selectedRows: KeywordData[]) => {
+    const formattedKeywords = selectedRows.map((row: KeywordData) => ({
+      keyword: row.keyword,
+      cpc: parseFloat(row.CPC),
+      difficulty: parseInt(row.keywordDifficultyIndex),
+      volume: row.searchVolume,
+      intent: row.intent.toUpperCase() as
+        | 'COMMERCIAL'
+        | 'INFORMATIONAL'
+        | 'NAVIGATIONAL'
+        | 'TRANSACTIONAL',
+      trend: row.trends.split(',').map((t) => parseFloat(t)),
+    }));
+
+    createKeywords(formattedKeywords);
   };
 
   const overview = keywordOverview.inputKeywordOverview;
@@ -85,7 +104,9 @@ export default function KeywordResearchResult({
             </Tooltip>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{overview.searchVolume}</div>
+            <div className="text-2xl font-bold">
+              {Number(overview.searchVolume).toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
               {searchVolumeCaption(overview.searchVolume)}
             </p>
@@ -160,18 +181,11 @@ export default function KeywordResearchResult({
           <CardTitle>Related Keywords</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 flex items-center justify-between">
-            <div className="relative w-96">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search keywords..."
-                value={search}
-                onChange={handleSearch}
-                className="pl-8"
-              />
-            </div>
-          </div>
-          <DataTable columns={columns} data={listData} />
+          <DataTable
+            columns={columns as ColumnDef<KeywordData, unknown>[]}
+            data={listData}
+            onSaveSelected={handleSaveSelected}
+          />
         </CardContent>
       </Card>
     </div>

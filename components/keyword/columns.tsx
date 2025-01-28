@@ -1,15 +1,17 @@
 'use client';
 
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, Save } from 'lucide-react';
 import { Bar, BarChart } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChartContainer } from '@/components/ui/chart';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { competitionBadgeClass, intentBadgeClass, trendData } from '@/lib/utils/keyword';
+import { intentBadgeClass, keywordDifficultyBadgeClass, trendData } from '@/lib/utils/keyword';
 import type { ColumnDef } from '@tanstack/react-table';
 
 export type KeywordData = {
+  id: string;
   keyword: string;
   searchVolume: number;
   competition: string;
@@ -18,6 +20,25 @@ export type KeywordData = {
 };
 
 export const columns: ColumnDef<KeywordData>[] = [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected()}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: 'keyword',
     header: 'Keywords',
@@ -38,19 +59,22 @@ export const columns: ColumnDef<KeywordData>[] = [
         </div>
       );
     },
-    cell: ({ row }) => <div>{row.getValue('searchVolume')}</div>,
+    cell: ({ row }) => <div>{Number(row.getValue('searchVolume')).toLocaleString()}</div>,
   },
   {
-    accessorKey: 'competition',
-    header: 'Competition',
+    accessorKey: 'keywordDifficultyIndex',
+    header: 'Difficulty',
     cell: ({ row }) => {
-      const competition = row.getValue('competition') as string;
+      const keywordDifficultyIndex = row.getValue('keywordDifficultyIndex') as string;
       return (
         <Badge
           variant="secondary"
-          className={cn('rounded-full', competitionBadgeClass(Number(competition)))}
+          className={cn(
+            'rounded-full',
+            keywordDifficultyBadgeClass(Number(keywordDifficultyIndex))
+          )}
         >
-          {competition}
+          {Number(keywordDifficultyIndex)}
         </Badge>
       );
     },
@@ -92,4 +116,25 @@ export const columns: ColumnDef<KeywordData>[] = [
       );
     },
   },
+  {
+    id: 'actions',
+    cell: ({ row }) => {
+      const keyword = row.original;
+      return (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleSaveKeyword(keyword)}
+          className="opacity-0 group-hover:opacity-100"
+        >
+          <Save className="h-4 w-4" />
+        </Button>
+      );
+    },
+  },
 ];
+
+const handleSaveKeyword = (keyword: KeywordData) => {
+  // Implement your save logic here
+  console.log('Saving keyword:', keyword);
+};
