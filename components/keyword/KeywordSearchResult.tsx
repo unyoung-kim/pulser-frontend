@@ -113,14 +113,14 @@ export default function KeywordResearchResult({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Cost per click</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <Tooltip content="The average cost per click for this keyword in paid ads">
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </Tooltip>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <div className="text-2xl font-bold">${overview.CPC}</div>
-              <Tooltip content="The average cost per click for this keyword in paid ads">
-                <CostPerClickSEO cpc={overview.CPC} />
-              </Tooltip>
+              <CostPerClickSEO cpc={overview.CPC} />
             </div>
             <p className="text-xs text-muted-foreground">{cpcCaption(overview.CPC)}</p>
           </CardContent>
