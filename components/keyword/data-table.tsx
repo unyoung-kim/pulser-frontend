@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import {
   type ColumnDef,
   flexRender,
@@ -10,7 +11,7 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { Save, Search } from 'lucide-react';
+import { Save, Search, Lock, ChevronDown } from 'lucide-react';
 import { KeywordData } from '@/components/keyword/KeywordSearchResult';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,6 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import { PaginationControls } from './pagination-controls';
 import { Input } from '../ui/input';
 
@@ -36,6 +38,7 @@ interface DataTableProps<TData extends KeywordData, TValue> {
   data: TData[];
   onSaveSelected?: (selectedRows: TData[]) => void;
   isSaved: boolean;
+  isPremiumUser: boolean;
   // intentOptions: { id: string; label: string }[];
 }
 
@@ -51,6 +54,7 @@ export function DataTable<TData extends KeywordData, TValue>({
   data,
   onSaveSelected,
   isSaved,
+  isPremiumUser,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -60,6 +64,9 @@ export function DataTable<TData extends KeywordData, TValue>({
   });
   const [search, setSearch] = useState('');
   const [intent, setIntent] = useState<string[]>([]);
+
+  const { projectId } = useParams();
+  const router = useRouter();
 
   const tableData = useMemo(() => {
     return data.filter((item) => item.keyword?.toLowerCase().includes(search.toLowerCase().trim()));
@@ -148,82 +155,150 @@ export function DataTable<TData extends KeywordData, TValue>({
         </div>
       </div>
 
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell className="max-w-[270px] px-4 py-2" key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+      <div className={cn('relative', !isPremiumUser && 'min-h-[28rem]')}>
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
-          <Select
-            value={`${pagination.pageSize}`}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
-          >
-            <SelectTrigger className="h-8 w-[70px]">
-              <SelectValue placeholder={pagination.pageSize} />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <PaginationControls table={table} />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row, index) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className={!isPremiumUser && index >= 5 ? 'pointer-events-none blur-sm' : ''}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell className="max-w-[270px] px-4 py-2" key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        {tableData.length > 10 && (
+          <div className="flex items-center justify-between space-x-2 py-4">
+            <div className="flex items-center space-x-2">
+              <p className="text-sm font-medium">Rows per page</p>
+              <Select
+                value={`${pagination.pageSize}`}
+                onValueChange={(value) => {
+                  table.setPageSize(Number(value));
+                }}
+              >
+                <SelectTrigger className="h-8 w-[70px]">
+                  <SelectValue placeholder={pagination.pageSize} />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <PaginationControls table={table} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+        {!isPremiumUser && (
+          <div className="absolute bottom-0 left-0 right-0">
+            <div className="flex flex-col items-center bg-gradient-to-t from-background via-background/95 to-transparent px-4 py-8">
+              {/* Premium Content Banner */}
+              <div className="w-full max-w-2xl space-y-6 text-center">
+                <div className="rounded-2xl border border-purple-500/10 bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-cyan-500/20 p-6 backdrop-blur-sm">
+                  <div className="mb-2 flex items-center justify-center gap-2">
+                    <div className="relative">
+                      <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 opacity-75 blur-sm" />
+                      <div className="relative rounded-full bg-background p-2">
+                        <Lock className="h-5 w-5 text-blue-500" />
+                      </div>
+                    </div>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Premium Insights
+                    </span>
+                  </div>
+
+                  <h3 className="mb-3 bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-xl font-semibold text-transparent">
+                    Unlock {data.length - 5}+ High-Converting Keywords
+                  </h3>
+
+                  <p className="mb-6 text-sm text-muted-foreground">
+                    Get access to all keywords, advanced metrics, and competitor insights with our
+                    Pro plan
+                  </p>
+
+                  {/* Feature List */}
+                  <div className="mb-6 grid grid-cols-2 gap-3 text-sm">
+                    {[
+                      'Unlimited keyword results',
+                      'Advanced intent analysis',
+                      'Competitor tracking',
+                      'Trend predictions',
+                    ].map((feature) => (
+                      <div key={feature} className="flex items-center gap-2">
+                        <div className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-500/10">
+                          <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                        </div>
+                        <span className="text-muted-foreground">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button
+                    variant="default"
+                    size="lg"
+                    onClick={() => router.push(`/projects/${projectId}/settings`)}
+                    className="w-full max-w-sm bg-gradient-to-r from-purple-500 to-blue-500 shadow-lg shadow-blue-500/25 transition-all duration-300 hover:from-purple-600 hover:to-blue-600 hover:shadow-xl hover:shadow-blue-500/30"
+                  >
+                    <span className="flex items-center gap-2">
+                      Upgrade to Pro
+                      <ChevronDown className="h-4 w-4 rotate-[-90deg]" />
+                    </span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

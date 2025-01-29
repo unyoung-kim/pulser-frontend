@@ -36,6 +36,7 @@ interface KeywordResearchResultProps {
   intent: string[];
   keywordOverview: any;
   reset: () => void;
+  isPremiumUser: boolean;
 }
 
 export default function KeywordResearchResult({
@@ -43,12 +44,12 @@ export default function KeywordResearchResult({
   intent,
   keywordOverview,
   reset,
+  isPremiumUser,
 }: KeywordResearchResultProps) {
-  const handleBack = () => reset();
   const { projectId } = useParams() as { projectId: string };
-
   const { mutate: createKeywords, isSuccess: isSaved } = useCreateKeywords(projectId);
 
+  const handleBack = () => reset();
   const handleSaveSelected = (selectedRows: KeywordData[]) => {
     const formattedKeywords = selectedRows.map((row: KeywordData) => ({
       keyword: row.keyword,
@@ -176,6 +177,7 @@ export default function KeywordResearchResult({
             data={keywordOverview.broadMatches}
             onSaveSelected={handleSaveSelected}
             isSaved={isSaved}
+            isPremiumUser={isPremiumUser}
           />
         </CardContent>
       </Card>

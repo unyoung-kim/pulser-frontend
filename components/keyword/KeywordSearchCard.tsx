@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import Tooltip from '@/components/ui/tooltip';
 import { useGetKeywordOverview } from '@/lib/apiHooks/keyword/useGetKeywordOverview';
+import { useGetUsage } from '@/lib/apiHooks/settings/useGetUsage';
 import KeywordSearchResult from './KeywordSearchResult';
 
 const countries = [
@@ -34,6 +35,7 @@ export default function KeywordMagicTool() {
   const [database, setDatabase] = useState('us');
 
   const { orgId } = useAuth();
+  const { data: user, isSuccess: isUsageSuccess } = useGetUsage(orgId);
   const { mutate, data, isPending, isSuccess, reset } = useGetKeywordOverview();
 
   const handleSearch = () => {
@@ -50,10 +52,17 @@ export default function KeywordMagicTool() {
   };
 
   const region = countries.find((country) => country.code === database)?.name || '';
+  const isPremiumUser = isUsageSuccess && user.plan !== 'FREE_CREDIT';
 
   if (data && !isPending && isSuccess) {
     return (
-      <KeywordSearchResult region={region} intent={intent} keywordOverview={data} reset={reset} />
+      <KeywordSearchResult
+        region={region}
+        intent={intent}
+        keywordOverview={data}
+        reset={reset}
+        isPremiumUser={isPremiumUser}
+      />
     );
   }
 
