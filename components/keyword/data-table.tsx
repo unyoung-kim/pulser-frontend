@@ -38,7 +38,7 @@ interface DataTableProps<TData extends KeywordData, TValue> {
   data: TData[];
   onSaveSelected?: (selectedRows: TData[]) => void;
   isSaved: boolean;
-  isPremiumUser: boolean;
+  isFreeTrial: boolean;
   // intentOptions: { id: string; label: string }[];
 }
 
@@ -54,7 +54,7 @@ export function DataTable<TData extends KeywordData, TValue>({
   data,
   onSaveSelected,
   isSaved,
-  isPremiumUser,
+  isFreeTrial,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -155,7 +155,7 @@ export function DataTable<TData extends KeywordData, TValue>({
         </div>
       </div>
 
-      <div className={cn('relative', !isPremiumUser && 'min-h-[28rem]')}>
+      <div className={cn('relative', isFreeTrial && 'min-h-[28rem]')}>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -178,7 +178,7 @@ export function DataTable<TData extends KeywordData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className={!isPremiumUser && index >= 5 ? 'pointer-events-none blur-sm' : ''}
+                  className={isFreeTrial && index >= 5 ? 'pointer-events-none blur-sm' : ''}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell className="max-w-[270px] px-4 py-2" key={cell.id}>
@@ -239,7 +239,7 @@ export function DataTable<TData extends KeywordData, TValue>({
             </div>
           </div>
         )}
-        {!isPremiumUser && (
+        {isFreeTrial && (
           <div className="absolute bottom-0 left-0 right-0">
             <div className="flex flex-col items-center bg-gradient-to-t from-background via-background/95 to-transparent px-4 py-8">
               {/* Premium Content Banner */}

@@ -33,18 +33,16 @@ export type KeywordData = {
 
 interface KeywordResearchResultProps {
   region: string;
-  intent: string[];
   keywordOverview: any;
   reset: () => void;
-  isPremiumUser: boolean;
+  isFreeTrial: boolean;
 }
 
 export default function KeywordResearchResult({
   region,
-  intent,
   keywordOverview,
   reset,
-  isPremiumUser,
+  isFreeTrial,
 }: KeywordResearchResultProps) {
   const { projectId } = useParams() as { projectId: string };
   const { mutate: createKeywords, isSuccess: isSaved } = useCreateKeywords(projectId);
@@ -79,8 +77,10 @@ export default function KeywordResearchResult({
             <h1 className="text-3xl font-bold capitalize">{overview.keyword}</h1>
             <div className="mt-2 flex items-center gap-2">
               <span className="text-muted-foreground">{region}</span>
-              {intent.length > 0 && <span className="text-muted-foreground">•</span>}
-              <p className="text-xs font-semibold capitalize">{intent.join(', ')}</p>
+              <span className="text-muted-foreground">•</span>
+              <p className="text-xs font-semibold capitalize">
+                {keywordOverview.inputKeywordOverview.intent}
+              </p>
             </div>
           </div>
         </div>
@@ -177,7 +177,7 @@ export default function KeywordResearchResult({
             data={keywordOverview.broadMatches}
             onSaveSelected={handleSaveSelected}
             isSaved={isSaved}
-            isPremiumUser={isPremiumUser}
+            isFreeTrial={isFreeTrial}
           />
         </CardContent>
       </Card>

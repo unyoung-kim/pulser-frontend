@@ -9,7 +9,7 @@ interface keywordPayloadProps {
   database: string;
   displayOffset: number;
   kdFilter: number;
-  intent: string | string[];
+  isFreeTrial: boolean;
 }
 
 export const useGetKeywordOverview = () => {

@@ -31,12 +31,14 @@ export default function KeywordMagicTool() {
   const [keyword, setKeyword] = useState('');
   const [difficultyMin, setDifficultyMin] = useState('0');
   const [difficultyMax, setDifficultyMax] = useState('40');
-  const [intent, setIntent] = useState<string[]>([]);
   const [database, setDatabase] = useState('us');
 
   const { orgId } = useAuth();
   const { data: user, isSuccess: isUsageSuccess } = useGetUsage(orgId);
   const { mutate, data, isPending, isSuccess, reset } = useGetKeywordOverview();
+
+  const region = countries.find((country) => country.code === database)?.name || '';
+  const isFreeTrial = isUsageSuccess && user.plan === 'FREE_CREDIT';
 
   const handleSearch = () => {
     if (keyword.trim() !== '' && orgId) {
@@ -46,22 +48,18 @@ export default function KeywordMagicTool() {
         database, // Database (e.g., 'us' for United States)
         displayOffset: 0, // Starting offset for results
         kdFilter: Number(difficultyMax),
-        intent,
+        isFreeTrial,
       });
     }
   };
-
-  const region = countries.find((country) => country.code === database)?.name || '';
-  const isPremiumUser = isUsageSuccess && user.plan !== 'FREE_CREDIT';
 
   if (data && !isPending && isSuccess) {
     return (
       <KeywordSearchResult
         region={region}
-        intent={intent}
         keywordOverview={data}
         reset={reset}
-        isPremiumUser={isPremiumUser}
+        isFreeTrial={isFreeTrial}
       />
     );
   }
