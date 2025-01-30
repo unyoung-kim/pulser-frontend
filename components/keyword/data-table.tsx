@@ -155,7 +155,7 @@ export function DataTable<TData extends KeywordData, TValue>({
         </div>
       </div>
 
-      <div className={cn('relative', isFreeTrial && 'min-h-[28rem]')}>
+      <div className={cn('relative', isFreeTrial && 'min-h-[42rem]')}>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -174,12 +174,8 @@ export function DataTable<TData extends KeywordData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row, index) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  className={isFreeTrial && index >= 5 ? 'pointer-events-none blur-sm' : ''}
-                >
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell className="max-w-[270px] px-4 py-2" key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -244,7 +240,7 @@ export function DataTable<TData extends KeywordData, TValue>({
             <div className="flex flex-col items-center bg-gradient-to-t from-background via-background/95 to-transparent px-4 py-8">
               {/* Premium Content Banner */}
               <div className="w-full max-w-2xl space-y-6 text-center">
-                <div className="rounded-2xl border border-purple-500/10 bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-cyan-500/20 p-6 backdrop-blur-sm">
+                <div className="rounded-2xl border border-purple-500/10 bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-cyan-500/20 p-6 shadow-lg backdrop-blur-sm">
                   <div className="mb-2 flex items-center justify-center gap-2">
                     <div className="relative">
                       <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 opacity-75 blur-sm" />
