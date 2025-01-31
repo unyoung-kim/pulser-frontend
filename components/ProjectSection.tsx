@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOrganization, useUser } from '@clerk/nextjs';
 import { DocumentTextIcon, FolderIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
+import SurveyModal from '@/components/survey/SurveyModal';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
 import { useProjects } from '@/contexts/ProjectContext';
@@ -14,10 +15,18 @@ export default function ProjectSection() {
   const [newProjectName, setNewProjectName] = useState<string>('');
   const [newProjectDescription, setNewProjectDescription] = useState<string>('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
-  const { projects, loading, fetchProjects } = useProjects();
+  const { projects, loading, fetchProjects, organization: pulserOrganization } = useProjects();
   const { user } = useUser();
   const { organization } = useOrganization();
   const router = useRouter();
+  const [showSurveyModal, setShowSurveyModal] = useState<boolean>(false);
+
+  // Check if we should show the survey modal when component mounts
+  useEffect(() => {
+    if (projects.length === 0 && pulserOrganization?.acquisition_source === null) {
+      setShowSurveyModal(true);
+    }
+  }, [projects.length, pulserOrganization?.acquisition_source]);
 
   const navigateToBackground = useCallback(
     (projectId: string) => {
@@ -61,6 +70,23 @@ export default function ProjectSection() {
     },
     [newProjectName, user, organization, newProjectDescription, fetchProjects, router]
   );
+
+  const handleSurveyComplete = async (source: string, referralCode: string) => {
+    try {
+      const { error } = await supabase
+        .from('Organization')
+        .update({
+          acquisition_source: source,
+          referral_code: referralCode || null,
+        })
+        .eq('org_id', pulserOrganization?.org_id ?? organization?.id);
+
+      if (error) throw error;
+      setShowSurveyModal(false);
+    } catch (error) {
+      console.error('Error updating organization:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen flex-1 bg-gray-50">
@@ -236,6 +262,12 @@ export default function ProjectSection() {
           </div>
         </div>
       )}
+
+      <SurveyModal
+        isOpen={showSurveyModal}
+        onClose={() => {}} // Empty function since we want to force selection
+        onConfirm={handleSurveyComplete}
+      />
     </div>
   );
 }

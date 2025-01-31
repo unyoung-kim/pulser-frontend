@@ -18,9 +18,19 @@ export interface Project {
   content_count: number;
 }
 
+// Add Organization interface
+interface Organization {
+  org_id: string;
+  referral_code: string | null | undefined;
+  acquisition_source: string | null | undefined;
+  [key: string]: any;
+}
+
+// Update ProjectContextType to include organization
 interface ProjectContextType {
   projects: Project[];
   loading: boolean;
+  organization: Organization | null;
   fetchProjects: () => Promise<void>;
 }
 
@@ -28,6 +38,7 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [organizationInfo, setOrganizationInfo] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
   const { user, isLoaded: isUserLoaded } = useUser();
   const { organization, isLoaded: isOrgLoaded } = useOrganization();
@@ -82,6 +93,24 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [supabase, organization]);
 
+  // Add fetchOrganization function
+  const fetchOrganization = useCallback(async () => {
+    if (!organization?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('Organization')
+        .select('*')
+        .eq('org_id', organization.id)
+        .single();
+
+      if (error) throw error;
+      setOrganizationInfo(data);
+    } catch (error) {
+      console.error('Error fetching organization:', error);
+    }
+  }, [organization?.id]);
+
   useEffect(() => {
     if (isUserLoaded && isOrgLoaded && user && organization) {
       // console.log('User and organization loaded, initializing Supabase');
@@ -90,15 +119,23 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [isUserLoaded, isOrgLoaded, user, organization]);
 
+  // Update useEffect to fetch organization info
   useEffect(() => {
     if (supabase && organization) {
-      // console.log("Supabase and organization available, fetching projects");
+      fetchOrganization();
       fetchProjects();
     }
-  }, [supabase, organization, fetchProjects]);
+  }, [supabase, organization, fetchProjects, fetchOrganization]);
 
   return (
-    <ProjectContext.Provider value={{ projects, loading, fetchProjects }}>
+    <ProjectContext.Provider
+      value={{
+        projects,
+        loading,
+        organization: organizationInfo,
+        fetchProjects,
+      }}
+    >
       {children}
     </ProjectContext.Provider>
   );

@@ -1,19 +1,9 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import Tooltip from '@/components/ui/tooltip';
-import { Project, useProjects } from '@/contexts/ProjectContext';
-import { useSidebarState } from '@/contexts/SidebarContext';
-import { useGetKnowledgeBase } from '@/lib/apiHooks/background/useGetKnowledgeBase';
-import { supabase } from '@/lib/supabaseClient';
-import { cn } from '@/lib/utils';
+import { useCallback, useEffect, useMemo } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth, UserButton, useUser } from '@clerk/nextjs';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -28,10 +18,20 @@ import {
   Play,
   WholeWord,
 } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import Tooltip from '@/components/ui/tooltip';
+import { Project, useProjects } from '@/contexts/ProjectContext';
+import { useSidebarState } from '@/contexts/SidebarContext';
+import { useGetKnowledgeBase } from '@/lib/apiHooks/background/useGetKnowledgeBase';
+import { supabase } from '@/lib/supabaseClient';
+import { cn } from '@/lib/utils';
 import { NewContentButton } from './new-content-button';
 import ProgressRing from './ProgressRing';
 
