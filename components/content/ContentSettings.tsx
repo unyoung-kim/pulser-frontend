@@ -1,8 +1,22 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
+import { generateTopic, webRetrieval } from '@/constants/urlConstant';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabaseClient';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@clerk/nextjs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -21,26 +35,12 @@ import {
   Sparkles,
   Tag,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Separator } from '@/components/ui/separator';
-import { generateTopic, webRetrieval } from '@/constants/urlConstant';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabaseClient';
-import { cn } from '@/lib/utils';
-import KeywordSelector from './KeywordInput';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea2';
+import KeywordSelector from './KeywordInput';
 
 type LoadingStage = {
   label: string;
@@ -544,7 +544,7 @@ export default function ContentSettings() {
           </CardHeader>
           {isAdvancedOpen && (
             <CardContent className="space-y-6">
-              {contentType === 'NORMAL' && (
+              {/* {contentType === 'NORMAL' && (
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2 text-sm font-medium">
                     <FileText className="h-4 w-4 text-indigo-600" />
@@ -598,7 +598,7 @@ export default function ContentSettings() {
                     </Label>
                   </RadioGroup>
                 </div>
-              )}
+              )} */}
 
               <div className="space-y-2">
                 <Label className="flex items-center gap-2 text-sm font-medium">
