@@ -1,15 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useOrganization, useUser } from '@clerk/nextjs';
-import { DocumentTextIcon, FolderIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import SurveyModal from '@/components/survey/SurveyModal';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
 import { useProjects } from '@/contexts/ProjectContext';
 import { getLastUpdatedText } from '@/lib/date';
 import { supabase } from '@/lib/supabaseClient';
+import { useOrganization, useUser } from '@clerk/nextjs';
+import { DocumentTextIcon, FolderIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function ProjectSection() {
   const [newProjectName, setNewProjectName] = useState<string>('');
@@ -23,10 +23,10 @@ export default function ProjectSection() {
 
   // Check if we should show the survey modal when component mounts
   useEffect(() => {
-    if (projects.length === 0 && pulserOrganization?.acquisition_source === null) {
+    if (!loading && projects.length === 0 && pulserOrganization?.acquisition_source === null) {
       setShowSurveyModal(true);
     }
-  }, [projects.length, pulserOrganization?.acquisition_source]);
+  }, [projects.length, pulserOrganization?.acquisition_source, loading]);
 
   const navigateToBackground = useCallback(
     (projectId: string) => {

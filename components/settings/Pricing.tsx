@@ -1,10 +1,5 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
-import Case from 'case';
-import { AlertCircle, Settings } from 'lucide-react';
-import { ConfirmationPopup } from '@/components/settings/ConfirmationPopup';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,18 +19,15 @@ import { useGetUsage } from '@/lib/apiHooks/settings/useGetUsage';
 import { useSubscriptionCancel } from '@/lib/apiHooks/settings/useSubscriptionCancel';
 import { useUpdateSubscription } from '@/lib/apiHooks/settings/useUpdateSubscription';
 import { getPlanAction, planCards } from '@/lib/pricing-plan';
+import { useAuth } from '@clerk/nextjs';
+import Case from 'case';
+import { AlertCircle, Settings } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { Badge } from '../ui/badge';
 
 export default function PricingPage() {
   const [activeTab, setActiveTab] = useState<'plan' | 'subscription'>('subscription');
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const [confirmationDetails, setConfirmationDetails] = useState({
-    currentPlan: '',
-    newPlan: '',
-    leftoverCredits: 0,
-    newBillingDate: '',
-  });
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
   const { orgId } = useAuth();
 
@@ -56,6 +48,8 @@ export default function PricingPage() {
     setBillingCycle(usage?.term?.toLowerCase() as 'monthly' | 'yearly');
   }, [usage?.term]);
 
+  console.log('usage', usage);
+
   const totalCredits = usage ? usage.credits_charged + usage.additional_credits_charged : 0;
   const usedCredits = usage?.credits_used ?? 0;
   const remainingCredits = totalCredits - usedCredits;
@@ -65,15 +59,14 @@ export default function PricingPage() {
       if (!orgId) {
         return;
       }
-      setConfirmationDetails({
-        currentPlan: usage?.plan ?? 'FREE_CREDIT',
-        newPlan: planName,
-        leftoverCredits: remainingCredits,
-        newBillingDate: usage?.end_date ?? '',
+      createSubscriptionMutation.mutate({
+        orgId: orgId,
+        newPlan: planName as 'BASIC' | 'PRO' | 'AGENCY',
+        planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
+        mode: 'subscription',
       });
-      setIsConfirmationOpen(true);
     },
-    [orgId, usage, remainingCredits]
+    [orgId, billingCycle, createSubscriptionMutation]
   );
 
   const handleUpdatePlan = useCallback(
@@ -81,40 +74,14 @@ export default function PricingPage() {
       if (!orgId) {
         return;
       }
-      setConfirmationDetails({
-        currentPlan: usage?.plan ?? '',
-        newPlan: planName,
-        leftoverCredits: remainingCredits,
-        newBillingDate: usage?.end_date ?? '',
-      });
-      setIsConfirmationOpen(true);
-    },
-    [orgId, usage?.plan, remainingCredits, usage?.end_date]
-  );
-
-  const handleConfirmPlanChange = (couponCode?: string) => {
-    setIsConfirmationOpen(false);
-    if (!orgId) {
-      return;
-    }
-
-    if (usage?.plan && usage.plan !== 'FREE_CREDIT') {
       updateSubscriptionMutation.mutate({
         orgId: orgId,
-        newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
+        newPlan: planName as 'BASIC' | 'PRO' | 'AGENCY',
         planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
-        couponCode: couponCode,
       });
-    } else {
-      createSubscriptionMutation.mutate({
-        orgId: orgId,
-        newPlan: confirmationDetails.newPlan as 'BASIC' | 'PRO' | 'AGENCY',
-        planTerm: billingCycle === 'monthly' ? 'MONTHLY' : 'YEARLY',
-        mode: 'subscription',
-        couponCode: couponCode,
-      });
-    }
-  };
+    },
+    [orgId, billingCycle, updateSubscriptionMutation]
+  );
 
   const handleCancelSubscription = () => {
     if (!orgId) {
@@ -376,16 +343,6 @@ export default function PricingPage() {
                 </Card>
               ))}
             </div>
-            <ConfirmationPopup
-              isOpen={isConfirmationOpen}
-              onClose={() => setIsConfirmationOpen(false)}
-              onConfirm={handleConfirmPlanChange}
-              currentPlan={confirmationDetails.currentPlan}
-              newPlan={confirmationDetails.newPlan}
-              leftoverCredits={confirmationDetails.leftoverCredits}
-              newBillingDate={confirmationDetails.newBillingDate}
-            />
-
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
