@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea2';
+import { toUTC } from '@/lib/utils/dateUtils';
 
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -53,8 +54,8 @@ export function EventDialog() {
     if (event) {
       form.reset({
         title: event.title,
-        start: event.start.toISOString().slice(0, 16),
-        end: event.end.toISOString().slice(0, 16),
+        start: new Date(toUTC(event.start).getTime()).toISOString().slice(0, 16),
+        end: new Date(toUTC(event.end).getTime()).toISOString().slice(0, 16),
         description: event.description || '',
         content: event.content,
         color: event.color || '#2563eb',

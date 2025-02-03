@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react';
 import { addMonths, parseISO, subMonths } from 'date-fns';
+import { toUTC } from '@/lib/utils/dateUtils';
 
 interface CalendarContextType {
   state: CalendarState;
@@ -134,7 +135,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setIsEventDialogOpen(true);
     const startTime = new Date(date.setHours(9, 0, 0, 0));
     const endTime = new Date(date.setHours(10, 0, 0, 0));
-    setInitialEventTimes({ start: startTime, end: endTime });
+    setInitialEventTimes({ start: toUTC(startTime), end: toUTC(endTime) });
   };
 
   const handleAddEvent = useCallback(() => {

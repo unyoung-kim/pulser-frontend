@@ -28,7 +28,7 @@ export function CalendarGrid({}) {
     end: endOfWeek(endOfMonth(currentDate)),
   });
 
-  const handleDragStart = (event: CalendarEvent, e: React.DragEvent) => {
+  const handleDragStart = (event: CalendarEvent, e: any) => {
     setDraggedEvent(event);
     e.dataTransfer.setData('text/plain', '');
   };
