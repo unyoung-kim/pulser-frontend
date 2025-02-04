@@ -28,7 +28,7 @@ export default function AuthWrapper() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4">
         <h1 className="mb-4 text-2xl font-bold">Create an Organization</h1>
-        <CreateOrganization />
+        <CreateOrganization routing="hash" />
       </div>
     );
   }
