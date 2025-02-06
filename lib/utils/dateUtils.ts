@@ -66,7 +66,7 @@ export function addDays(date: Date, days: number): Date {
   return result;
 }
 
-export const toUTC = (d: Date) =>
+export const toUTC = (d: any) =>
   new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes()));
 
 export const currentDateISO = () => {

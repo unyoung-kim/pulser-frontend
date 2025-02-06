@@ -7,8 +7,7 @@ import { useCalendar } from '@/components/calendar/CalendarContext';
 import { Button } from '@/components/ui/button';
 
 export function CalendarHeader() {
-  const { state, onPreviousMonth, onNextMonth, onToday, createEvent } = useCalendar();
-  const currentDate: Date = state.currentDate;
+  const { currentDate, onPreviousMonth, onNextMonth, onToday, createEvent } = useCalendar();
 
   return (
     <div className="mb-8 flex items-center justify-between">
