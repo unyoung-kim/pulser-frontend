@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   Activity,
   BrainCircuit,
+  Calendar,
   ChevronsUpDown,
   CreditCard,
   Folder,
@@ -72,6 +73,7 @@ export function Sidebar({ projectId, children, defaultCollapsed = false }: Sideb
     { name: 'Knowledge Base', href: `/projects/${projectId}/background`, icon: BrainCircuit },
     { name: 'Content', href: `/projects/${projectId}/content`, icon: Newspaper },
     { name: 'Keyword Search', href: `/projects/${projectId}/keyword`, icon: WholeWord },
+    { name: 'Calendar', href: `/projects/${projectId}/calendar`, icon: Calendar },
   ];
 
   const bottomLinks = [
