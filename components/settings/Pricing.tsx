@@ -1,5 +1,9 @@
 'use client';
 
+import { useCallback, useEffect, useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
+import Case from 'case';
+import { AlertCircle, Settings } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,10 +23,6 @@ import { useGetUsage } from '@/lib/apiHooks/settings/useGetUsage';
 import { useSubscriptionCancel } from '@/lib/apiHooks/settings/useSubscriptionCancel';
 import { useUpdateSubscription } from '@/lib/apiHooks/settings/useUpdateSubscription';
 import { getPlanAction, planCards } from '@/lib/pricing-plan';
-import { useAuth } from '@clerk/nextjs';
-import Case from 'case';
-import { AlertCircle, Settings } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
 import { Badge } from '../ui/badge';
 
 export default function PricingPage() {

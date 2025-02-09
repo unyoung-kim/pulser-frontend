@@ -3,14 +3,14 @@
 import { useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import {
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
   eachDayOfInterval,
-  isSameMonth,
-  isSameDay,
+  endOfMonth,
+  endOfWeek,
   format,
+  isSameDay,
+  isSameMonth,
+  startOfMonth,
+  startOfWeek,
 } from 'date-fns';
 import { motion } from 'framer-motion';
 import { ScheduledEvent, useCalendar } from '@/components/calendar/CalendarContext';
@@ -127,7 +127,7 @@ export function CalendarGrid({}) {
               <span
                 className={cn(
                   'inline-flex h-7 w-7 items-center justify-center rounded-full text-sm',
-                  isToday && 'bg-purple-600 text-white',
+                  isToday && 'bg-indigo-600 text-white',
                   !isToday && !isCurrentMonth && 'text-muted-foreground'
                 )}
               >

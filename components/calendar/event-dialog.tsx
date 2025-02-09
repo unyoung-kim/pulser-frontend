@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CalendarIcon, TrashIcon } from 'lucide-react';
+import { CalendarIcon, FileText, MessageSquare, Tag, TrashIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useCalendar } from '@/components/calendar/CalendarContext';
@@ -32,8 +32,7 @@ import { useUpdateEvent } from '@/lib/apiHooks/calendar/useUpdateEvent';
 import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
 
 const formSchema = z.object({
-  topic: z.string().min(1, 'Topic is required'),
-  type: z.enum(['NORMAL', 'GLOSSARY']).nullable().optional(),
+  topic: z.string().default(''),
   scheduled_time: z.string(),
   instruction: z.string().default(''),
   keyword_id: z.string(),
@@ -47,13 +46,13 @@ export function EventDialog() {
   const { data: keywords, isSuccess: isKeywordsSuccess } = useGetKeywords(projectId);
 
   const { initialEventTimes, selectedEvent, setSelectedEvent, open, onOpenChange } = useCalendar();
+  const [selectedKeyword, setSelectedKeyword] = useState('');
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       topic: '',
       scheduled_time: new Date().toISOString().slice(0, 16),
       instruction: '',
-      type: 'NORMAL',
       keyword_id: '',
     },
   });
@@ -64,7 +63,6 @@ export function EventDialog() {
         topic: selectedEvent.topic,
         scheduled_time: new Date(selectedEvent.scheduled_time).toISOString().slice(0, 16),
         instruction: selectedEvent.instruction || '',
-        type: selectedEvent.type,
         keyword_id: selectedEvent.keyword_id,
       });
     } else if (initialEventTimes) {
@@ -72,7 +70,6 @@ export function EventDialog() {
         topic: '',
         scheduled_time: initialEventTimes.toISOString().slice(0, 16),
         instruction: '',
-        type: 'NORMAL',
         keyword_id: '',
       });
     } else {
@@ -80,11 +77,19 @@ export function EventDialog() {
         topic: '',
         scheduled_time: new Date().toISOString().slice(0, 16),
         instruction: '',
-        type: 'NORMAL',
         keyword_id: '',
       });
     }
   }, [selectedEvent, initialEventTimes, form]);
+
+  useEffect(() => {
+    if (selectedEvent) {
+      const keyword = keywords?.find((k) => k.id === selectedEvent.keyword_id)?.keyword || '';
+      setSelectedKeyword(keyword);
+    } else {
+      setSelectedKeyword('');
+    }
+  }, [selectedEvent, keywords]);
 
   const handleCancel = () => {
     form.reset();
@@ -105,14 +110,14 @@ export function EventDialog() {
         ...data,
         project_id: projectId,
         id: selectedEvent.id,
-        type: data.type ?? 'NORMAL',
+        type: 'NORMAL',
       });
     } else {
       addEvent({
         ...data,
         project_id: projectId,
         instruction: data.instruction || '',
-        type: data.type ?? null,
+        type: 'NORMAL',
       });
     }
     onOpenChange(false);
@@ -120,7 +125,7 @@ export function EventDialog() {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">
             {selectedEvent ? 'Edit Event' : 'Create Event'}
@@ -130,12 +135,27 @@ export function EventDialog() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="topic"
+              name="keyword_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Topic</FormLabel>
+                  <FormLabel className="flex items-center gap-2 text-sm font-medium">
+                    <Tag className="h-4 w-4 text-indigo-600" />
+                    Keyword
+                  </FormLabel>
                   <FormControl>
-                    <Input {...field} className="w-full" placeholder="Enter event topic" />
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Keyword" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {isKeywordsSuccess &&
+                          keywords.map((keyword) => (
+                            <SelectItem key={keyword.id} value={keyword.id}>
+                              {keyword.keyword}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -147,7 +167,10 @@ export function EventDialog() {
                 name="scheduled_time"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel>Date & Time</FormLabel>
+                    <FormLabel className="flex items-center gap-2 text-sm font-medium">
+                      <CalendarIcon className="h-4 w-4 text-indigo-600" />
+                      Date & Time
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
@@ -158,67 +181,46 @@ export function EventDialog() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Type</FormLabel>
-                    <Select value={field.value || undefined} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="NORMAL">Normal</SelectItem>
-                        <SelectItem value="GLOSSARY">Glossary</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="keyword_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Keyword</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Keyword" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {isKeywordsSuccess &&
-                          keywords.map((keyword) => (
-                            <SelectItem key={keyword.id} value={keyword.id}>
-                              {keyword.keyword}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
+            <FormField
+              control={form.control}
+              name="topic"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2 text-sm font-medium">
+                    <MessageSquare className="h-4 w-4 text-indigo-600" />
+                    Topic (Optional)
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      className="w-full"
+                      placeholder="Include the exact keyword in your topic"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="instruction"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Instruction</FormLabel>
+                  <FormLabel className="flex items-center gap-2 text-sm font-medium">
+                    <FileText className="h-4 w-4 text-indigo-600" />
+                    Instructions / Outline (Optional)
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
-                      className="min-h-[100px]"
-                      placeholder="Enter event instructions"
+                      className="min-h-[100px] border-indigo-100 focus-visible:ring-indigo-600"
+                      placeholder="Optional: Add specific instructions or outline for the content..."
                     />
                   </FormControl>
-                  <FormMessage />
+                  <p className="text-sm text-muted-foreground">
+                    Add any specific requirements or outline for the content structure
+                  </p>
                 </FormItem>
               )}
             />
@@ -238,7 +240,7 @@ export function EventDialog() {
                 <Button type="button" variant="outline" onClick={handleCancel}>
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-blue-500 text-white hover:bg-blue-600">
+                <Button type="submit" className="bg-indigo-600 text-white hover:bg-indigo-700">
                   {selectedEvent ? 'Update' : 'Create'}
                 </Button>
               </div>

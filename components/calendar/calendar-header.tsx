@@ -45,7 +45,7 @@ export function CalendarHeader() {
           </motion.h2>
         </div>
       </div>
-      <Button onClick={createEvent} className="bg-purple-600 hover:bg-purple-700">
+      <Button onClick={createEvent} className="bg-indigo-600 hover:bg-indigo-700">
         Add new
       </Button>
     </div>
