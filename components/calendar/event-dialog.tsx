@@ -1,13 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CalendarIcon, FileText, MessageSquare, Tag, TrashIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useCalendar } from '@/components/calendar/CalendarContext';
+import KeywordSelector from '@/components/content/KeywordInput';
 import { Button } from '@/components/ui/button';
+import { DateTimePicker24h } from '@/components/ui/DateTimePicker24h';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Form,
@@ -18,22 +20,16 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea2';
 import { useAddEvent } from '@/lib/apiHooks/calendar/useAddEvent';
 import { useDeleteEvent } from '@/lib/apiHooks/calendar/useDeleteEvent';
 import { useUpdateEvent } from '@/lib/apiHooks/calendar/useUpdateEvent';
-import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
+import { useCreateKeywords } from '@/lib/apiHooks/keyword/useCreateKeywords';
+import { DateUTC } from '@/lib/utils/dateUtils';
 
 const formSchema = z.object({
   topic: z.string().default(''),
-  scheduled_time: z.string(),
+  scheduled_time: z.date(),
   instruction: z.string().default(''),
   keyword_id: z.string(),
 });
@@ -43,15 +39,14 @@ export function EventDialog() {
   const { mutate: addEvent } = useAddEvent();
   const { mutate: updateEvent } = useUpdateEvent();
   const { mutate: deleteEvent } = useDeleteEvent();
-  const { data: keywords, isSuccess: isKeywordsSuccess } = useGetKeywords(projectId);
 
   const { initialEventTimes, selectedEvent, setSelectedEvent, open, onOpenChange } = useCalendar();
-  const [selectedKeyword, setSelectedKeyword] = useState('');
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       topic: '',
-      scheduled_time: new Date().toISOString().slice(0, 16),
+      scheduled_time: new Date(),
       instruction: '',
       keyword_id: '',
     },
@@ -61,35 +56,26 @@ export function EventDialog() {
     if (selectedEvent) {
       form.reset({
         topic: selectedEvent.topic,
-        scheduled_time: new Date(selectedEvent.scheduled_time).toISOString().slice(0, 16),
+        scheduled_time: new Date(selectedEvent.scheduled_time),
         instruction: selectedEvent.instruction || '',
         keyword_id: selectedEvent.keyword_id,
       });
     } else if (initialEventTimes) {
       form.reset({
         topic: '',
-        scheduled_time: initialEventTimes.toISOString().slice(0, 16),
+        scheduled_time: new Date(initialEventTimes),
         instruction: '',
         keyword_id: '',
       });
     } else {
       form.reset({
         topic: '',
-        scheduled_time: new Date().toISOString().slice(0, 16),
+        scheduled_time: new Date(),
         instruction: '',
         keyword_id: '',
       });
     }
   }, [selectedEvent, initialEventTimes, form]);
-
-  useEffect(() => {
-    if (selectedEvent) {
-      const keyword = keywords?.find((k) => k.id === selectedEvent.keyword_id)?.keyword || '';
-      setSelectedKeyword(keyword);
-    } else {
-      setSelectedKeyword('');
-    }
-  }, [selectedEvent, keywords]);
 
   const handleCancel = () => {
     form.reset();
@@ -111,6 +97,7 @@ export function EventDialog() {
         project_id: projectId,
         id: selectedEvent.id,
         type: 'NORMAL',
+        scheduled_time: DateUTC(data.scheduled_time),
       });
     } else {
       addEvent({
@@ -118,6 +105,7 @@ export function EventDialog() {
         project_id: projectId,
         instruction: data.instruction || '',
         type: 'NORMAL',
+        scheduled_time: DateUTC(data.scheduled_time),
       });
     }
     onOpenChange(false);
@@ -136,30 +124,23 @@ export function EventDialog() {
             <FormField
               control={form.control}
               name="keyword_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2 text-sm font-medium">
-                    <Tag className="h-4 w-4 text-indigo-600" />
-                    Keyword
-                  </FormLabel>
-                  <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Keyword" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {isKeywordsSuccess &&
-                          keywords.map((keyword) => (
-                            <SelectItem key={keyword.id} value={keyword.id}>
-                              {keyword.keyword}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2 text-sm font-medium">
+                      <Tag className="h-4 w-4 text-indigo-600" />
+                      Keyword
+                    </FormLabel>
+                    <FormControl>
+                      <KeywordSelector
+                        selectedKeyword={field.value}
+                        onKeywordChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -172,10 +153,7 @@ export function EventDialog() {
                       Date & Time
                     </FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-                        <Input type="datetime-local" {...field} className="w-full pl-10" />
-                      </div>
+                      <DateTimePicker24h value={field.value} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -194,7 +172,7 @@ export function EventDialog() {
                   <FormControl>
                     <Input
                       {...field}
-                      className="w-full"
+                      className="w-full border-indigo-100 focus-visible:ring-indigo-600"
                       placeholder="Include the exact keyword in your topic"
                     />
                   </FormControl>

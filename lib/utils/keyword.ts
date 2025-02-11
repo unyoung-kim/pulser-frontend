@@ -57,3 +57,38 @@ export const trendData = (data: string[]) => {
     value: Number(data[i]) * 100,
   }));
 };
+
+export const filterKeywords = (keywords: Array<any>, type: 'used' | 'unused' | 'scheduled') => {
+  switch (type) {
+    case 'used':
+      return (
+        keywords
+          .filter(
+            (k) => k.content_count.at(0)?.count > 0 && k.scheduled_content_count.at(0)?.count === 0
+          )
+          .map((k) => ({ label: k.keyword, value: k.id })) ?? []
+      );
+
+    case 'unused':
+      return (
+        keywords
+          .filter(
+            (k) =>
+              k.content_count.at(0)?.count === 0 && k.scheduled_content_count.at(0)?.count === 0
+          )
+          .map((k) => ({ label: k.keyword, value: k.id })) ?? []
+      );
+
+    case 'scheduled':
+      return (
+        keywords
+          .filter(
+            (k) => k.scheduled_content_count.at(0)?.count > 0 && k.content_count.at(0)?.count === 0
+          )
+          .map((k) => ({ label: k.keyword, value: k.id })) ?? []
+      );
+
+    default:
+      return [];
+  }
+};

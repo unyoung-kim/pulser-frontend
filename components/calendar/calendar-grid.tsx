@@ -16,14 +16,17 @@ import { motion } from 'framer-motion';
 import { ScheduledEvent, useCalendar } from '@/components/calendar/CalendarContext';
 import { useGetEvents } from '@/lib/apiHooks/calendar/useGetEvents';
 import { useUpdateEvent } from '@/lib/apiHooks/calendar/useUpdateEvent';
+import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
 import { cn } from '@/lib/utils';
-import { getWeekDays, toUTC } from '@/lib/utils/dateUtils';
+import { getRandomColor } from '@/lib/utils/calendarUtils';
+import { DateUTC, getWeekDays, toUTC } from '@/lib/utils/dateUtils';
 
 export function CalendarGrid({}) {
   const { currentDate, onEventClick, onDateClick } = useCalendar();
 
-  const { projectId } = useParams();
-  const { data: scheduledEvents, isSuccess } = useGetEvents(projectId as string);
+  const { projectId } = useParams() as { projectId: string };
+  const { data: scheduledEvents, isSuccess } = useGetEvents(projectId);
+  const { data: keywords = [] } = useGetKeywords(projectId);
   const { mutate: updateEvent } = useUpdateEvent();
 
   const [draggedEvent, setDraggedEvent] = useState<ScheduledEvent | null>(null);
@@ -67,21 +70,12 @@ export function CalendarGrid({}) {
 
       updateEvent({
         ...draggedEvent,
-        scheduled_time: new Date(draggedEventTime.getTime() + diffTime).toISOString(),
+        scheduled_time: DateUTC(draggedEventTime.getTime() + diffTime),
       });
 
       setDraggedEvent(null);
     }
   };
-
-  function getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
 
   if (isSuccess) {
     return (
@@ -117,7 +111,7 @@ export function CalendarGrid({}) {
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(date, e)}
               onClick={() => {
-                if (isCurrentMonth) {
+                if (date > currentDate || isCurrentMonth) {
                   onDateClick(date);
                 } else {
                   return;
@@ -155,7 +149,9 @@ export function CalendarGrid({}) {
                       className="h-4 w-1 rounded-full"
                       style={{ backgroundColor: getRandomColor() }}
                     />
-                    <span className="truncate">{event.topic}</span>
+                    <span className="truncate capitalize">
+                      {keywords.find((k) => k.id === event.keyword_id)?.keyword}
+                    </span>
                   </motion.div>
                 ))}
               </div>

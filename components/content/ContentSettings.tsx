@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import {
   Activity,
   AlertTriangle,
@@ -36,6 +37,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { generateTopic, webRetrieval } from '@/constants/urlConstant';
 import { useToast } from '@/hooks/use-toast';
+import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
 import { supabase } from '@/lib/supabaseClient';
 import { cn } from '@/lib/utils';
 import KeywordSelector from './KeywordInput';
@@ -65,8 +67,7 @@ const glossaryLoadingStages: LoadingStage[] = [
 ];
 
 export default function ContentSettings() {
-  const { projectId } = useParams();
-  const queryClient = useQueryClient();
+  const { projectId } = useParams() as { projectId: string };
   const router = useRouter();
   const { toast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
@@ -88,60 +89,7 @@ export default function ContentSettings() {
     setWordCount(contentType === 'NORMAL' ? 2500 : 1000);
   }, [contentType]);
 
-  const {
-    data: keywords = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['keyword', projectId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('Keyword')
-        .select(`id, keyword, content_count:Content!fk_content_keyword(count)`)
-        .eq('project_id', projectId);
-
-      if (error) throw error;
-      return data;
-    },
-    select: (data) =>
-      data.map((k) => ({
-        id: k.id,
-        keyword: k.keyword,
-        content_count: k.content_count,
-      })),
-  });
-
-  const { mutate: createKeyword } = useMutation({
-    mutationFn: async (keyword: string) => {
-      const { data, error } = await supabase
-        .from('Keyword')
-        .insert([
-          {
-            keyword,
-            project_id: projectId,
-          },
-        ])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      // Invalidate and refetch keywords
-      queryClient.invalidateQueries({ queryKey: ['keyword', projectId] });
-    },
-  });
-
-  const usedKeywords: string[] = useMemo(
-    () => keywords.filter((k) => k.content_count.at(0)?.count > 0).map((k) => k.keyword) ?? [],
-    [keywords]
-  );
-
-  const unusedKeywords: string[] = useMemo(
-    () => keywords.filter((k) => k.content_count.at(0)?.count == 0).map((k) => k.keyword) ?? [],
-    [keywords]
-  );
+  const { data: keywords = [] } = useGetKeywords(projectId);
 
   const { refetch: fetchTopicSuggestions } = useQuery({
     queryKey: ['topic-suggestions', projectId, selectedKeyword],
@@ -155,31 +103,24 @@ export default function ContentSettings() {
         return;
       }
 
+      const word = keywords.find((k) => k.id === selectedKeyword)?.keyword;
+
       setIsLoadingTopics(true);
+
       try {
-        const response = await fetch(generateTopic, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            projectId,
-            keyword: selectedKeyword,
-          }),
+        const response = await axios.post(generateTopic, {
+          projectId,
+          keyword: word,
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch topic suggestions');
-        }
-
-        const data = await response.json();
-        if (data.success && data.data) {
-          const topics = JSON.parse(data.data);
+        if (response.data.success && response.data.data) {
+          const topics = JSON.parse(response.data.data);
           setTopicSuggestions(topics);
         } else {
-          throw new Error(data.error || 'Failed to generate topics');
+          throw new Error(response.data.error || 'Failed to generate topics');
         }
-        return data;
+
+        return response.data;
       } catch (error) {
         toast({
           title: 'Error',
@@ -239,8 +180,6 @@ export default function ContentSettings() {
       const stages = contentType === 'GLOSSARY' ? glossaryLoadingStages : normalLoadingStages;
       setLoadingStages(stages);
 
-      const selectedKeywordId = keywords.find((k) => k.keyword === selectedKeyword)?.id;
-
       const updateStage = (index: number) => {
         setLoadingStages((prev) => {
           const newStages = [...prev];
@@ -273,7 +212,7 @@ export default function ContentSettings() {
         body: JSON.stringify({
           projectId: projectId,
           inputTopic: topic.trim(),
-          keywordId: selectedKeywordId,
+          keywordId: selectedKeyword,
           type: contentType,
           secondaryKeywords: secondaryKeywords.split(',').map((kw) => kw.trim()),
           outline: outline.trim(),
@@ -506,13 +445,8 @@ export default function ContentSettings() {
                 Keyword
               </label>
               <KeywordSelector
-                usedKeywords={usedKeywords}
-                unusedKeywords={unusedKeywords}
                 selectedKeyword={selectedKeyword}
                 onKeywordChange={setSelectedKeyword}
-                onCreateKeyword={createKeyword}
-                isLoading={isLoading}
-                error={error instanceof Error ? error.message : null}
               />
             </div>
 
