@@ -3,16 +3,15 @@ import { supabase } from '@/lib/supabaseClient';
 
 interface Keyword {
   id: string;
-  created_at: string;
-  updated_at: string;
-  project_id: string;
   keyword: string;
   difficulty: number;
-  volume: number;
-  source: string;
+  // volume: number;
+  // source: string;
   intent: string;
   trend: number[];
-  cpc: number;
+  // cpc: number;
+  content_count: any;
+  scheduled_content_count: any;
 }
 
 export const useGetKeywords = (projectId: string | null | undefined) => {
@@ -25,26 +24,28 @@ export const useGetKeywords = (projectId: string | null | undefined) => {
 
       const { data, error } = await supabase
         .from('Keyword')
-        .select('*')
+        .select(
+          `id, keyword, difficulty, trend, intent, content_count:Content!fk_content_keyword(count), scheduled_content_count:ScheduledContent!ScheduledContent_keyword_id_fkey(count)`
+        )
         .eq('project_id', projectId);
 
       if (error) {
         throw new Error(error.message || 'An error occurred while fetching keywords');
       }
 
-      return mapKeywordData(data);
+      return data;
     },
+    select: (data) =>
+      data.map((k) => ({
+        id: k.id,
+        keyword: k.keyword,
+        content_count: k.content_count,
+        difficulty: k.difficulty,
+        trend: k.trend,
+        intent: k.intent,
+        scheduled_content_count: k.scheduled_content_count,
+      })),
     enabled: !!projectId,
     refetchOnWindowFocus: false,
   });
-};
-
-// Optional: Map data for consistency, in case you want to modify or transform certain fields
-const mapKeywordData = (data: Keyword[] | null): Keyword[] => {
-  return (
-    data?.map((item) => ({
-      ...item,
-      trend: item.trend || [],
-    })) || []
-  );
 };

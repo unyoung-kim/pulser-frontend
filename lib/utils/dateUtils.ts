@@ -69,6 +69,6 @@ export function addDays(date: Date, days: number): Date {
 export const toUTC = (d: any) =>
   new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes()));
 
-export const currentDateISO = () => {
-  return new Date().toISOString().slice(0, 16);
+export const DateUTC = (d: any) => {
+  return new Date(d).toISOString().replace('T', ' ').replace('Z', '+00');
 };

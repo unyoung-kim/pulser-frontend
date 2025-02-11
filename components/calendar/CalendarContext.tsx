@@ -54,8 +54,8 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const handleDateClick = (date: Date) => {
     setSelectedEvent(null);
     setIsEventDialogOpen(true);
-    const time = new Date(date);
-    setInitialEventTimes(toUTC(time));
+    const scheduleDate = new Date(date.setHours(12, 0, 0));
+    setInitialEventTimes(scheduleDate);
   };
 
   const handleAddEvent = useCallback(() => {

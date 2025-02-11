@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
 import { Check, ChevronsUpDown, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,41 +12,66 @@ import {
   CommandItem,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useCreateKeywords } from '@/lib/apiHooks/keyword/useCreateKeywords';
+import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
 import { cn } from '@/lib/utils';
+import { filterKeywords } from '@/lib/utils/keyword';
 
 interface KeywordSelectorProps {
-  usedKeywords: string[];
-  unusedKeywords: string[];
   selectedKeyword: string;
   onKeywordChange: (keyword: string) => void;
-  onCreateKeyword: (keyword: string) => void;
-  isLoading?: boolean;
-  error?: string | null;
 }
 
 export default function KeywordSelector({
-  usedKeywords,
-  unusedKeywords,
   selectedKeyword,
   onKeywordChange,
-  onCreateKeyword,
-  isLoading,
-  error,
 }: KeywordSelectorProps) {
   const [open, setOpen] = useState(false);
+  const [label, setLabel] = useState('');
   const [inputValue, setInputValue] = useState('');
+
+  const { projectId } = useParams() as { projectId: string };
+  const { mutate: onCreateKeyword } = useCreateKeywords(projectId);
+  const { data: keywords = [], isLoading, error } = useGetKeywords(projectId);
+  const usedKeywords = useMemo(() => filterKeywords(keywords, 'used'), [keywords]);
+  const unusedKeywords = useMemo(() => filterKeywords(keywords, 'unused'), [keywords]);
+  const scheduledKeywords = useMemo(() => filterKeywords(keywords, 'scheduled'), [keywords]);
+
+  useEffect(() => {
+    if (selectedKeyword) {
+      const word = keywords.find((k) => k.id === selectedKeyword)?.keyword;
+      setLabel(word ?? '');
+    }
+  }, [keywords, selectedKeyword]);
 
   if (isLoading) {
     return <div className="text-sm text-muted-foreground">Loading keywords...</div>;
   }
 
   if (error) {
-    return <div className="text-sm text-red-500">Error: {error}</div>;
+    return (
+      <div className="text-sm text-red-500">
+        Error: {error instanceof Error ? error.message : null}
+      </div>
+    );
   }
 
+  const handleKeywordSelect = (currentValue: string, keywordLabel: string) => {
+    if (currentValue !== selectedKeyword) {
+      onKeywordChange(currentValue);
+      setLabel(keywordLabel);
+    } else {
+      onKeywordChange('');
+      setLabel('');
+    }
+    setOpen(false);
+  };
+
   const createKeyword = (newKeyword: string) => {
-    onCreateKeyword(newKeyword);
+    onCreateKeyword({ keyword: newKeyword });
     onKeywordChange(newKeyword);
+    setLabel(newKeyword);
+    setInputValue('');
     setOpen(false);
   };
 
@@ -56,13 +82,14 @@ export default function KeywordSelector({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className="w-full justify-between capitalize"
+          onClick={() => (document.body.style.pointerEvents = '')}
         >
-          {selectedKeyword || 'Select keyword...'}
+          {label || 'Select keyword...'}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0 capitalize" align="start">
         <Command className="w-full">
           <CommandInput
             placeholder="Search keyword..."
@@ -82,50 +109,57 @@ export default function KeywordSelector({
           <CommandGroup heading={`Unused (${unusedKeywords.length})`}>
             {unusedKeywords.map((keyword) => (
               <CommandItem
-                key={keyword}
-                value={keyword}
-                onSelect={(currentValue) => {
-                  onKeywordChange(currentValue === selectedKeyword ? '' : currentValue);
-                  setOpen(false);
-                }}
+                key={keyword.value}
+                value={keyword.value}
+                onSelect={(currentValue) => handleKeywordSelect(currentValue, keyword.label)}
               >
                 <Check
                   className={cn(
                     'mr-2 h-4 w-4',
-                    selectedKeyword.toLowerCase() === keyword.toLowerCase()
-                      ? 'opacity-100'
-                      : 'opacity-0'
+                    selectedKeyword === keyword.value ? 'opacity-100' : 'opacity-0'
                   )}
                 />
-                {keyword}
+                {keyword.label}
               </CommandItem>
             ))}
           </CommandGroup>
           <CommandGroup heading={`Used (${usedKeywords.length})`}>
             {usedKeywords.map((keyword) => (
               <CommandItem
-                key={keyword}
-                value={keyword}
-                onSelect={(currentValue) => {
-                  onKeywordChange(currentValue === selectedKeyword ? '' : currentValue);
-                  setOpen(false);
-                }}
+                key={keyword.value}
+                value={keyword.value}
+                onSelect={(currentValue) => handleKeywordSelect(currentValue, keyword.label)}
               >
                 <Check
                   className={cn(
                     'mr-2 h-4 w-4',
-                    selectedKeyword.toLowerCase() === keyword.toLowerCase()
-                      ? 'opacity-100'
-                      : 'opacity-0'
+                    selectedKeyword === keyword.value ? 'opacity-100' : 'opacity-0'
                   )}
                 />
-                {keyword}
+                {keyword.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+          <CommandGroup heading={`Scheduled (${scheduledKeywords.length})`}>
+            {scheduledKeywords.map((keyword) => (
+              <CommandItem
+                key={keyword.value}
+                value={keyword.value}
+                onSelect={(currentValue) => handleKeywordSelect(currentValue, keyword.label)}
+              >
+                <Check
+                  className={cn(
+                    'mr-2 h-4 w-4',
+                    selectedKeyword === keyword.value ? 'opacity-100' : 'opacity-0'
+                  )}
+                />
+                {keyword.label}
               </CommandItem>
             ))}
           </CommandGroup>
           {inputValue &&
-            ![...usedKeywords, ...unusedKeywords].some(
-              (k) => k.toLowerCase() === inputValue.toLowerCase()
+            ![...usedKeywords, ...unusedKeywords, ...scheduledKeywords].some(
+              (k) => k.label.toLowerCase() == inputValue.toLowerCase()
             ) && (
               <CommandGroup>
                 <CommandItem

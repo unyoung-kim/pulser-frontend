@@ -4,12 +4,12 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 
 export type KeywordData = {
-  cpc: number;
+  cpc?: number;
   keyword: string;
-  difficulty: number;
-  volume: number;
-  intent: 'COMMERCIAL' | 'INFORMATIONAL' | 'NAVIGATIONAL' | 'TRANSACTIONAL';
-  trend: number[];
+  difficulty?: number;
+  volume?: number;
+  intent?: 'COMMERCIAL' | 'INFORMATIONAL' | 'NAVIGATIONAL' | 'TRANSACTIONAL';
+  trend?: number[];
 };
 
 export const useCreateKeywords = (projectId: string) => {
@@ -17,15 +17,17 @@ export const useCreateKeywords = (projectId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (keywords: KeywordData[]) => {
-      const keywordsToInsert = keywords.map((keyword) => ({
+    mutationFn: async (keywords: KeywordData | KeywordData[]) => {
+      const keywordsArray = Array.isArray(keywords) ? keywords : [keywords];
+
+      const keywordsToInsert = keywordsArray.map((keyword) => ({
         project_id: projectId,
         keyword: keyword.keyword,
-        cpc: parseFloat(keyword.cpc.toString()),
-        difficulty: parseInt(keyword.difficulty.toString()),
-        volume: parseInt(keyword.volume.toString()),
-        intent: keyword.intent.toUpperCase(),
-        trend: keyword.trend,
+        cpc: keyword.cpc ? parseFloat(keyword.cpc.toString()) : null,
+        difficulty: keyword.difficulty ? parseInt(keyword.difficulty.toString()) : null,
+        volume: keyword.volume ? parseInt(keyword.volume.toString()) : null,
+        intent: keyword.intent ? keyword.intent.toUpperCase() : null,
+        trend: keyword.trend || [],
         source: 'PULSER',
       }));
 
@@ -40,7 +42,7 @@ export const useCreateKeywords = (projectId: string) => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['keywords', projectId] });
+      queryClient.invalidateQueries({ queryKey: ['getKeywords', projectId] });
       toast({
         title: '🎉 Success',
         description: 'Keywords saved successfully',
