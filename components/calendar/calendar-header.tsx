@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCalendar } from '@/components/calendar/CalendarContext';
 import { Button } from '@/components/ui/button';
 
@@ -46,7 +46,8 @@ export function CalendarHeader() {
         </div>
       </div>
       <Button onClick={createEvent} className="bg-indigo-600 hover:bg-indigo-700">
-        Add new
+        <Calendar className="mr-2 h-4 w-4" />
+        Schedule Content
       </Button>
     </div>
   );

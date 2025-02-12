@@ -9,7 +9,9 @@ export default function CalendarPage() {
       <div className="space-y-6">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">Content Planner</h1>
-          <p className="text-muted-foreground"></p>
+          <p className="text-muted-foreground">
+            Schedule your content creation and Pulser will generate the content for you.
+          </p>
         </div>
 
         <Separator className="" />
