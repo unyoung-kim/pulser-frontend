@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useCalendar } from '@/components/calendar/CalendarContext';
 import KeywordSelector from '@/components/content/KeywordInput';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DateTimePicker24h } from '@/components/ui/DateTimePicker24h';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -25,6 +26,8 @@ import { useAddEvent } from '@/lib/apiHooks/calendar/useAddEvent';
 import { useDeleteEvent } from '@/lib/apiHooks/calendar/useDeleteEvent';
 import { useUpdateEvent } from '@/lib/apiHooks/calendar/useUpdateEvent';
 import { useCreateKeywords } from '@/lib/apiHooks/keyword/useCreateKeywords';
+import { cn } from '@/lib/utils';
+import { getStatusColor } from '@/lib/utils/calendarUtils';
 import { DateUTC } from '@/lib/utils/dateUtils';
 
 const formSchema = z.object({
@@ -115,9 +118,21 @@ export function EventDialog() {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold">
-            {selectedEvent ? 'Edit Event' : 'Create Event'}
-          </DialogTitle>
+          <div className="flex items-start gap-4">
+            <DialogTitle className="text-2xl font-semibold">
+              {selectedEvent ? 'Edit Event' : 'Create Event'}
+            </DialogTitle>
+            {selectedEvent?.status && (
+              <Badge
+                className={cn(
+                  getStatusColor(selectedEvent?.status as string),
+                  'px-2 py-1 font-medium capitalize'
+                )}
+              >
+                {selectedEvent?.status?.toLowerCase()}
+              </Badge>
+            )}
+          </div>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -209,6 +224,7 @@ export function EventDialog() {
                   variant="outline"
                   onClick={handleEventDelete}
                   className="text-red-500 hover:bg-red-50 hover:text-red-700"
+                  disabled={selectedEvent?.status === 'COMPLETED'}
                 >
                   <TrashIcon className="mr-2 h-4 w-4" />
                   Delete
@@ -218,7 +234,11 @@ export function EventDialog() {
                 <Button type="button" variant="outline" onClick={handleCancel}>
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-indigo-600 text-white hover:bg-indigo-700">
+                <Button
+                  type="submit"
+                  className="bg-indigo-600 text-white hover:bg-indigo-700"
+                  disabled={selectedEvent?.status === 'COMPLETED'}
+                >
                   {selectedEvent ? 'Update' : 'Create'}
                 </Button>
               </div>

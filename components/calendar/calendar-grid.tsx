@@ -18,7 +18,7 @@ import { useGetEvents } from '@/lib/apiHooks/calendar/useGetEvents';
 import { useUpdateEvent } from '@/lib/apiHooks/calendar/useUpdateEvent';
 import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
 import { cn } from '@/lib/utils';
-import { getRandomColor } from '@/lib/utils/calendarUtils';
+import { getLabelColor } from '@/lib/utils/calendarUtils';
 import { DateUTC, getWeekDays, toUTC } from '@/lib/utils/dateUtils';
 
 export function CalendarGrid({}) {
@@ -147,10 +147,15 @@ export function CalendarGrid({}) {
                   >
                     <div
                       className="h-4 w-1 rounded-full"
-                      style={{ backgroundColor: getRandomColor() }}
+                      style={{ backgroundColor: getLabelColor(event.status as string) }}
                     />
-                    <span className="truncate capitalize">
-                      {keywords.find((k) => k.id === event.keyword_id)?.keyword}
+                    <span
+                      className={cn(
+                        'truncate capitalize',
+                        event.status === 'COMPLETED' ? 'line-through' : ''
+                      )}
+                    >
+                      {keywords.find((k) => k.id === event.keyword_id)?.keyword || event.topic}
                     </span>
                   </motion.div>
                 ))}
