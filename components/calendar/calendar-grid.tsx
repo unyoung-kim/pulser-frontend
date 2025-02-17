@@ -104,7 +104,9 @@ export function CalendarGrid({}) {
               transition={{ delay: index * 0.01 }}
               className={cn(
                 'relative min-h-[120px] border-b border-r bg-white/40 p-2',
-                !isCurrentMonth && 'bg-muted/5'
+                !isCurrentMonth && 'bg-muted/5',
+                (isCurrentMonth || date > currentDate) &&
+                  'transition-all duration-200 hover:bg-white/70 hover:shadow-md'
               )}
               onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
