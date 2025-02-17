@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
-import { CalendarDays, Users2, Rocket, LifeBuoy } from 'lucide-react';
-import BackgroundForm2 from '@/components/background/Form';
+import { LifeBuoy, Rocket } from 'lucide-react';
 import { Sidebar } from '@/components/dashboard/sidebar';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -67,7 +66,7 @@ export default function TutorialPage() {
                       }}
                     >
                       <iframe
-                        src="https://www.loom.com/embed/2ca8fa0b1f9749cda2c329ae04b764e6?sid=eab3d40d-b378-49ac-b6fa-b582e618d69a"
+                        src="https://www.loom.com/embed/37952ce0a09b42dfa8b1c42c46728e48?sid=0d0dfcfe-92e6-4751-95c4-3f7ea1f0bfd6"
                         frameBorder="0"
                         allow="fullscreen"
                         allowFullScreen
