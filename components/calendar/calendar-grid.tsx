@@ -18,7 +18,7 @@ import { useGetEvents } from '@/lib/apiHooks/calendar/useGetEvents';
 import { useUpdateEvent } from '@/lib/apiHooks/calendar/useUpdateEvent';
 import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
 import { cn } from '@/lib/utils';
-import { getRandomColor } from '@/lib/utils/calendarUtils';
+import { getLabelColor } from '@/lib/utils/calendarUtils';
 import { DateUTC, getWeekDays, toUTC } from '@/lib/utils/dateUtils';
 
 export function CalendarGrid({}) {
@@ -104,7 +104,9 @@ export function CalendarGrid({}) {
               transition={{ delay: index * 0.01 }}
               className={cn(
                 'relative min-h-[120px] border-b border-r bg-white/40 p-2',
-                !isCurrentMonth && 'bg-muted/5'
+                !isCurrentMonth && 'bg-muted/5',
+                (isCurrentMonth || date > currentDate) &&
+                  'transition-all duration-200 hover:bg-white/70 hover:shadow-md'
               )}
               onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
@@ -147,10 +149,15 @@ export function CalendarGrid({}) {
                   >
                     <div
                       className="h-4 w-1 rounded-full"
-                      style={{ backgroundColor: getRandomColor() }}
+                      style={{ backgroundColor: getLabelColor(event.status as string) }}
                     />
-                    <span className="truncate capitalize">
-                      {keywords.find((k) => k.id === event.keyword_id)?.keyword}
+                    <span
+                      className={cn(
+                        'truncate capitalize',
+                        event.status === 'COMPLETED' ? 'line-through' : ''
+                      )}
+                    >
+                      {keywords.find((k) => k.id === event.keyword_id)?.keyword || event.topic}
                     </span>
                   </motion.div>
                 ))}
