@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Activity, Gift, Linkedin, Search, Twitter, Users } from 'lucide-react';
+import { Activity, Check, Gift, Linkedin, Loader2, Search, Twitter, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -14,22 +14,75 @@ interface SurveyModalProps {
   onConfirm: (source: string, referralCode: string) => void;
 }
 
+const COUPON_CODE_LIST = new Set([
+  'QXD12D',
+  'JKT45Z',
+  'LNP78X',
+  'ZQR34C',
+  'XDF91T',
+  'VBG63M',
+  'PKT29W',
+  'TYH84P',
+  'WQM57K',
+  'NZX32L',
+]);
+
+const sources = [
+  {
+    id: 'linkedin',
+    label: 'LinkedIn',
+    icon: <Linkedin className="h-5 w-5 text-[#0A66C2]" />,
+  },
+  {
+    id: 'google',
+    label: 'Google Search',
+    icon: <Search className="h-5 w-5 text-[#4285F4]" />,
+  },
+  { id: 'x', label: 'X (Twitter)', icon: <Twitter className="h-5 w-5" /> },
+  {
+    id: 'friend',
+    label: 'From a friend',
+    icon: <Users className="h-5 w-5 text-indigo-600" />,
+  },
+  {
+    id: 'other',
+    label: 'Other',
+    icon: (
+      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-200">?</div>
+    ),
+  },
+];
+
 export default function SurveyModal({ isOpen, onClose, onConfirm }: SurveyModalProps) {
   const [referralCode, setReferralCode] = useState('');
   const [source, setSource] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
+  const [isValidCode, setIsValidCode] = useState<boolean | null>(null);
 
   const handleConfirm = () => {
-    if (!source) {
-      return; // Don't allow confirmation without source
-    }
-    onConfirm(source, referralCode);
+    if (!source || isValidCode === false) return;
+    onConfirm(source, isValidCode ? referralCode : '');
   };
 
-  // Disable the close button if no source is selected
   const handleClose = () => {
-    if (source) {
-      onClose();
+    if (source) onClose();
+  };
+
+  const handleReferralCodeChange = (code: string) => {
+    setReferralCode(code);
+
+    if (!code.trim()) {
+      setIsValidCode(null);
+      return;
     }
+
+    setIsValidating(true);
+
+    setTimeout(() => {
+      const isValid = COUPON_CODE_LIST.has(code.toUpperCase());
+      setIsValidCode(isValid);
+      setIsValidating(false);
+    }, 500);
   };
 
   return (
@@ -50,62 +103,19 @@ export default function SurveyModal({ isOpen, onClose, onConfirm }: SurveyModalP
           <div className="space-y-4">
             <Label className="text-base font-medium">How did you find Pulser?</Label>
             <RadioGroup value={source} onValueChange={setSource} className="space-y-1">
-              <Label
-                htmlFor="linkedin"
-                className="flex cursor-pointer items-center space-x-2 rounded-lg border-2 border-transparent p-3 transition-colors hover:border-gray-200"
-              >
-                <RadioGroupItem value="linkedin" id="linkedin" />
-                <div className="flex items-center gap-2">
-                  <Linkedin className="h-5 w-5 text-[#0A66C2]" />
-                  <span>LinkedIn</span>
-                </div>
-              </Label>
-
-              <Label
-                htmlFor="google"
-                className="flex cursor-pointer items-center space-x-2 rounded-lg border-2 border-transparent p-3 transition-colors hover:border-gray-200"
-              >
-                <RadioGroupItem value="google" id="google" />
-                <div className="flex items-center gap-2">
-                  <Search className="h-5 w-5 text-[#4285F4]" />
-                  <span>Google Search</span>
-                </div>
-              </Label>
-
-              <Label
-                htmlFor="x"
-                className="flex cursor-pointer items-center space-x-2 rounded-lg border-2 border-transparent p-3 transition-colors hover:border-gray-200"
-              >
-                <RadioGroupItem value="x" id="x" />
-                <div className="flex items-center gap-2">
-                  <Twitter className="h-5 w-5" />
-                  <span>X (Twitter)</span>
-                </div>
-              </Label>
-
-              <Label
-                htmlFor="friend"
-                className="flex cursor-pointer items-center space-x-2 rounded-lg border-2 border-transparent p-3 transition-colors hover:border-gray-200"
-              >
-                <RadioGroupItem value="friend" id="friend" />
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-indigo-600" />
-                  <span>From a friend</span>
-                </div>
-              </Label>
-
-              <Label
-                htmlFor="other"
-                className="flex cursor-pointer items-center space-x-2 rounded-lg border-2 border-transparent p-3 transition-colors hover:border-gray-200"
-              >
-                <RadioGroupItem value="other" id="other" />
-                <div className="flex items-center gap-2">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-200">
-                    <span className="text-sm">?</span>
+              {sources.map(({ id, label, icon }) => (
+                <Label
+                  key={id}
+                  htmlFor={id}
+                  className="flex cursor-pointer items-center space-x-2 rounded-lg border-2 border-transparent p-3 transition-colors hover:border-gray-200"
+                >
+                  <RadioGroupItem value={id} id={id} />
+                  <div className="flex items-center gap-2">
+                    {icon}
+                    <span>{label}</span>
                   </div>
-                  <span>Other</span>
-                </div>
-              </Label>
+                </Label>
+              ))}
             </RadioGroup>
           </div>
 
@@ -114,12 +124,28 @@ export default function SurveyModal({ isOpen, onClose, onConfirm }: SurveyModalP
               <Gift className="h-5 w-5 text-blue-600" />
               <span className="font-medium">Have a Referral Code?</span>
             </div>
-            <Input
-              placeholder="ENTER CODE"
-              value={referralCode}
-              onChange={(e) => setReferralCode(e.target.value)}
-              className="border-2"
-            />
+            <div className="relative">
+              <Input
+                placeholder="ENTER CODE"
+                value={referralCode}
+                onChange={(e) => handleReferralCodeChange(e.target.value)}
+                className="pr-10"
+                maxLength={6}
+              />
+              {isValidating && (
+                <Loader2 className="absolute right-3 top-2 h-5 w-5 animate-spin text-gray-400" />
+              )}
+              {isValidCode && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-green-500 p-0.5">
+                  <Check className="h-4 w-4 text-white" />
+                </div>
+              )}
+            </div>
+            {isValidCode === false && (
+              <p className="text-sm font-medium text-red-600">
+                Invalid referral code. Please try again.
+              </p>
+            )}
             <p className="text-sm font-medium text-green-600">
               Use a referral code and get 20% more credits for your lifetime!
             </p>
