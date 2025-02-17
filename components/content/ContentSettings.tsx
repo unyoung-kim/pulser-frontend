@@ -1,27 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useAuth } from '@clerk/nextjs';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import {
-  Activity,
-  AlertTriangle,
-  ArrowLeft,
-  BookText,
-  ChevronDown,
-  FileText,
-  Layout,
-  Lightbulb,
-  ListTree,
-  Loader2,
-  Pencil,
-  Settings2,
-  Sparkles,
-  Tag,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -40,9 +18,34 @@ import { useToast } from '@/hooks/use-toast';
 import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
 import { supabase } from '@/lib/supabaseClient';
 import { cn } from '@/lib/utils';
-import KeywordSelector from './KeywordInput';
+import { useAuth } from '@clerk/nextjs';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import {
+  Activity,
+  AlertTriangle,
+  ArrowLeft,
+  BookText,
+  ChevronDown,
+  FileText,
+  Layout,
+  Lightbulb,
+  ListTree,
+  Loader2,
+  Pencil,
+  Settings2,
+  Sparkles,
+  Tag,
+  Type,
+  Upload,
+  X,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea2';
+import KeywordSelector from './KeywordInput';
 
 type LoadingStage = {
   label: string;
@@ -72,7 +75,7 @@ export default function ContentSettings() {
   const { toast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
   const [topic, setTopic] = useState('');
-  const [contentType, setContentType] = useState<'NORMAL' | 'GLOSSARY'>('NORMAL');
+  const [contentType, setContentType] = useState<'NORMAL' | 'GLOSSARY' | 'FILES'>('NORMAL');
   const [selectedKeyword, setSelectedKeyword] = useState('');
   const [isLoadingTopics, setIsLoadingTopics] = useState(false);
   const [topicSuggestions, setTopicSuggestions] = useState<string[]>([]);
@@ -84,6 +87,16 @@ export default function ContentSettings() {
   const [outline, setOutline] = useState('');
   const [postLength, setPostLength] = useState<'SHORT' | 'LONG'>('LONG');
   const { orgId } = useAuth();
+  const [contentItems, setContentItems] = useState<
+    Array<{
+      type: 'file' | 'text';
+      content: string;
+      instructions: string;
+      title: string;
+    }>
+  >([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [pastedText, setPastedText] = useState('');
 
   useEffect(() => {
     setWordCount(contentType === 'NORMAL' ? 2500 : 1000);
@@ -346,9 +359,68 @@ export default function ContentSettings() {
   const requiredCredits = contentType === 'NORMAL' ? 3 : 1;
   const hasEnoughCredits = remainingCredits >= requiredCredits;
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    droppedFiles.forEach((file) => {
+      setContentItems((prev) => [
+        ...prev,
+        { type: 'file', content: file.name, instructions: '', title: '' },
+      ]);
+    });
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      selectedFiles.forEach((file) => {
+        setContentItems((prev) => [
+          ...prev,
+          { type: 'file', content: file.name, instructions: '', title: '' },
+        ]);
+      });
+    }
+  };
+
+  const handleTextSubmit = () => {
+    if (pastedText.trim()) {
+      setContentItems((prev) => [
+        ...prev,
+        { type: 'text', content: pastedText, instructions: '', title: '' },
+      ]);
+      setPastedText('');
+    }
+  };
+
+  const removeItem = (index: number) => {
+    setContentItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateInstructions = (index: number, instructions: string) => {
+    setContentItems((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, instructions } : item))
+    );
+  };
+
+  const updateTitle = (index: number, title: string) => {
+    setContentItems((prev) => prev.map((item, i) => (i === index ? { ...item, title } : item)));
+  };
+
   return (
     <div className="flex w-full justify-center bg-gray-50/50">
-      <div className="w-full max-w-3xl py-10">
+      <div className="w-full max-w-4xl py-10">
         <div className="mb-6">
           <div className="mb-4 flex items-center gap-4">
             <div className="flex items-center gap-2 text-sm">
@@ -397,7 +469,7 @@ export default function ContentSettings() {
               <RadioGroup
                 defaultValue="normal"
                 value={contentType}
-                onValueChange={(value: 'NORMAL' | 'GLOSSARY') => setContentType(value)}
+                onValueChange={(value: 'NORMAL' | 'GLOSSARY' | 'FILES') => setContentType(value)}
                 className="flex flex-col gap-4 sm:flex-row"
               >
                 <Label
@@ -436,122 +508,207 @@ export default function ContentSettings() {
                     </div>
                   </div>
                 </Label>
+                <Label
+                  htmlFor="files"
+                  className="flex flex-1 cursor-pointer items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600"
+                >
+                  <RadioGroupItem value="FILES" id="files" className="mt-1" />
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <Upload className="h-5 w-5" />
+                      <span className="font-medium">Files to Article</span>
+                      <Badge variant="secondary" className="bg-gray-100 hover:bg-gray-100">
+                        3 Credits
+                      </Badge>
+                    </div>
+                    <div className="mt-1 text-sm text-muted-foreground">
+                      Convert files or text into a blog article
+                    </div>
+                  </div>
+                </Label>
               </RadioGroup>
             </div>
 
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <Tag className="h-4 w-4 text-indigo-600" />
-                Keyword
-              </label>
-              <KeywordSelector
-                selectedKeyword={selectedKeyword}
-                onKeywordChange={setSelectedKeyword}
-              />
-            </div>
+            <Separator className="my-6" />
 
-            {topicSuggestionsSection}
+            {contentType === 'FILES' && (
+              <div className="space-y-6">
+                <p className="text-sm text-muted-foreground">
+                  We&apos;ll analyze your source content and transform it into an SEO-optimized blog
+                  article while maintaining the key information and context.
+                </p>
+
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <div className="mb-4 flex items-center gap-2">
+                      <Upload className="h-5 w-5 text-indigo-600" />
+                      <h2 className="text-lg font-semibold">Upload Files</h2>
+                    </div>
+
+                    <div
+                      className={`rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+                        isDragging ? 'border-indigo-600 bg-indigo-50' : 'border-muted-foreground/25'
+                      }`}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                    >
+                      <Input
+                        type="file"
+                        multiple
+                        className="hidden"
+                        onChange={handleFileInput}
+                        id="file-upload"
+                      />
+                      <Label
+                        htmlFor="file-upload"
+                        className="flex cursor-pointer flex-col items-center gap-2"
+                      >
+                        <Upload className="h-10 w-10 text-muted-foreground" />
+                        <p className="text-lg font-medium">Drop files here or click to upload</p>
+                        <p className="text-sm text-muted-foreground">
+                          Supports documents, PDFs, and text files
+                        </p>
+                      </Label>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted font-bold text-muted-foreground">
+                      OR
+                    </div>
+                  </div>
+
+                  <div className="flex-1">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Type className="h-5 w-5 text-indigo-600" />
+                        <h2 className="text-lg font-semibold">Paste Text</h2>
+                      </div>
+                      <Button
+                        onClick={handleTextSubmit}
+                        // className="bg-indigo-600 hover:bg-indigo-700"
+                        variant="outline"
+                      >
+                        Add Text
+                      </Button>
+                    </div>
+                    <Textarea
+                      placeholder="Paste your text here..."
+                      value={pastedText}
+                      onChange={(e) => setPastedText(e.target.value)}
+                      className="max-h-[165px] min-h-[165px] flex-1"
+                    />
+                  </div>
+                </div>
+
+                {contentItems.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-semibold">Uploaded Content</h3>
+                      <Badge variant="secondary" className="bg-gray-100">
+                        {contentItems.length}
+                      </Badge>
+                    </div>
+                    {contentItems.map((item, index) => (
+                      <Card key={index} className="space-y-2 p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {item.type === 'file' ? (
+                              <FileText className="h-4 w-4" />
+                            ) : (
+                              <Type className="h-4 w-4" />
+                            )}
+                            <span className="max-w-[300px] truncate font-medium">
+                              {item.content}
+                            </span>
+                          </div>
+                          <Button variant="ghost" size="icon" onClick={() => removeItem(index)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <Input
+                          placeholder="(Optional) Add a title for this content..."
+                          value={item.title}
+                          onChange={(e) => updateTitle(index, e.target.value)}
+                          className="mt-2"
+                        />
+                        <Textarea
+                          placeholder="(Optional) Add instructions for this content..."
+                          value={item.instructions}
+                          onChange={(e) => updateInstructions(index, e.target.value)}
+                          className="mt-2"
+                        />
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {contentType !== 'FILES' && (
+              <>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <Tag className="h-4 w-4 text-indigo-600" />
+                    Keyword
+                  </label>
+                  <KeywordSelector
+                    selectedKeyword={selectedKeyword}
+                    onKeywordChange={setSelectedKeyword}
+                  />
+                </div>
+
+                {topicSuggestionsSection}
+              </>
+            )}
           </CardContent>
         </Card>
 
-        <Card className="mt-4 border-none shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Settings2 className="h-5 w-5 text-muted-foreground" />
-              <span className="font-semibold">Advanced Settings</span>
-              <Badge variant="secondary" className="text-xs font-normal text-muted-foreground">
-                Optional
-              </Badge>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
-              className="text-indigo-600"
-            >
-              <ChevronDown
-                className={`h-4 w-4 transition-transform duration-200 ${
-                  isAdvancedOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </Button>
-          </CardHeader>
-          {isAdvancedOpen && (
-            <CardContent className="space-y-6">
-              {/* {contentType === 'NORMAL' && (
+        {contentType !== 'FILES' && (
+          <Card className="mt-4 border-none shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Settings2 className="h-5 w-5 text-muted-foreground" />
+                <span className="font-semibold">Advanced Settings</span>
+                <Badge variant="secondary" className="text-xs font-normal text-muted-foreground">
+                  Optional
+                </Badge>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+                className="text-indigo-600"
+              >
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform duration-200 ${
+                    isAdvancedOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </Button>
+            </CardHeader>
+            {isAdvancedOpen && (
+              <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2 text-sm font-medium">
                     <FileText className="h-4 w-4 text-indigo-600" />
-                    Post Length
+                    Instructions / Outline
                   </Label>
+                  <Textarea
+                    value={outline}
+                    onChange={(e) => setOutline(e.target.value)}
+                    className="min-h-[100px] border-indigo-100 focus-visible:ring-indigo-600"
+                    placeholder="Optional: Add specific instructions or outline for the content..."
+                  />
                   <p className="text-sm text-muted-foreground">
-                    Choose the length of your blog post. This will affect the overall structure and
-                    depth of the content.
+                    Add any specific requirements or outline for the content structure
                   </p>
-                  <RadioGroup
-                    defaultValue="LONG"
-                    value={postLength}
-                    onValueChange={(value: 'SHORT' | 'LONG') => setPostLength(value)}
-                    className="flex flex-col gap-4 sm:flex-row"
-                  >
-                    <Label
-                      htmlFor="long"
-                      className="flex flex-1 cursor-pointer items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600"
-                    >
-                      <RadioGroupItem value="LONG" id="long" className="mt-1" />
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <Activity className="h-5 w-5" />
-                          <span className="font-medium">Long</span>
-                          <Badge
-                            variant="secondary"
-                            className="ml-2 bg-indigo-100 text-indigo-700 hover:bg-indigo-100"
-                          >
-                            Recommended for SEO
-                          </Badge>
-                        </div>
-                        <div className="mt-1 text-sm text-muted-foreground">
-                          Covers the main topic and other related topics (2500+ words)
-                        </div>
-                      </div>
-                    </Label>
-                    <Label
-                      htmlFor="short"
-                      className="flex flex-1 cursor-pointer items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600"
-                    >
-                      <RadioGroupItem value="SHORT" id="short" className="mt-1" />
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <FileText className="h-5 w-5" />
-                          <span className="font-medium">Short</span>
-                        </div>
-                        <div className="mt-1 text-sm text-muted-foreground">
-                          Only covers the main topic (1000-1500 words)
-                        </div>
-                      </div>
-                    </Label>
-                  </RadioGroup>
                 </div>
-              )} */}
-
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-sm font-medium">
-                  <FileText className="h-4 w-4 text-indigo-600" />
-                  Instructions / Outline
-                </Label>
-                <Textarea
-                  value={outline}
-                  onChange={(e) => setOutline(e.target.value)}
-                  className="min-h-[100px] border-indigo-100 focus-visible:ring-indigo-600"
-                  placeholder="Optional: Add specific instructions or outline for the content..."
-                />
-                <p className="text-sm text-muted-foreground">
-                  Add any specific requirements or outline for the content structure
-                </p>
-              </div>
-            </CardContent>
-          )}
-        </Card>
+              </CardContent>
+            )}
+          </Card>
+        )}
 
         <div className="mt-6 flex flex-col gap-4">
           <p className="text-center text-sm text-muted-foreground">
@@ -587,14 +744,6 @@ export default function ContentSettings() {
             <DialogHeader>
               <div className="flex items-center justify-between">
                 <DialogTitle className="text-2xl font-bold">Generating Content</DialogTitle>
-                {/* <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setShowLoadingModal(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button> */}
               </div>
               <DialogDescription className="text-base">
                 Please don&apos;t leave this page. You can switch browser tabs while we work on your
