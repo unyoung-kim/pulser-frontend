@@ -21,6 +21,7 @@ import {
   Settings2,
   Sparkles,
   Tag,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -35,7 +36,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
-import { generateTopic, webRetrieval } from '@/constants/urlConstant';
+import { generateListicle, generateTopic, webRetrieval } from '@/constants/urlConstant';
 import { useToast } from '@/hooks/use-toast';
 import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
 import { supabase } from '@/lib/supabaseClient';
@@ -72,7 +73,7 @@ export default function ContentSettings() {
   const { toast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
   const [topic, setTopic] = useState('');
-  const [contentType, setContentType] = useState<'NORMAL' | 'GLOSSARY'>('NORMAL');
+  const [contentType, setContentType] = useState<'NORMAL' | 'GLOSSARY' | 'LISTICLES'>('NORMAL');
   const [selectedKeyword, setSelectedKeyword] = useState('');
   const [isLoadingTopics, setIsLoadingTopics] = useState(false);
   const [topicSuggestions, setTopicSuggestions] = useState<string[]>([]);
@@ -84,6 +85,7 @@ export default function ContentSettings() {
   const [outline, setOutline] = useState('');
   const [postLength, setPostLength] = useState<'SHORT' | 'LONG'>('LONG');
   const { orgId } = useAuth();
+  const [listicleTopics, setListicleTopics] = useState<string[]>(['']);
 
   useEffect(() => {
     setWordCount(contentType === 'NORMAL' ? 2500 : 1000);
@@ -145,6 +147,49 @@ export default function ContentSettings() {
   };
 
   const handleCreateContent = async () => {
+    if (contentType === 'LISTICLES') {
+      if (listicleTopics.some((topic) => !topic.trim())) {
+        toast({
+          title: 'Validation Error',
+          description: 'Please fill in all topic fields',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      setIsCreating(true);
+      setShowLoadingModal(true);
+
+      try {
+        const response = await fetch(generateListicle, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            projectId,
+            inputTopics: listicleTopics,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to generate listicles');
+        }
+
+        router.push(`/projects/${projectId}/content`);
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to create listicles. Please try again.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsCreating(false);
+        setShowLoadingModal(false);
+      }
+      return;
+    }
+
     if (!selectedKeyword) {
       toast({
         title: 'Validation Error',
@@ -343,7 +388,17 @@ export default function ContentSettings() {
 
   const totalCredits = usage ? usage.credits_charged + usage.additional_credits_charged : 0;
   const remainingCredits = totalCredits - (usage?.credits_used || 0);
-  const requiredCredits = contentType === 'NORMAL' ? 3 : 1;
+
+  // Add this calculation near the top where other credit calculations are
+  const calculateListicleCredits = (topicCount: number) => topicCount * 3;
+
+  // Update the credit validation
+  const requiredCredits =
+    contentType === 'LISTICLES'
+      ? calculateListicleCredits(listicleTopics.length)
+      : contentType === 'NORMAL'
+        ? 3
+        : 1;
   const hasEnoughCredits = remainingCredits >= requiredCredits;
 
   return (
@@ -397,8 +452,10 @@ export default function ContentSettings() {
               <RadioGroup
                 defaultValue="normal"
                 value={contentType}
-                onValueChange={(value: 'NORMAL' | 'GLOSSARY') => setContentType(value)}
-                className="flex flex-col gap-4 sm:flex-row"
+                onValueChange={(value: 'NORMAL' | 'GLOSSARY' | 'LISTICLES') =>
+                  setContentType(value)
+                }
+                className="grid grid-cols-1 gap-4 sm:grid-cols-2"
               >
                 <Label
                   htmlFor="normal"
@@ -436,122 +493,179 @@ export default function ContentSettings() {
                     </div>
                   </div>
                 </Label>
+                <Label
+                  htmlFor="listicles"
+                  className="flex flex-1 cursor-pointer items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600"
+                >
+                  <RadioGroupItem value="LISTICLES" id="listicles" className="mt-1" />
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <ListTree className="h-5 w-5" />
+                      <span className="font-medium">Listicles</span>
+                      <Badge variant="secondary" className="bg-gray-100 hover:bg-gray-100">
+                        3 Credits
+                      </Badge>
+                    </div>
+                    <div className="mt-1 text-sm text-muted-foreground">
+                      Create engaging list-based articles
+                    </div>
+                  </div>
+                </Label>
               </RadioGroup>
             </div>
 
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <Tag className="h-4 w-4 text-indigo-600" />
-                Keyword
-              </label>
-              <KeywordSelector
-                selectedKeyword={selectedKeyword}
-                onKeywordChange={setSelectedKeyword}
-              />
-            </div>
-
-            {topicSuggestionsSection}
+            {contentType === 'LISTICLES' ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Label className="flex items-center gap-2 text-sm font-medium">
+                      <ListTree className="h-4 w-4 text-indigo-600" />
+                      Listicle Topics
+                    </Label>
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        'bg-gray-100 hover:bg-gray-100',
+                        calculateListicleCredits(listicleTopics.length) > remainingCredits &&
+                          'bg-red-100 text-red-600'
+                      )}
+                    >
+                      {calculateListicleCredits(listicleTopics.length)} Credits
+                    </Badge>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setListicleTopics([...listicleTopics, ''])}
+                    className="text-indigo-600"
+                    disabled={
+                      listicleTopics.length >= 10 ||
+                      calculateListicleCredits(listicleTopics.length + 1) > remainingCredits
+                    }
+                    title={
+                      listicleTopics.length >= 10
+                        ? 'Maximum 10 topics allowed'
+                        : calculateListicleCredits(listicleTopics.length + 1) > remainingCredits
+                          ? 'Not enough credits to add more topics'
+                          : ''
+                    }
+                  >
+                    Add Topic
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Create up to 10 listicle articles at once. Each topic will be generated as a
+                  separate article.
+                </p>
+                <div className="space-y-4 pt-2">
+                  {!hasEnoughCredits && (
+                    <div className="flex items-center gap-2 text-sm text-red-500">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>
+                        You need {requiredCredits} credits for these topics. You have{' '}
+                        {remainingCredits} credits remaining.
+                        <Link
+                          href={`/projects/${projectId}/settings`}
+                          className="text-indigo-600 hover:underline"
+                        >
+                          {' '}
+                          Add more credits
+                        </Link>
+                      </span>
+                    </div>
+                  )}
+                  {listicleTopics.map((topic, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={topic}
+                        onChange={(e) => {
+                          const newTopics = [...listicleTopics];
+                          newTopics[index] = e.target.value;
+                          setListicleTopics(newTopics);
+                        }}
+                        placeholder={`Topic ${index + 1}`}
+                        className="border-indigo-100 focus-visible:ring-indigo-600"
+                      />
+                      {listicleTopics.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            const newTopics = listicleTopics.filter((_, i) => i !== index);
+                            setListicleTopics(newTopics);
+                          }}
+                          className="text-red-500"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <Tag className="h-4 w-4 text-indigo-600" />
+                    Keyword
+                  </label>
+                  <KeywordSelector
+                    selectedKeyword={selectedKeyword}
+                    onKeywordChange={setSelectedKeyword}
+                  />
+                </div>
+                {topicSuggestionsSection}
+              </>
+            )}
           </CardContent>
         </Card>
 
-        <Card className="mt-4 border-none shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Settings2 className="h-5 w-5 text-muted-foreground" />
-              <span className="font-semibold">Advanced Settings</span>
-              <Badge variant="secondary" className="text-xs font-normal text-muted-foreground">
-                Optional
-              </Badge>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
-              className="text-indigo-600"
-            >
-              <ChevronDown
-                className={`h-4 w-4 transition-transform duration-200 ${
-                  isAdvancedOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </Button>
-          </CardHeader>
-          {isAdvancedOpen && (
-            <CardContent className="space-y-6">
-              {/* {contentType === 'NORMAL' && (
+        {/* Only show Advanced Settings card when not in Listicles mode */}
+        {contentType !== 'LISTICLES' && (
+          <Card className="mt-4 border-none shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Settings2 className="h-5 w-5 text-muted-foreground" />
+                <span className="font-semibold">Advanced Settings</span>
+                <Badge variant="secondary" className="text-xs font-normal text-muted-foreground">
+                  Optional
+                </Badge>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+                className="text-indigo-600"
+              >
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform duration-200 ${
+                    isAdvancedOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </Button>
+            </CardHeader>
+            {isAdvancedOpen && (
+              <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2 text-sm font-medium">
                     <FileText className="h-4 w-4 text-indigo-600" />
-                    Post Length
+                    Instructions / Outline
                   </Label>
+                  <Textarea
+                    value={outline}
+                    onChange={(e) => setOutline(e.target.value)}
+                    className="min-h-[100px] border-indigo-100 focus-visible:ring-indigo-600"
+                    placeholder="Optional: Add specific instructions or outline for the content..."
+                  />
                   <p className="text-sm text-muted-foreground">
-                    Choose the length of your blog post. This will affect the overall structure and
-                    depth of the content.
+                    Add any specific requirements or outline for the content structure
                   </p>
-                  <RadioGroup
-                    defaultValue="LONG"
-                    value={postLength}
-                    onValueChange={(value: 'SHORT' | 'LONG') => setPostLength(value)}
-                    className="flex flex-col gap-4 sm:flex-row"
-                  >
-                    <Label
-                      htmlFor="long"
-                      className="flex flex-1 cursor-pointer items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600"
-                    >
-                      <RadioGroupItem value="LONG" id="long" className="mt-1" />
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <Activity className="h-5 w-5" />
-                          <span className="font-medium">Long</span>
-                          <Badge
-                            variant="secondary"
-                            className="ml-2 bg-indigo-100 text-indigo-700 hover:bg-indigo-100"
-                          >
-                            Recommended for SEO
-                          </Badge>
-                        </div>
-                        <div className="mt-1 text-sm text-muted-foreground">
-                          Covers the main topic and other related topics (2500+ words)
-                        </div>
-                      </div>
-                    </Label>
-                    <Label
-                      htmlFor="short"
-                      className="flex flex-1 cursor-pointer items-start space-x-3 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-indigo-600"
-                    >
-                      <RadioGroupItem value="SHORT" id="short" className="mt-1" />
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <FileText className="h-5 w-5" />
-                          <span className="font-medium">Short</span>
-                        </div>
-                        <div className="mt-1 text-sm text-muted-foreground">
-                          Only covers the main topic (1000-1500 words)
-                        </div>
-                      </div>
-                    </Label>
-                  </RadioGroup>
                 </div>
-              )} */}
-
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-sm font-medium">
-                  <FileText className="h-4 w-4 text-indigo-600" />
-                  Instructions / Outline
-                </Label>
-                <Textarea
-                  value={outline}
-                  onChange={(e) => setOutline(e.target.value)}
-                  className="min-h-[100px] border-indigo-100 focus-visible:ring-indigo-600"
-                  placeholder="Optional: Add specific instructions or outline for the content..."
-                />
-                <p className="text-sm text-muted-foreground">
-                  Add any specific requirements or outline for the content structure
-                </p>
-              </div>
-            </CardContent>
-          )}
-        </Card>
+              </CardContent>
+            )}
+          </Card>
+        )}
 
         <div className="mt-6 flex flex-col gap-4">
           <p className="text-center text-sm text-muted-foreground">
@@ -569,8 +683,20 @@ export default function ContentSettings() {
             <Button
               className="bg-indigo-600 hover:bg-indigo-700"
               onClick={handleCreateContent}
-              disabled={isCreating || !selectedKeyword || !topic.trim() || !hasEnoughCredits}
-              title={!hasEnoughCredits ? 'Not enough credits available' : ''}
+              disabled={
+                isCreating ||
+                !hasEnoughCredits ||
+                (contentType === 'LISTICLES'
+                  ? listicleTopics.some((topic) => !topic.trim()) // Check if any listicle topic is empty
+                  : !selectedKeyword || !topic.trim()) // Original logic for NORMAL and GLOSSARY
+              }
+              title={
+                !hasEnoughCredits
+                  ? `Need ${requiredCredits} credits, but only have ${remainingCredits} available`
+                  : contentType === 'LISTICLES' && listicleTopics.some((topic) => !topic.trim())
+                    ? 'Please fill in all topic fields'
+                    : ''
+              }
             >
               {isCreating ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -587,14 +713,6 @@ export default function ContentSettings() {
             <DialogHeader>
               <div className="flex items-center justify-between">
                 <DialogTitle className="text-2xl font-bold">Generating Content</DialogTitle>
-                {/* <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setShowLoadingModal(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button> */}
               </div>
               <DialogDescription className="text-base">
                 Please don&apos;t leave this page. You can switch browser tabs while we work on your
