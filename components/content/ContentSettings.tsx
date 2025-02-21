@@ -183,9 +183,9 @@ export default function ContentSettings() {
           description: 'Failed to create listicles. Please try again.',
           variant: 'destructive',
         });
+        setShowLoadingModal(false);
       } finally {
         setIsCreating(false);
-        setShowLoadingModal(false);
       }
       return;
     }
@@ -715,8 +715,17 @@ export default function ContentSettings() {
                 <DialogTitle className="text-2xl font-bold">Generating Content</DialogTitle>
               </div>
               <DialogDescription className="text-base">
-                Please don&apos;t leave this page. You can switch browser tabs while we work on your
-                content. This process may take up to 5 minutes.
+                {contentType === 'LISTICLES' ? (
+                  <>
+                    You can close this modal and{' '}
+                    <span className="font-bold">
+                      we&apos;ll email you once your articles are ready
+                    </span>
+                    .
+                  </>
+                ) : (
+                  'Please don&apos;t leave this page. You can switch browser tabs while we work on your content. This process may take up to 5 minutes.'
+                )}
               </DialogDescription>
             </DialogHeader>
             <div className="mt-4 space-y-4">
