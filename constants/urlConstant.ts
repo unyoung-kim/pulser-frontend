@@ -12,7 +12,7 @@ export const autofillBackgroundUrl = `${BACKEND_URL}/autofill-background`;
 // Content api urls
 export const generateTopic = `${BACKEND_URL}/api/generate-topic`;
 export const webRetrieval = `${BACKEND_URL}/api/web-retrieval`;
-export const generateListicle = `${LOCAL_BACKEND_URL}/api/generate-listicles`;
+export const generateListicle = `${BACKEND_URL}/api/generate-listicles`;
 
 // Keyword api urls
 export const keywordApiUrl = `${BACKEND_URL}/semrush-keyword-broad-match-and-overview`;

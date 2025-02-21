@@ -1,8 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
+import { generateListicle, generateTopic, webRetrieval } from '@/constants/urlConstant';
+import { useToast } from '@/hooks/use-toast';
+import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
+import { supabase } from '@/lib/supabaseClient';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@clerk/nextjs';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -23,27 +38,12 @@ import {
   Tag,
   X,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Separator } from '@/components/ui/separator';
-import { generateListicle, generateTopic, webRetrieval } from '@/constants/urlConstant';
-import { useToast } from '@/hooks/use-toast';
-import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
-import { supabase } from '@/lib/supabaseClient';
-import { cn } from '@/lib/utils';
-import KeywordSelector from './KeywordInput';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea2';
+import KeywordSelector from './KeywordInput';
 
 type LoadingStage = {
   label: string;
@@ -175,8 +175,6 @@ export default function ContentSettings() {
         if (!response.ok) {
           throw new Error('Failed to generate listicles');
         }
-
-        router.push(`/projects/${projectId}/content`);
       } catch (error) {
         toast({
           title: 'Error',
