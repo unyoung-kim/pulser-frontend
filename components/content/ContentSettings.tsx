@@ -1,23 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Separator } from '@/components/ui/separator';
-import { generateListicle, generateTopic, webRetrieval } from '@/constants/urlConstant';
-import { useToast } from '@/hooks/use-toast';
-import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
-import { supabase } from '@/lib/supabaseClient';
-import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -38,12 +23,27 @@ import {
   Tag,
   X,
 } from 'lucide-react';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
+import { generateListicle, generateTopic, webRetrieval } from '@/constants/urlConstant';
+import { useToast } from '@/hooks/use-toast';
+import { useGetKeywords } from '@/lib/apiHooks/keyword/useGetKeywords';
+import { supabase } from '@/lib/supabaseClient';
+import { cn } from '@/lib/utils';
+import KeywordSelector from './KeywordInput';
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea2';
-import KeywordSelector from './KeywordInput';
 
 type LoadingStage = {
   label: string;
@@ -64,6 +64,15 @@ const glossaryLoadingStages: LoadingStage[] = [
   { label: 'Generating an outline', isLoading: true, isComplete: false },
   { label: 'Writing Content', isLoading: false, isComplete: false },
   { label: 'Humanizing Content', isLoading: false, isComplete: false },
+  { label: 'Optimizing for SEO', isLoading: false, isComplete: false },
+];
+
+// Add listicle loading stages configuration
+const listicleLoadingStages: LoadingStage[] = [
+  { label: 'Conducting web research', isLoading: true, isComplete: false },
+  { label: 'Analyzing topics', isLoading: false, isComplete: false },
+  { label: 'Generating outlines', isLoading: false, isComplete: false },
+  { label: 'Writing Content', isLoading: false, isComplete: false },
   { label: 'Optimizing for SEO', isLoading: false, isComplete: false },
 ];
 
@@ -159,8 +168,32 @@ export default function ContentSettings() {
 
       setIsCreating(true);
       setShowLoadingModal(true);
+      setLoadingStages(listicleLoadingStages);
 
       try {
+        // Update stages every 12 seconds (5 stages over 60 seconds)
+        const updateStage = (index: number) => {
+          setLoadingStages((prev) => {
+            const newStages = [...prev];
+            if (index > 0) {
+              newStages[index - 1].isComplete = true;
+              newStages[index - 1].isLoading = false;
+            }
+            if (index < newStages.length) {
+              newStages[index].isLoading = true;
+            }
+            return newStages;
+          });
+        };
+
+        // Start with first stage
+        updateStage(0);
+
+        // Update subsequent stages every 12 seconds
+        for (let i = 1; i < listicleLoadingStages.length; i++) {
+          setTimeout(() => updateStage(i), i * 15000);
+        }
+
         const response = await fetch(generateListicle, {
           method: 'POST',
           headers: {
@@ -175,6 +208,13 @@ export default function ContentSettings() {
         if (!response.ok) {
           throw new Error('Failed to generate listicles');
         }
+
+        // Set a timeout to close the modal after 1 minute
+        setTimeout(() => {
+          setShowLoadingModal(false);
+          setIsCreating(false);
+          router.push(`/projects/${projectId}/content`);
+        }, 60000); // 60000ms = 1 minute
       } catch (error) {
         toast({
           title: 'Error',
@@ -182,7 +222,6 @@ export default function ContentSettings() {
           variant: 'destructive',
         });
         setShowLoadingModal(false);
-      } finally {
         setIsCreating(false);
       }
       return;
@@ -241,7 +280,7 @@ export default function ContentSettings() {
       updateStage(0);
 
       // Update subsequent stages with different timing based on content type
-      const transitionTime = contentType === 'GLOSSARY' ? 6000 : 15000;
+      const transitionTime = contentType === 'GLOSSARY' ? 4000 : 10000;
       for (let i = 1; i < stages.length; i++) {
         setTimeout(() => updateStage(i), i * transitionTime);
       }
@@ -537,12 +576,12 @@ export default function ContentSettings() {
                     onClick={() => setListicleTopics([...listicleTopics, ''])}
                     className="text-indigo-600"
                     disabled={
-                      listicleTopics.length >= 10 ||
+                      listicleTopics.length >= 8 ||
                       calculateListicleCredits(listicleTopics.length + 1) > remainingCredits
                     }
                     title={
-                      listicleTopics.length >= 10
-                        ? 'Maximum 10 topics allowed'
+                      listicleTopics.length >= 8
+                        ? 'Maximum 8 topics allowed'
                         : calculateListicleCredits(listicleTopics.length + 1) > remainingCredits
                           ? 'Not enough credits to add more topics'
                           : ''
@@ -552,7 +591,7 @@ export default function ContentSettings() {
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Create up to 10 listicle articles at once. Each topic will be generated as a
+                  Create up to 8 listicle articles at once. Each topic will be generated as a
                   separate article.
                 </p>
                 <div className="space-y-4 pt-2">
